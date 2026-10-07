@@ -401,10 +401,11 @@ grant execute on function
   public.institution_overview(uuid),
   public.institution_teacher_summaries(uuid),
   public.platform_overview(),
-  public.exhausted_attempts()
+  public.exhausted_attempts(),
+  public.learner_courses(uuid)
 to authenticated;
 
-grant execute on function public.verify_certificate(text) to anon, authenticated;
+grant execute on function public.verify_certificate(text), public.public_platform_info() to anon, authenticated;
 
 -- Server-only functions (service role): explicitly listed for clarity.
 revoke execute on function

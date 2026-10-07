@@ -329,3 +329,31 @@ describe("14. Institutional data isolation", () => {
     expect(await db.as(t1, (q) => q(`select 1 from public.institution_memberships where user_id = $1`, [t2]))).toHaveLength(0);
   });
 });
+
+describe("learner_courses() batch summary", () => {
+  it("returns separate measures and the lesson to resume, scoped like RLS", async () => {
+    const assigned = await buildCourse(db, admin, SIMPLE);
+    const personal = await buildCourse(db, admin, SIMPLE);
+    const { inst, director } = await institutionWithAdmin();
+    const teacher = await addTeacher(inst, director);
+    await db.rpc(admin, "grant_course_to_institution", [assigned.courseId, inst]);
+    await db.rpc(director, "assign_course", [inst, assigned.courseId, [teacher], null]);
+    await db.rpc(admin, "grant_course_to_user", [personal.courseId, teacher]);
+
+    const [videoLesson, pdfLesson] = assigned.modules[0]!.lessonIds;
+    await completeLessons(db, teacher, [videoLesson!]);
+
+    type Row = { course_id: string; mandatory_lessons: number; completed_lessons: number; quizzes_total: number; quizzes_passed: number; resume_lesson_id: string; has_access: boolean };
+    const own = await db.as(teacher, (q) => q<Row>(`select * from public.learner_courses()`));
+    expect(own.map((r) => r.course_id).sort()).toEqual([assigned.courseId, personal.courseId].sort());
+    const row = own.find((r) => r.course_id === assigned.courseId)!;
+    expect(row).toMatchObject({ mandatory_lessons: 2, completed_lessons: 1, quizzes_total: 1, quizzes_passed: 0, has_access: true });
+    expect(row.resume_lesson_id).toBe(pdfLesson);
+
+    const seenByInstitution = await db.as(director, (q) => q<Row>(`select * from public.learner_courses($1)`, [teacher]));
+    expect(seenByInstitution.map((r) => r.course_id)).toEqual([assigned.courseId]);
+
+    const stranger = await db.createUser(`stranger.${uid()}@e.test`);
+    expect(await db.as(stranger, (q) => q<Row>(`select * from public.learner_courses($1)`, [teacher]))).toEqual([]);
+  });
+});

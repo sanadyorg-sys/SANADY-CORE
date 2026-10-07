@@ -2012,3 +2012,113 @@ begin
      order by max(a.submitted_at) desc;
 end;
 $$;
+
+-- Public, non-sensitive platform identity (used by public pages).
+create function public.public_platform_info()
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select jsonb_build_object('issuer', certificate_issuer_name, 'support_email', support_email)
+    from public.platform_settings where id;
+$$;
+
+-- One row per enrollment with the three separate measures (lessons,
+-- assessments, certification) and the lesson to resume. Rows are filtered
+-- by the same visibility rule as RLS: self, SANADY admins, or the
+-- institution that assigned that course.
+create function public.learner_courses(p_user uuid default null)
+returns table (
+  course_id          uuid,
+  title              text,
+  summary            text,
+  cover_path         text,
+  estimated_minutes  integer,
+  level              public.course_level,
+  category           text,
+  course_status      public.course_status,
+  has_access         boolean,
+  enrollment_status  public.enrollment_status,
+  enrolled_at        timestamptz,
+  started_at         timestamptz,
+  completed_at       timestamptz,
+  last_activity_at   timestamptz,
+  mandatory_lessons  integer,
+  completed_lessons  integer,
+  quizzes_total      integer,
+  quizzes_passed     integer,
+  certificate_id     uuid,
+  certificate_number text,
+  resume_lesson_id   uuid
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_user uuid := coalesce(p_user, auth.uid());
+  v_self_or_admin boolean := v_user = auth.uid() or private.is_sanady_admin();
+begin
+  perform private.require(auth.uid() is not null, 'not_authenticated');
+
+  return query
+  select c.id,
+         c.title,
+         c.summary,
+         c.cover_path,
+         c.estimated_minutes,
+         c.level,
+         cat.name,
+         c.status,
+         private.has_course_access(c.id, v_user),
+         e.status,
+         e.enrolled_at,
+         e.started_at,
+         e.completed_at,
+         e.last_activity_at,
+         (select count(*)::integer from public.lessons l
+            join public.modules m on m.id = l.module_id and m.archived_at is null
+           where l.course_id = c.id and l.archived_at is null and l.is_mandatory),
+         (select count(*)::integer from public.lessons l
+            join public.modules m on m.id = l.module_id and m.archived_at is null
+            join public.lesson_progress lp on lp.lesson_id = l.id and lp.user_id = v_user and lp.status = 'completed'
+           where l.course_id = c.id and l.archived_at is null and l.is_mandatory),
+         (select count(*)::integer from public.quizzes q
+            join public.modules m on m.id = q.module_id and m.archived_at is null
+           where q.course_id = c.id),
+         (select count(*)::integer from public.quizzes q
+            join public.modules m on m.id = q.module_id and m.archived_at is null
+           where q.course_id = c.id
+             and exists (select 1 from public.quiz_attempts a
+                          where a.quiz_id = q.id and a.user_id = v_user and a.passed and a.voided_at is null)),
+         cert.id,
+         cert.certificate_number,
+         coalesce(
+           (select lp.lesson_id
+              from public.lesson_progress lp
+              join public.lessons l on l.id = lp.lesson_id and l.archived_at is null
+              join public.modules m on m.id = l.module_id and m.archived_at is null
+             where lp.user_id = v_user and lp.course_id = c.id and lp.status = 'in_progress'
+             order by lp.updated_at desc
+             limit 1),
+           (select l.id
+              from public.lessons l
+              join public.modules m on m.id = l.module_id and m.archived_at is null
+             where l.course_id = c.id and l.archived_at is null
+               and not exists (select 1 from public.lesson_progress lp
+                                where lp.lesson_id = l.id and lp.user_id = v_user and lp.status = 'completed')
+             order by m.position, l.position
+             limit 1)
+         )
+    from public.enrollments e
+    join public.courses c on c.id = e.course_id
+    left join public.course_categories cat on cat.id = c.category_id
+    left join public.certificates cert on cert.user_id = v_user and cert.course_id = c.id and cert.revoked_at is null
+   where e.user_id = v_user
+     and (v_self_or_admin or private.can_view_learner_course(v_user, c.id))
+   order by e.last_activity_at desc nulls last, e.enrolled_at desc;
+end;
+$$;

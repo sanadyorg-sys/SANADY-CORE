@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+/*
+ * ════════════════════════════════════════════════════════════════════════
+ * SANADY design tokens — see docs/design-system.md
+ *
+ * ⚠ PLACEHOLDER BRAND PALETTE. The official SANADY logo has not been
+ *   supplied yet. The two brand hues below (institutional navy #123653 and
+ *   academic green #287F78) are the temporary values from the brief. When
+ *   the logo is delivered, replace --color-navy-* and --color-teal-* with
+ *   the logo-derived scales; every component reads only these tokens.
+ * ════════════════════════════════════════════════════════════════════════
+ */
+@theme {
+  /* Typography */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --text-display: 1.875rem;     --text-display--line-height: 2.375rem;  --text-display--letter-spacing: -0.02em;
+  --text-title: 1.5rem;         --text-title--line-height: 2rem;        --text-title--letter-spacing: -0.015em;
+  --text-section: 1.0625rem;    --text-section--line-height: 1.625rem;  --text-section--letter-spacing: -0.01em;
+  --text-card: 0.9375rem;       --text-card--line-height: 1.375rem;
+  --text-body: 0.875rem;        --text-body--line-height: 1.375rem;
+  --text-reading: 1rem;         --text-reading--line-height: 1.75rem;
+  --text-label: 0.8125rem;      --text-label--line-height: 1.125rem;
+  --text-caption: 0.75rem;      --text-caption--line-height: 1rem;
+  --text-stat: 1.75rem;         --text-stat--line-height: 2.125rem;     --text-stat--letter-spacing: -0.02em;
+
+  /* Brand — institutional navy (placeholder, base = 700) */
+  --color-navy-50: #eef3f8;
+  --color-navy-100: #d9e3ee;
+  --color-navy-200: #b3c7dc;
+  --color-navy-300: #86a4c3;
+  --color-navy-400: #557da4;
+  --color-navy-500: #2f5d88;
+  --color-navy-600: #1e4770;
+  --color-navy-700: #123653;
+  --color-navy-800: #0e2a42;
+  --color-navy-900: #0a1f31;
+
+  /* Brand — academic green (placeholder, base = 600) */
+  --color-teal-50: #ecf6f5;
+  --color-teal-100: #d2ebe8;
+  --color-teal-200: #a6d6d1;
+  --color-teal-300: #74bcb5;
+  --color-teal-400: #45a098;
+  --color-teal-500: #2e8b83;
+  --color-teal-600: #287f78;
+  --color-teal-700: #1f6560;
+  --color-teal-800: #194f4b;
+  --color-teal-900: #133c39;
+
+  /* Cool neutrals tuned to the navy hue */
+  --color-ink-0: #ffffff;
+  --color-ink-25: #f9fbfc;
+  --color-ink-50: #f3f6f9;
+  --color-ink-100: #e9eef3;
+  --color-ink-200: #dce3ea;
+  --color-ink-300: #c4cfda;
+  --color-ink-400: #94a3b3;
+  --color-ink-500: #677889;
+  --color-ink-600: #4c5c6d;
+  --color-ink-700: #344454;
+  --color-ink-800: #1f2e3c;
+  --color-ink-900: #13202c;
+
+  /* Semantic */
+  --color-success-50: #edf7f1;
+  --color-success-600: #1e7a4c;
+  --color-success-700: #17603c;
+  --color-warning-50: #fff6e5;
+  --color-warning-200: #f5d9a0;
+  --color-warning-700: #8a5300;
+  --color-danger-50: #fdf0ef;
+  --color-danger-200: #f4c7c3;
+  --color-danger-600: #b42318;
+  --color-danger-700: #912018;
+
+  /* Surfaces */
+  --color-canvas: var(--color-ink-50);
+  --color-surface: var(--color-ink-0);
+  --color-line: var(--color-ink-200);
+  --color-line-strong: var(--color-ink-300);
+
+  /* Radii — restrained */
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+
+  /* Elevation — subtle */
+  --shadow-xs: 0 1px 2px rgb(16 32 48 / 0.05);
+  --shadow-sm: 0 1px 2px rgb(16 32 48 / 0.06), 0 1px 3px rgb(16 32 48 / 0.04);
+  --shadow-pop: 0 10px 28px rgb(16 32 48 / 0.12), 0 2px 6px rgb(16 32 48 / 0.06);
+
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  @keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink-800);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+
+  /* Visible, consistent focus indicator (WCAG 2.2 — 2.4.7 / 2.4.11) */
+  :focus-visible {
+    outline: 2px solid var(--color-teal-600);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  ::selection {
+    background: var(--color-teal-100);
+    color: var(--color-ink-900);
+  }
+
+  [hidden] { display: none !important; }
+
+  .tabular { font-variant-numeric: tabular-nums; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+}
