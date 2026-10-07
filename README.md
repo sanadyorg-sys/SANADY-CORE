@@ -72,7 +72,7 @@ docs/                Architecture, database, security, design system, deployment
 - [Architecture](docs/architecture.md) — layers, request flow, key decisions
 - [Database](docs/database.md) — entities, rules, functions, RLS model
 - [Security and privacy](docs/security-and-privacy.md) — threat model, controls, Law 09-08 checklist
-- [Design system](docs/design-system.md) — tokens, components, placeholder brand
+- [Design system](docs/design-system.md) — brand assets, tokens, components
 - [Deployment](docs/deployment.md) — Supabase, Vercel, e-mail, video, backups
 - [Testing](docs/testing.md) — what is tested, how, and what is not
 
@@ -82,7 +82,7 @@ These are **not** fabricated or simulated in the code; each is explicitly handle
 
 | Item | Status |
 |---|---|
-| Official SANADY logo | **Not supplied.** A typographic placeholder and placeholder colours (#123653, #287F78) are used and flagged in `globals.css`, `wordmark.tsx` and `lib/pdf/common.ts`. |
+| Brand assets | Logo, tagline and imagery extracted from the foundation banner (`public/brand`). The source is a low-resolution screenshot: request the original vector logo and re-run `scripts/brand/extract-brand-assets.mjs`. |
 | E-mail delivery (Resend) | Optional. Without `RESEND_API_KEY`, invitations are created and the link is shown to the administrator, clearly labelled; self-service join by code is disabled. |
 | Adaptive video (Mux) | Optional. Without Mux keys, videos are served from private Supabase Storage via short-lived signed URLs (progressive MP4). |
 | Legal review | The privacy notice must be validated by the data controller (identity, CNDP formalities, retention) before production. |

@@ -64,7 +64,7 @@ export default async function PublicationPage(props: PageProps<"/admin/formation
                 "Après publication, les éléments déjà commencés par des enseignants sont archivés plutôt que supprimés.",
               ].map((t) => (
                 <li key={t} className="flex gap-2">
-                  <CircleCheck className="mt-0.5 size-3.5 shrink-0 text-teal-600" aria-hidden /> {t}
+                  <CircleCheck className="mt-0.5 size-3.5 shrink-0 text-accent-600" aria-hidden /> {t}
                 </li>
               ))}
             </ul>

@@ -70,7 +70,7 @@ export default async function TeacherDashboardPage() {
               <SectionHeading
                 title="Mes formations en cours"
                 actions={
-                  <Link href="/espace/formations" className="inline-flex items-center gap-1 text-label font-medium text-teal-700 hover:underline">
+                  <Link href="/espace/formations" className="inline-flex items-center gap-1 text-label font-medium text-accent-700 hover:underline">
                     Toutes mes formations <ArrowRight className="size-3.5" aria-hidden />
                   </Link>
                 }
@@ -109,7 +109,7 @@ export default async function TeacherDashboardPage() {
                   title="Mes certificats"
                   actions={
                     validCertificates.length ? (
-                      <Link href="/espace/certificats" className="text-label font-medium text-teal-700 hover:underline">
+                      <Link href="/espace/certificats" className="text-label font-medium text-accent-700 hover:underline">
                         Voir tout
                       </Link>
                     ) : null
@@ -120,7 +120,7 @@ export default async function TeacherDashboardPage() {
                     <ul className="space-y-3">
                       {validCertificates.slice(0, 3).map((c) => (
                         <li key={c.id} className="flex items-start gap-3">
-                          <Award className="mt-0.5 size-4 shrink-0 text-teal-600" aria-hidden />
+                          <Award className="mt-0.5 size-4 shrink-0 text-accent-600" aria-hidden />
                           <div className="min-w-0">
                             <p className="truncate text-body font-medium text-ink-800">{c.course_title}</p>
                             <p className="text-caption text-ink-500">Délivré le {formatDate(c.issued_at)}</p>
@@ -155,7 +155,7 @@ function ResumeCard({ course }: { course: Awaited<ReturnType<typeof getLearnerCo
         <CourseCover path={course.cover_path} title={course.title} category={course.category} className="hidden h-full min-h-[160px] md:block" />
         <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">
-            <p className="text-label font-medium text-teal-700">{course.started_at ? "Reprendre ma formation" : "Commencer ma formation"}</p>
+            <p className="text-label font-medium text-accent-700">{course.started_at ? "Reprendre ma formation" : "Commencer ma formation"}</p>
             <h2 className="mt-1 text-section font-semibold text-ink-900">{course.title}</h2>
             <p className="mt-1 text-label text-ink-500">
               {formatDuration(course.estimated_minutes)}

@@ -96,7 +96,7 @@ export default async function CourseAssignmentPage(props: PageProps<"/etablissem
                         {e?.status === "completed" ? (
                           <Badge tone="success">Terminée</Badge>
                         ) : e?.started_at ? (
-                          <Badge tone="teal">En cours</Badge>
+                          <Badge tone="accent">En cours</Badge>
                         ) : (
                           <Badge>Non commencée</Badge>
                         )}
@@ -147,7 +147,7 @@ export default async function CourseAssignmentPage(props: PageProps<"/etablissem
                 <ul className="space-y-2">
                   {info.objectives.map((o, i) => (
                     <li key={i} className="flex gap-2.5 text-body text-ink-700">
-                      <Target className="mt-0.5 size-4 shrink-0 text-teal-600" aria-hidden /> {o}
+                      <Target className="mt-0.5 size-4 shrink-0 text-accent-600" aria-hidden /> {o}
                     </li>
                   ))}
                 </ul>

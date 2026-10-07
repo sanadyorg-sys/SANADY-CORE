@@ -16,7 +16,7 @@ import { cn } from "@/lib/cn";
 const controlBase =
   "block w-full rounded-md border bg-surface text-body text-ink-900 shadow-xs transition-colors " +
   "placeholder:text-ink-400 disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-500 " +
-  "focus-visible:outline-none focus-visible:border-teal-600 focus-visible:ring-3 focus-visible:ring-teal-600/15";
+  "focus-visible:outline-none focus-visible:border-accent-600 focus-visible:ring-3 focus-visible:ring-accent-600/15";
 
 const controlState = (invalid?: boolean) =>
   invalid ? "border-danger-600 focus-visible:border-danger-600 focus-visible:ring-danger-600/15" : "border-line-strong hover:border-ink-400";
@@ -143,7 +143,7 @@ export function Checkbox({
       <input
         id={props.id ?? id}
         type="checkbox"
-        className="mt-0.5 size-4 shrink-0 cursor-pointer rounded-xs border-line-strong accent-teal-600"
+        className="mt-0.5 size-4 shrink-0 cursor-pointer rounded-xs border-line-strong accent-accent-600"
         {...props}
       />
       <label htmlFor={props.id ?? id} className="cursor-pointer text-body text-ink-800">

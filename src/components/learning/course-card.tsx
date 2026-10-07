@@ -11,13 +11,13 @@ import type { LearnerCourse } from "@/server/queries/learning";
 /** Neutral, typographic cover used when a course has no cover image. */
 export function CoverFallback({ title, category }: { title: string; category?: string | null }) {
   return (
-    <div className="relative flex h-full w-full items-end overflow-hidden bg-navy-700 p-4">
+    <div className="relative flex h-full w-full items-end overflow-hidden bg-brand-700 p-4">
       <div
         aria-hidden
         className="absolute inset-0 opacity-[0.09] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:24px_24px]"
       />
-      <div aria-hidden className="absolute -right-6 -top-6 size-28 rounded-full border-[14px] border-teal-500/40" />
-      <span className="relative line-clamp-2 text-label font-medium uppercase tracking-wider text-navy-100">
+      <div aria-hidden className="absolute -right-6 -top-6 size-28 rounded-full border-[14px] border-accent-500/40" />
+      <span className="relative line-clamp-2 text-label font-medium uppercase tracking-wider text-brand-100">
         {category ?? title}
       </span>
     </div>
@@ -46,8 +46,8 @@ export function CourseCover({ path, title, category, className }: {
 export function CourseStatusBadge({ course }: { course: LearnerCourse }) {
   if (!course.has_access) return <Badge tone="neutral">Accès suspendu</Badge>;
   if (course.enrollment_status === "completed") return <Badge tone="success" dot>Terminée</Badge>;
-  if (course.started_at) return <Badge tone="teal" dot>En cours</Badge>;
-  return <Badge tone="navy">À commencer</Badge>;
+  if (course.started_at) return <Badge tone="accent" dot>En cours</Badge>;
+  return <Badge tone="brand">À commencer</Badge>;
 }
 
 export function LearnerCourseCard({ course }: { course: LearnerCourse }) {
@@ -89,7 +89,7 @@ export function LearnerCourseCard({ course }: { course: LearnerCourse }) {
                 <span className="tabular">{course.quizzes_total}</span>
               </span>
             </div>
-            <ProgressBar value={ratio} label={`Leçons terminées : ${Math.round(ratio * 100)} %`} size="sm" tone={completed ? "success" : "teal"} />
+            <ProgressBar value={ratio} label={`Leçons terminées : ${Math.round(ratio * 100)} %`} size="sm" tone={completed ? "success" : "accent"} />
           </div>
           <div className="flex items-center justify-between gap-3">
             <span className="truncate text-caption text-ink-500">

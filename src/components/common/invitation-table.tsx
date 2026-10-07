@@ -8,11 +8,11 @@ import { INVITATION_KINDS } from "@/lib/labels";
 import type { Invitation } from "@/lib/types";
 import { reissueInvitation, revokeInvitation } from "@/server/actions/invitations";
 
-export function invitationState(inv: Invitation): { label: string; tone: "success" | "warning" | "neutral" | "teal" | "danger" } {
+export function invitationState(inv: Invitation): { label: string; tone: "success" | "warning" | "neutral" | "accent" | "danger" } {
   if (inv.accepted_at) return { label: "Acceptée", tone: "success" };
   if (inv.revoked_at) return { label: "Annulée", tone: "neutral" };
   if (new Date(inv.expires_at).getTime() <= Date.now()) return { label: "Expirée", tone: "warning" };
-  return { label: inv.email_sent_at ? "Envoyée" : "En attente d’envoi", tone: "teal" };
+  return { label: inv.email_sent_at ? "Envoyée" : "En attente d’envoi", tone: "accent" };
 }
 
 /** Invitations with status and actions (re-send, cancel). */

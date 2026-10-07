@@ -4,11 +4,11 @@
  * ════════════════════════════════════════════════════════════════════════
  * SANADY design tokens — see docs/design-system.md
  *
- * ⚠ PLACEHOLDER BRAND PALETTE. The official SANADY logo has not been
- *   supplied yet. The two brand hues below (institutional navy #123653 and
- *   academic green #287F78) are the temporary values from the brief. When
- *   the logo is delivered, replace --color-navy-* and --color-teal-* with
- *   the logo-derived scales; every component reads only these tokens.
+ * Derived from the Fondation Sanady logo (public/brand/sanady-logo.png):
+ *   · brand  = the black of the "sanady" wordmark (softened to #1C1917 for UI)
+ *   · accent = the orange of the dots and the smile, measured at #F95A05
+ * Contrast rules: accent-500/600 are for fills, rings and progress
+ * (≥ 3:1, non-text); orange TEXT and orange buttons use accent-700 (5.6:1).
  * ════════════════════════════════════════════════════════════════════════
  */
 @theme {
@@ -26,43 +26,43 @@
   --text-caption: 0.75rem;      --text-caption--line-height: 1rem;
   --text-stat: 1.75rem;         --text-stat--line-height: 2.125rem;     --text-stat--letter-spacing: -0.02em;
 
-  /* Brand — institutional navy (placeholder, base = 700) */
-  --color-navy-50: #eef3f8;
-  --color-navy-100: #d9e3ee;
-  --color-navy-200: #b3c7dc;
-  --color-navy-300: #86a4c3;
-  --color-navy-400: #557da4;
-  --color-navy-500: #2f5d88;
-  --color-navy-600: #1e4770;
-  --color-navy-700: #123653;
-  --color-navy-800: #0e2a42;
-  --color-navy-900: #0a1f31;
+  /* Brand — wordmark black (base = 700) */
+  --color-brand-50: #f5f4f2;
+  --color-brand-100: #e8e6e3;
+  --color-brand-200: #d1cdc8;
+  --color-brand-300: #ada79f;
+  --color-brand-400: #7d766e;
+  --color-brand-500: #57514b;
+  --color-brand-600: #3a3531;
+  --color-brand-700: #1c1917;
+  --color-brand-800: #12100f;
+  --color-brand-900: #0a0908;
 
-  /* Brand — academic green (placeholder, base = 600) */
-  --color-teal-50: #ecf6f5;
-  --color-teal-100: #d2ebe8;
-  --color-teal-200: #a6d6d1;
-  --color-teal-300: #74bcb5;
-  --color-teal-400: #45a098;
-  --color-teal-500: #2e8b83;
-  --color-teal-600: #287f78;
-  --color-teal-700: #1f6560;
-  --color-teal-800: #194f4b;
-  --color-teal-900: #133c39;
+  /* Accent — logo orange (logo = 500) */
+  --color-accent-50: #fff4ed;
+  --color-accent-100: #ffe6d5;
+  --color-accent-200: #ffc9a8;
+  --color-accent-300: #ffa071;
+  --color-accent-400: #fd7a38;
+  --color-accent-500: #f95a05;
+  --color-accent-600: #e04e00;
+  --color-accent-700: #b83f00;
+  --color-accent-800: #933405;
+  --color-accent-900: #6f2a07;
 
-  /* Cool neutrals tuned to the navy hue */
+  /* Warm neutrals, in harmony with black and orange */
   --color-ink-0: #ffffff;
-  --color-ink-25: #f9fbfc;
-  --color-ink-50: #f3f6f9;
-  --color-ink-100: #e9eef3;
-  --color-ink-200: #dce3ea;
-  --color-ink-300: #c4cfda;
-  --color-ink-400: #94a3b3;
-  --color-ink-500: #677889;
-  --color-ink-600: #4c5c6d;
-  --color-ink-700: #344454;
-  --color-ink-800: #1f2e3c;
-  --color-ink-900: #13202c;
+  --color-ink-25: #fcfbfa;
+  --color-ink-50: #f7f6f4;
+  --color-ink-100: #efede9;
+  --color-ink-200: #e3e0db;
+  --color-ink-300: #ccc7c0;
+  --color-ink-400: #9c978f;
+  --color-ink-500: #6e6962;
+  --color-ink-600: #55504a;
+  --color-ink-700: #3d3935;
+  --color-ink-800: #292522;
+  --color-ink-900: #1a1715;
 
   /* Semantic */
   --color-success-50: #edf7f1;
@@ -118,13 +118,13 @@
 
   /* Visible, consistent focus indicator (WCAG 2.2 — 2.4.7 / 2.4.11) */
   :focus-visible {
-    outline: 2px solid var(--color-teal-600);
+    outline: 2px solid var(--color-accent-600);
     outline-offset: 2px;
     border-radius: var(--radius-xs);
   }
 
   ::selection {
-    background: var(--color-teal-100);
+    background: var(--color-accent-100);
     color: var(--color-ink-900);
   }
 
@@ -151,7 +151,7 @@
 .video-range::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 9999px;
-  background: linear-gradient(to right, var(--color-teal-300) var(--played, 0%), rgb(255 255 255 / 0.3) var(--played, 0%));
+  background: linear-gradient(to right, var(--color-accent-500) var(--played, 0%), rgb(255 255 255 / 0.3) var(--played, 0%));
 }
 .video-range::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -171,7 +171,7 @@
 .video-range::-moz-range-progress {
   height: 4px;
   border-radius: 9999px;
-  background: var(--color-teal-300);
+  background: var(--color-accent-500);
 }
 .video-range::-moz-range-thumb {
   width: 14px;

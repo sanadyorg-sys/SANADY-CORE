@@ -45,12 +45,12 @@ export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElemen
 
 /* ─── Badge ────────────────────────────────────────────────────────────── */
 
-export type BadgeTone = "neutral" | "navy" | "teal" | "success" | "warning" | "danger";
+export type BadgeTone = "neutral" | "brand" | "accent" | "success" | "warning" | "danger";
 
 const badgeTones: Record<BadgeTone, string> = {
   neutral: "bg-ink-100 text-ink-700 ring-ink-200",
-  navy: "bg-navy-50 text-navy-700 ring-navy-100",
-  teal: "bg-teal-50 text-teal-800 ring-teal-100",
+  brand: "bg-brand-50 text-brand-700 ring-brand-100",
+  accent: "bg-accent-50 text-accent-800 ring-accent-100",
   success: "bg-success-50 text-success-700 ring-success-600/15",
   warning: "bg-warning-50 text-warning-700 ring-warning-200",
   danger: "bg-danger-50 text-danger-700 ring-danger-200",
@@ -84,7 +84,7 @@ export function Badge({
 /* ─── Alert (inline callout) ───────────────────────────────────────────── */
 
 const alertTones = {
-  info: { box: "border-navy-100 bg-navy-50 text-navy-800", icon: Info },
+  info: { box: "border-brand-100 bg-brand-50 text-brand-800", icon: Info },
   success: { box: "border-success-600/20 bg-success-50 text-success-700", icon: CircleCheck },
   warning: { box: "border-warning-200 bg-warning-50 text-warning-700", icon: TriangleAlert },
   danger: { box: "border-danger-200 bg-danger-50 text-danger-700", icon: CircleAlert },

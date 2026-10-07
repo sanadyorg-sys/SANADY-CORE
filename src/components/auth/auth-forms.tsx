@@ -41,7 +41,7 @@ export function SignInForm({ suite, notice }: { suite?: string; notice?: string 
         <PasswordInput name="password" autoComplete="current-password" required />
       </Field>
       <div className="flex justify-end">
-        <Link href="/mot-de-passe-oublie" className="text-label font-medium text-teal-700 hover:underline">
+        <Link href="/mot-de-passe-oublie" className="text-label font-medium text-accent-700 hover:underline">
           Mot de passe oublié ?
         </Link>
       </div>
@@ -120,7 +120,7 @@ export function OnboardingForm({
           description={
             <>
               Elle précise les données collectées sur votre apprentissage et ce que votre établissement peut consulter.{" "}
-              <Link href="/confidentialite" target="_blank" className="font-medium text-teal-700 underline">
+              <Link href="/confidentialite" target="_blank" className="font-medium text-accent-700 underline">
                 Lire la notice
               </Link>
             </>

@@ -77,7 +77,7 @@ export function NewAccountInvitationForm({
           name="privacy"
           label="J’ai pris connaissance de la notice d’information sur les données personnelles."
           description={
-            <Link href="/confidentialite" target="_blank" className="font-medium text-teal-700 underline">
+            <Link href="/confidentialite" target="_blank" className="font-medium text-accent-700 underline">
               Lire la notice
             </Link>
           }

@@ -88,7 +88,7 @@ export function FileUploader({
         }}
         className={cn(
           "rounded-lg border border-dashed px-5 py-6 text-center transition-colors",
-          dragging ? "border-teal-600 bg-teal-50/60" : "border-line-strong bg-ink-25",
+          dragging ? "border-accent-600 bg-accent-50/60" : "border-line-strong bg-ink-25",
         )}
       >
         {uploading ? (

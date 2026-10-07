@@ -179,7 +179,7 @@ export default async function AdminInstitutionPage(props: PageProps<"/admin/etab
                       </Link>
                       <p className="text-caption text-ink-500">{m.user.email}</p>
                     </TD>
-                    <TD>{m.role === "admin" ? <Badge tone="navy">Administrateur</Badge> : <Badge>Enseignant</Badge>}</TD>
+                    <TD>{m.role === "admin" ? <Badge tone="brand">Administrateur</Badge> : <Badge>Enseignant</Badge>}</TD>
                     <TD>
                       {formatDate(m.created_at)}
                       <p className="text-caption text-ink-500">{MEMBERSHIP_SOURCES[m.source as keyof typeof MEMBERSHIP_SOURCES]}</p>

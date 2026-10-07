@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { SearchX } from "lucide-react";
-import { Wordmark } from "@/components/brand/wordmark";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { buttonClasses } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
     <main id="contenu" className="flex min-h-dvh flex-col items-center justify-center bg-canvas px-6 text-center">
-      <Wordmark className="mb-10 text-lg" />
+      <BrandLogo className="mb-10 h-12" priority />
       <div className="mb-4 flex size-12 items-center justify-center rounded-lg border border-line bg-surface text-ink-500">
         <SearchX className="size-6" aria-hidden />
       </div>

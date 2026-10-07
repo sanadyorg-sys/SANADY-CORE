@@ -31,7 +31,7 @@ export function SearchForm({
           type="search"
           defaultValue={defaultValue}
           placeholder={placeholder}
-          className="h-9 w-full rounded-md border border-line-strong bg-surface pl-9 pr-3 text-body text-ink-900 shadow-xs placeholder:text-ink-400 hover:border-ink-400 focus-visible:border-teal-600 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-teal-600/15"
+          className="h-9 w-full rounded-md border border-line-strong bg-surface pl-9 pr-3 text-body text-ink-900 shadow-xs placeholder:text-ink-400 hover:border-ink-400 focus-visible:border-accent-600 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-accent-600/15"
         />
       </div>
       {children}
@@ -65,7 +65,7 @@ export function FilterSelect({
         id={`filter-${name}`}
         name={name}
         defaultValue={defaultValue ?? ""}
-        className="h-9 rounded-md border border-line-strong bg-surface pl-3 pr-8 text-body text-ink-800 shadow-xs hover:border-ink-400 focus-visible:border-teal-600 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-teal-600/15"
+        className="h-9 rounded-md border border-line-strong bg-surface pl-3 pr-8 text-body text-ink-800 shadow-xs hover:border-ink-400 focus-visible:border-accent-600 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-accent-600/15"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>

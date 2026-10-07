@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 export function ProgressBar({
   value,
   label,
-  tone = "teal",
+  tone = "accent",
   size = "md",
   showValue = false,
   className,
@@ -14,13 +14,13 @@ export function ProgressBar({
   /** 0 → 1 */
   value: number;
   label: string;
-  tone?: "teal" | "navy" | "success";
+  tone?: "accent" | "brand" | "success";
   size?: "sm" | "md";
   showValue?: boolean;
   className?: string;
 }) {
   const pct = Math.round(Math.min(1, Math.max(0, value)) * 100);
-  const fill = { teal: "bg-teal-600", navy: "bg-navy-600", success: "bg-success-600" }[tone];
+  const fill = { accent: "bg-accent-500", brand: "bg-brand-600", success: "bg-success-600" }[tone];
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <div
@@ -57,7 +57,7 @@ export function ProgressRing({ value, size = 28, label }: { value: number; size?
         strokeLinecap="round"
         strokeDasharray={c}
         strokeDashoffset={c * (1 - pct)}
-        className="stroke-teal-600 transition-[stroke-dashoffset] duration-500"
+        className="stroke-accent-600 transition-[stroke-dashoffset] duration-500"
       />
     </svg>
   );

@@ -84,7 +84,7 @@ export function PlayerView({
         <div className="mt-6 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
-              <Badge tone="navy">
+              <Badge tone="brand">
                 {lesson.kind === "video" ? <PlayCircle className="size-3" aria-hidden /> : <FileText className="size-3" aria-hidden />}
                 {lesson.kind === "video" ? "Vidéo" : "Document"}
               </Badge>

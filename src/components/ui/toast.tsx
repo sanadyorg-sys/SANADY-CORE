@@ -63,7 +63,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }
           "mt-0.5 size-4 shrink-0",
           toast.tone === "success" && "text-success-600",
           toast.tone === "danger" && "text-danger-600",
-          toast.tone === "info" && "text-navy-600",
+          toast.tone === "info" && "text-brand-600",
         )}
         aria-hidden
       />

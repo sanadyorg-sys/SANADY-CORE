@@ -88,7 +88,7 @@ export default async function AdminDashboardPage() {
             <CardHeader
               title="Brouillons en cours"
               actions={
-                <Link href="/admin/formations?statut=draft" className="text-label font-medium text-teal-700 hover:underline">
+                <Link href="/admin/formations?statut=draft" className="text-label font-medium text-accent-700 hover:underline">
                   Voir tout
                 </Link>
               }
@@ -121,7 +121,7 @@ export default async function AdminDashboardPage() {
           <CardHeader
             title="Activité administrative"
             actions={
-              <Link href="/admin/journal" className="text-label font-medium text-teal-700 hover:underline">
+              <Link href="/admin/journal" className="text-label font-medium text-accent-700 hover:underline">
                 Journal complet
               </Link>
             }
@@ -150,7 +150,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="mt-6">
-        <Link href="/admin/suivi" className="inline-flex items-center gap-1.5 text-label font-medium text-teal-700 hover:underline">
+        <Link href="/admin/suivi" className="inline-flex items-center gap-1.5 text-label font-medium text-accent-700 hover:underline">
           <ChartColumn className="size-4" aria-hidden /> Accéder au suivi pédagogique
         </Link>
         {overview.exhausted_attempts === 0 ? null : (

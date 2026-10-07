@@ -27,7 +27,7 @@ export default async function AdminsPage() {
             {admins.map((a) => (
               <li key={a.user.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
                 <div className="flex min-w-0 items-center gap-3">
-                  <ShieldCheck className="size-4 shrink-0 text-navy-600" aria-hidden />
+                  <ShieldCheck className="size-4 shrink-0 text-brand-600" aria-hidden />
                   <div className="min-w-0">
                     <p className="truncate font-medium text-ink-900">
                       {a.user.full_name || a.user.email}

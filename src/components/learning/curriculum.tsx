@@ -104,7 +104,7 @@ export function Curriculum({
                     <>
                       <LessonStatusIcon lesson={lesson} />
                       <span className="min-w-0 flex-1">
-                        <span className={cn("block text-body", current ? "font-semibold text-navy-800" : "text-ink-800")}>
+                        <span className={cn("block text-body", current ? "font-semibold text-brand-800" : "text-ink-800")}>
                           {lesson.title}
                         </span>
                         <span className="flex items-center gap-1.5 text-caption text-ink-500">
@@ -124,7 +124,7 @@ export function Curriculum({
                           aria-current={current ? "page" : undefined}
                           className={cn(
                             "flex items-start gap-3 px-4 py-2.5 transition-colors",
-                            current ? "bg-navy-50 shadow-[inset_3px_0_0_var(--color-navy-700)]" : "hover:bg-ink-25",
+                            current ? "bg-brand-50 shadow-[inset_3px_0_0_var(--color-brand-700)]" : "hover:bg-ink-25",
                           )}
                         >
                           {content}
@@ -156,12 +156,12 @@ function QuizRow({ quiz, href, current, interactive }: { quiz: OutlineQuiz; href
           status.tone === "success" && "text-success-600",
           status.tone === "danger" && "text-danger-600",
           status.tone === "muted" && "text-ink-300",
-          (status.tone === "teal" || status.tone === "warning") && "text-teal-600",
+          (status.tone === "accent" || status.tone === "warning") && "text-accent-600",
         )}
         aria-hidden
       />
       <span className="min-w-0 flex-1">
-        <span className={cn("block text-body", current ? "font-semibold text-navy-800" : "font-medium text-ink-800")}>
+        <span className={cn("block text-body", current ? "font-semibold text-brand-800" : "font-medium text-ink-800")}>
           Évaluation du module
         </span>
         <span
@@ -170,7 +170,7 @@ function QuizRow({ quiz, href, current, interactive }: { quiz: OutlineQuiz; href
             status.tone === "success" && "text-success-700",
             status.tone === "danger" && "text-danger-600",
             status.tone === "warning" && "text-warning-700",
-            (status.tone === "muted" || status.tone === "teal") && "text-ink-500",
+            (status.tone === "muted" || status.tone === "accent") && "text-ink-500",
           )}
         >
           {status.text}
@@ -186,7 +186,7 @@ function QuizRow({ quiz, href, current, interactive }: { quiz: OutlineQuiz; href
           aria-current={current ? "page" : undefined}
           className={cn(
             "flex items-start gap-3 px-4 py-2.5 transition-colors",
-            current ? "bg-navy-50 shadow-[inset_3px_0_0_var(--color-navy-700)]" : "hover:bg-ink-25",
+            current ? "bg-brand-50 shadow-[inset_3px_0_0_var(--color-brand-700)]" : "hover:bg-ink-25",
           )}
         >
           {content}

@@ -82,11 +82,11 @@ export function QuestionList({ quiz, questions }: { quiz: Quiz; questions: Edito
                   <div className="min-w-0 flex-1">
                     <p className="whitespace-pre-line text-body font-medium text-ink-900">{q.prompt}</p>
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      <Badge tone="navy">{QUESTION_KINDS[q.kind]}</Badge>
+                      <Badge tone="brand">{QUESTION_KINDS[q.kind]}</Badge>
                       <Badge>
                         {q.points} point{q.points > 1 ? "s" : ""}
                       </Badge>
-                      {q.explanation ? <Badge tone="teal">Explication</Badge> : null}
+                      {q.explanation ? <Badge tone="accent">Explication</Badge> : null}
                     </div>
                     <ul className="mt-3 space-y-1">
                       {q.options.map((o) => (
@@ -281,7 +281,7 @@ function QuestionDialog({ quiz, question, index }: { quiz: Quiz; question?: Edit
                   checked={o.is_correct}
                   onChange={() => toggleCorrect(o.key)}
                   aria-label={`Réponse ${i + 1} correcte`}
-                  className="size-4 shrink-0 accent-teal-600"
+                  className="size-4 shrink-0 accent-accent-600"
                 />
                 <Input
                   value={o.label}

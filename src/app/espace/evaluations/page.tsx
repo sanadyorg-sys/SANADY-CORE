@@ -61,7 +61,7 @@ export default async function MyAssessmentsPage() {
                     <TD align="right">{a.status === "submitted" ? formatScore(a.score_percent) : "—"}</TD>
                     <TD>
                       {a.status === "in_progress" ? (
-                        <Badge tone="teal">En cours</Badge>
+                        <Badge tone="accent">En cours</Badge>
                       ) : a.passed ? (
                         <Badge tone="success">Réussie</Badge>
                       ) : (

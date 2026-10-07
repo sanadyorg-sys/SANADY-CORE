@@ -57,7 +57,7 @@ export default async function PersonPage(props: PageProps<"/admin/enseignants/[u
       >
         <div className="mt-3 flex flex-wrap gap-2">
           {profile.status === "active" ? <Badge tone="success">Actif</Badge> : <Badge tone="danger">Suspendu</Badge>}
-          {isAdmin ? <Badge tone="navy">Administrateur SANADY</Badge> : null}
+          {isAdmin ? <Badge tone="brand">Administrateur SANADY</Badge> : null}
           {!profile.onboarded_at ? <Badge tone="warning">Profil non complété</Badge> : null}
         </div>
       </PageHeader>
@@ -105,7 +105,7 @@ export default async function PersonPage(props: PageProps<"/admin/enseignants/[u
                     <Link href={`/admin/etablissements/${m.institution?.id}`} className="truncate text-body font-medium text-ink-900 hover:underline">
                       {m.institution?.name}
                     </Link>
-                    <Badge tone={m.role === "admin" ? "navy" : "neutral"}>{m.role === "admin" ? "Administrateur" : "Enseignant"}</Badge>
+                    <Badge tone={m.role === "admin" ? "brand" : "neutral"}>{m.role === "admin" ? "Administrateur" : "Enseignant"}</Badge>
                   </li>
                 ))}
               </ul>

@@ -77,7 +77,7 @@ export function AssignCourseForm({
 
       <div className="overflow-hidden rounded-md border border-line">
         <label className="flex cursor-pointer items-center gap-3 border-b border-line bg-ink-25 px-3 py-2 text-label font-medium text-ink-700">
-          <input type="checkbox" checked={allVisibleSelected} onChange={toggleAll} className="size-4 accent-teal-600" />
+          <input type="checkbox" checked={allVisibleSelected} onChange={toggleAll} className="size-4 accent-accent-600" />
           Tout sélectionner ({visible.length})
         </label>
         <ul className="max-h-72 divide-y divide-line overflow-y-auto">
@@ -85,7 +85,7 @@ export function AssignCourseForm({
             const checked = selected.has(t.user_id);
             return (
               <li key={t.user_id}>
-                <label className={cn("flex cursor-pointer items-center gap-3 px-3 py-2.5", checked ? "bg-teal-50/60" : "hover:bg-ink-25")}>
+                <label className={cn("flex cursor-pointer items-center gap-3 px-3 py-2.5", checked ? "bg-accent-50/60" : "hover:bg-ink-25")}>
                   <input
                     type="checkbox"
                     checked={checked}
@@ -97,7 +97,7 @@ export function AssignCourseForm({
                         return next;
                       })
                     }
-                    className="size-4 accent-teal-600"
+                    className="size-4 accent-accent-600"
                   />
                   <span className="min-w-0">
                     <span className="block truncate text-body font-medium text-ink-800">{t.full_name || t.email}</span>

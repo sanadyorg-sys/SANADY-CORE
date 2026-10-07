@@ -171,7 +171,7 @@ function Runner({
                   key={option.id}
                   className={cn(
                     "flex min-h-12 cursor-pointer items-start gap-3 rounded-lg border px-4 py-3 transition-colors",
-                    checked ? "border-teal-600 bg-teal-50/60 ring-1 ring-teal-600" : "border-line-strong hover:border-ink-400 hover:bg-ink-25",
+                    checked ? "border-accent-600 bg-accent-50/60 ring-1 ring-accent-600" : "border-line-strong hover:border-ink-400 hover:bg-ink-25",
                   )}
                 >
                   <input
@@ -180,7 +180,7 @@ function Runner({
                     value={option.id}
                     checked={checked}
                     onChange={() => choose(option.id)}
-                    className="mt-1 size-4 shrink-0 accent-teal-600"
+                    className="mt-1 size-4 shrink-0 accent-accent-600"
                   />
                   <span className="text-reading text-ink-800">
                     <span className="sr-only">Réponse {String.fromCharCode(65 + oi)} : </span>
@@ -221,8 +221,8 @@ function Runner({
                     aria-label={`Question ${i + 1}${answered ? ", répondue" : ", sans réponse"}`}
                     className={cn(
                       "tabular flex size-9 w-full items-center justify-center rounded-md border text-label font-medium",
-                      i === index && "ring-2 ring-navy-700 ring-offset-1",
-                      answered ? "border-teal-600 bg-teal-600 text-white" : "border-line-strong bg-surface text-ink-700 hover:bg-ink-50",
+                      i === index && "ring-2 ring-brand-700 ring-offset-1",
+                      answered ? "border-accent-600 bg-accent-600 text-white" : "border-line-strong bg-surface text-ink-700 hover:bg-ink-50",
                     )}
                   >
                     {answered ? <Check className="size-3.5" aria-hidden /> : i + 1}

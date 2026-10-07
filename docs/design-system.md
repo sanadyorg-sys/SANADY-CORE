@@ -2,22 +2,30 @@
 
 All tokens live in `src/app/globals.css` (Tailwind CSS 4 `@theme`). Components read only these tokens.
 
-## Brand — placeholder
+## Brand — Fondation Sanady
 
-> **The official SANADY logo has not been supplied.** The palette below uses the temporary values from the brief. When the logo arrives:
-> 1. Extract its primary and secondary colours; regenerate the `navy` and `teal` scales (keep the step names).
-> 2. Check contrast: text on `navy-700` and `teal-600` must stay ≥ 4.5:1.
-> 3. Replace `src/components/brand/wordmark.tsx` with the original asset (`/public/brand/sanady-logo.svg`), respecting proportions and clear space; never recolour or redraw it.
-> 4. Update `COLORS` in `src/lib/pdf/common.ts` and the e-mail templates (`src/server/email.ts`, `supabase/templates/`).
+Source: the banner supplied by the foundation (`ASSETSSO/fondation-sanady-banner-original.jpg`). Assets are extracted reproducibly by `node scripts/brand/extract-brand-assets.mjs` into `public/brand/`:
 
-| Token | Value | Use |
+| Asset | Use |
+|---|---|
+| `sanady-logo.png` | Logo on light backgrounds (transparent, colours untouched) |
+| `sanady-logo-light.png` | Adaptation for dark backgrounds (black → white, orange kept) |
+| `sanady-tagline.png` | « Préparons les adultes du Maroc de demain » |
+| `sanady-classroom.jpg`, `sanady-banner.jpg` | Foundation imagery (sign-in page) |
+| `src/lib/pdf/brand-logo.ts` | Generated: logo bytes for certificates and reports |
+
+Logo rules: size by height only (`<BrandLogo className="h-10" />`), never recolour, stretch or crop; keep clear space at least the height of the orange dots.
+
+> **Resolution:** the source is a phone screenshot (logo ≈ 300 px wide). It is sharp at the sizes used, but request the original vector (SVG/AI/PDF) from the foundation and re-run the script with it before printing large formats.
+
+| Token | Value | Origin / use |
 |---|---|---|
-| `navy-700` | #123653 | Primary actions, brand surfaces |
-| `teal-600` | #287F78 | Accent, focus ring, progress |
-| `ink-50` | #F3F6F9 | Page canvas |
-| `ink-0` | #FFFFFF | Surfaces |
-| `ink-200 / 300` | lines | Borders |
-| `success / warning / danger` | semantic | Status only |
+| `brand-700` | #1C1917 | Wordmark black (softened for UI) — primary buttons, headings |
+| `accent-500` | #F95A05 | Logo orange (measured) — progress, active states, rules (non-text, ≥ 3:1) |
+| `accent-600` | #E04E00 | Focus ring, fills |
+| `accent-700` | #B83F00 | Orange **text** and accent buttons (5.6:1 on white) |
+| `ink-50` | #F7F6F4 | Page canvas (warm neutral) |
+| `success / warning / danger` | semantic | Status only — never use orange for errors |
 
 ## Typography (Inter, Latin + Latin Extended)
 
@@ -65,7 +73,7 @@ Domain components: `learning/` (course card, curriculum, video player, PDF reade
 
 ## Accessibility (WCAG 2.2 AA target)
 
-- Visible focus (`:focus-visible`, 2 px teal outline) on every interactive element.
+- Visible focus (`:focus-visible`, 2 px orange outline) on every interactive element.
 - Skip link to main content; landmarks; one `h1` per page.
 - All form controls labelled; errors announced (`role="alert"`).
 - Keyboard: dialogs and menus (Radix), video shortcuts (Space/K, ←/→, J/L, M, F), PDF page navigation (←/→), reordering by buttons (no drag-only interactions).

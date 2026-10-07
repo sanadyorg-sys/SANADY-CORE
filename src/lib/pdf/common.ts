@@ -7,15 +7,19 @@ import { rgb, type PDFFont } from "pdf-lib";
  * when possible, otherwise replaced, so generation never fails.
  */
 
-// Brand colours — PLACEHOLDER palette, see src/app/globals.css.
+const hex = (h: string) => rgb(parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255);
+
+// Fondation Sanady palette — same values as the tokens in src/app/globals.css.
 export const COLORS = {
-  navy: rgb(0x12 / 255, 0x36 / 255, 0x53 / 255),
-  navyLight: rgb(0xd9 / 255, 0xe3 / 255, 0xee / 255),
-  teal: rgb(0x28 / 255, 0x7f / 255, 0x78 / 255),
-  ink: rgb(0x1f / 255, 0x2e / 255, 0x3c / 255),
-  muted: rgb(0x67 / 255, 0x78 / 255, 0x89 / 255),
-  line: rgb(0xdc / 255, 0xe3 / 255, 0xea / 255),
-  canvas: rgb(0xf3 / 255, 0xf6 / 255, 0xf9 / 255),
+  brand: hex("#1C1917"), // wordmark black
+  brandLight: hex("#F5F4F2"),
+  accent: hex("#F95A05"), // logo orange (fills and rules only)
+  accentText: hex("#B83F00"), // orange for text (5.6:1 on white)
+  accentLight: hex("#FFF4ED"),
+  ink: hex("#292522"),
+  muted: hex("#6E6962"),
+  line: hex("#E3E0DB"),
+  canvas: hex("#F7F6F4"),
   success: rgb(0x1e / 255, 0x7a / 255, 0x4c / 255),
   danger: rgb(0xb4 / 255, 0x23 / 255, 0x18 / 255),
   white: rgb(1, 1, 1),

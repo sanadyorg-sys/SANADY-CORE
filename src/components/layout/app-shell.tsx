@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { Building2, Check, ChevronsUpDown, GraduationCap, LogOut, Menu as MenuIcon, ShieldCheck, UserRound } from "lucide-react";
-import { Wordmark } from "@/components/brand/wordmark";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Drawer, Menu, MenuItem, MenuLabel, MenuSeparator } from "@/components/ui/overlay";
 import { initials } from "@/lib/format";
@@ -56,7 +56,7 @@ export function AppShell({
     <div className="flex h-full flex-col">
       <div className="flex h-16 shrink-0 items-center px-5">
         <Link href="/" className="rounded-sm" onClick={onNavigate}>
-          <Wordmark className="text-[1.0625rem]" />
+          <BrandLogo className="h-10" priority />
         </Link>
       </div>
       <div className="px-3 pb-4">
@@ -77,7 +77,7 @@ export function AppShell({
     <div className="min-h-dvh lg:grid lg:grid-cols-[264px_minmax(0,1fr)]">
       <a
         href="#contenu"
-        className="sr-only z-[70] rounded-md bg-navy-700 px-4 py-2 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        className="sr-only z-[70] rounded-md bg-brand-700 px-4 py-2 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
       >
         Aller au contenu
       </a>
@@ -101,7 +101,7 @@ export function AppShell({
             {sidebar(() => setMobileOpen(false))}
           </Drawer>
           <Link href="/" className="lg:hidden">
-            <Wordmark className="text-[0.9375rem]" />
+            <BrandLogo className="h-8" />
           </Link>
           <p className="hidden truncate text-label font-medium text-ink-500 lg:block">{current?.label ?? areaTitle[area]}</p>
           <div className="ml-auto flex items-center gap-2">
@@ -134,7 +134,7 @@ function ContextSwitcher({
 }) {
   const box = (
     <>
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-navy-700 text-white">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent-50 text-accent-700 ring-1 ring-accent-100">
         <ContextIcon kind={current?.kind} className="size-4" />
       </span>
       <span className="min-w-0 flex-1 text-left">
@@ -168,7 +168,7 @@ function ContextSwitcher({
             <Link href={c.href}>
               <ContextIcon kind={c.kind} className="text-ink-500" />
               <span className="min-w-0 flex-1 truncate">{c.label}</span>
-              {c.key === current?.key ? <Check className="text-teal-600" aria-label="Espace actuel" /> : null}
+              {c.key === current?.key ? <Check className="text-accent-600" aria-label="Espace actuel" /> : null}
             </Link>
           </MenuItem>
         );
@@ -182,7 +182,7 @@ function UserMenu({ user, signOutAction }: { user: ShellUser; signOutAction: () 
     <Menu
       trigger={
         <button className="flex items-center gap-2.5 rounded-md py-1 pl-1 pr-2 hover:bg-ink-50" aria-label="Menu du compte">
-          <span className="flex size-8 items-center justify-center rounded-full bg-teal-50 text-caption font-semibold text-teal-800 ring-1 ring-teal-100">
+          <span className="flex size-8 items-center justify-center rounded-full bg-accent-50 text-caption font-semibold text-accent-800 ring-1 ring-accent-100">
             {initials(user.name, user.email)}
           </span>
           <span className="hidden max-w-[180px] truncate text-label font-medium text-ink-800 sm:block">{user.name}</span>

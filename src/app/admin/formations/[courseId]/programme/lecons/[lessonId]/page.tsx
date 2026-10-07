@@ -28,7 +28,7 @@ export default async function LessonEditorPage(props: PageProps<"/admin/formatio
           <ArrowLeft className="size-4" aria-hidden /> Programme{lesson.module ? ` · ${lesson.module.title}` : ""}
         </Link>
         <div className="flex items-center gap-2">
-          <Badge tone="navy">{LESSON_KINDS[lesson.kind]}</Badge>
+          <Badge tone="brand">{LESSON_KINDS[lesson.kind]}</Badge>
           {hasContent ? (
             <Link href={`${base}/apercu/lecons/${lesson.id}`} className={buttonClasses({ variant: "secondary", size: "sm" })}>
               <Eye aria-hidden /> Aperçu enseignant

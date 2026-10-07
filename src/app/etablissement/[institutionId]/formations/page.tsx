@@ -39,7 +39,7 @@ export default async function AuthorizedCoursesPage(props: PageProps<"/etablisse
               <CourseCover path={c.cover_path} title={c.title} category={c.category} className="aspect-[16/7] border-b border-line" />
               <div className="flex flex-1 flex-col p-5">
                 <div className="mb-2 flex flex-wrap gap-2">
-                  {c.category ? <Badge tone="navy">{c.category}</Badge> : null}
+                  {c.category ? <Badge tone="brand">{c.category}</Badge> : null}
                   <Badge>{COURSE_LEVELS[c.level]}</Badge>
                 </div>
                 <h2 className="text-card font-semibold text-ink-900">{c.title}</h2>

@@ -71,7 +71,7 @@ export function AttemptQuestions({ result }: { result: AttemptResult }) {
                       >
                         <span className="text-ink-800">{o.label}</span>
                         <span className="flex shrink-0 gap-1.5">
-                          {chosen ? <Badge tone="navy">Votre réponse</Badge> : null}
+                          {chosen ? <Badge tone="brand">Votre réponse</Badge> : null}
                           {result.answers_revealed && correct ? <Badge tone="success">Bonne réponse</Badge> : null}
                         </span>
                       </li>
@@ -80,7 +80,7 @@ export function AttemptQuestions({ result }: { result: AttemptResult }) {
                 </ul>
                 {q.selected_option_ids.length === 0 ? <p className="mt-2 text-label text-ink-500">Sans réponse.</p> : null}
                 {q.explanation ? (
-                  <div className="mt-3 rounded-md border-l-2 border-teal-600 bg-teal-50/60 px-3 py-2 text-body text-ink-700">
+                  <div className="mt-3 rounded-md border-l-2 border-accent-600 bg-accent-50/60 px-3 py-2 text-body text-ink-700">
                     <span className="font-medium text-ink-900">Explication : </span>
                     <span className="whitespace-pre-line">{q.explanation}</span>
                   </div>

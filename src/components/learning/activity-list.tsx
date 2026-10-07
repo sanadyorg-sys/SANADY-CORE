@@ -41,7 +41,7 @@ export function ActivityList({ items, showCourse = true }: { items: ActivityItem
             <span
               className={
                 positive
-                  ? "relative flex size-[27px] shrink-0 items-center justify-center rounded-full bg-teal-50 text-teal-700 ring-1 ring-teal-100"
+                  ? "relative flex size-[27px] shrink-0 items-center justify-center rounded-full bg-accent-50 text-accent-700 ring-1 ring-accent-100"
                   : "relative flex size-[27px] shrink-0 items-center justify-center rounded-full bg-ink-50 text-ink-500 ring-1 ring-line"
               }
             >

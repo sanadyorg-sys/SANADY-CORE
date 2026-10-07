@@ -92,7 +92,7 @@ export default async function PeoplePage(props: PageProps<"/admin/enseignants">)
                     <TD>
                       <div className="flex flex-wrap gap-1.5">
                         {p.status === "active" ? <Badge tone="success">Actif</Badge> : <Badge tone="danger">Suspendu</Badge>}
-                        {p.is_admin ? <Badge tone="navy">Admin SANADY</Badge> : null}
+                        {p.is_admin ? <Badge tone="brand">Admin SANADY</Badge> : null}
                       </div>
                     </TD>
                     <TD>{formatDate(p.created_at)}</TD>

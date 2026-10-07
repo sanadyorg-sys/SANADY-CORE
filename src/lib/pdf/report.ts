@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, type PDFFont, type PDFPage } from "pdf-lib";
+import { BRAND_LOGO_PNG_BASE64 } from "./brand-logo";
 import { COLORS, pdfDate, pdfPercent, pdfSafe, truncateToWidth, wrapText } from "./common";
 
 export interface ReportModule {
@@ -54,6 +55,7 @@ export async function renderTeacherReportPdf(data: TeacherReportData): Promise<U
 
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const logo = await pdf.embedPng(Buffer.from(BRAND_LOGO_PNG_BASE64, "base64"));
   const contentWidth = A4[0] - MARGIN * 2;
 
   let page: PDFPage = pdf.addPage(A4);
@@ -61,8 +63,8 @@ export async function renderTeacherReportPdf(data: TeacherReportData): Promise<U
 
   const header = () => {
     const { height } = page.getSize();
-    page.drawRectangle({ x: 0, y: height - 6, width: A4[0], height: 6, color: COLORS.navy });
-    page.drawText("S A N A D Y", { x: MARGIN, y: height - 40, size: 10, font: bold, color: COLORS.navy });
+    page.drawRectangle({ x: 0, y: height - 6, width: A4[0], height: 6, color: COLORS.accent });
+    page.drawImage(logo, { x: MARGIN, y: height - 50, width: (logo.width / logo.height) * 30, height: 30 });
     const right = pdfSafe("Rapport individuel de progression");
     page.drawText(right, { x: A4[0] - MARGIN - regular.widthOfTextAtSize(right, 8.5), y: height - 40, size: 8.5, font: regular, color: COLORS.muted });
     page.drawLine({ start: { x: MARGIN, y: height - 52 }, end: { x: A4[0] - MARGIN, y: height - 52 }, thickness: 0.5, color: COLORS.line });
@@ -89,7 +91,7 @@ export async function renderTeacherReportPdf(data: TeacherReportData): Promise<U
   };
 
   // ─── Title block ────────────────────────────────────────────────────────
-  text("Rapport de progression individuel", { size: 18, font: bold, color: COLORS.navy });
+  text("Rapport de progression individuel", { size: 18, font: bold, color: COLORS.brand });
   y -= 2;
   text(`${data.institutionName} · généré le ${pdfDate(data.generatedAt)} par ${data.generatedBy}`, {
     size: 9,
@@ -130,7 +132,7 @@ export async function renderTeacherReportPdf(data: TeacherReportData): Promise<U
     ];
     const row = (cells: string[], opts: { header?: boolean } = {}) => {
       ensure(22);
-      if (opts.header) page.drawRectangle({ x: MARGIN, y: y - 6, width: contentWidth, height: 18, color: COLORS.navyLight });
+      if (opts.header) page.drawRectangle({ x: MARGIN, y: y - 6, width: contentWidth, height: 18, color: COLORS.brandLight });
       let x = MARGIN + 6;
       cells.forEach((cell, i) => {
         const font = opts.header || i === 0 ? bold : regular;
@@ -140,7 +142,7 @@ export async function renderTeacherReportPdf(data: TeacherReportData): Promise<U
           y,
           size,
           font,
-          color: opts.header ? COLORS.navy : COLORS.ink,
+          color: COLORS.ink,
         });
         x += cols[i]!.width;
       });
@@ -163,7 +165,7 @@ export async function renderTeacherReportPdf(data: TeacherReportData): Promise<U
     for (const c of data.courses) {
       ensure(80);
       y -= 6;
-      text(c.title, { size: 11.5, font: bold, color: COLORS.navy, maxWidth: contentWidth });
+      text(c.title, { size: 11.5, font: bold, color: COLORS.brand, maxWidth: contentWidth });
       const meta = [
         `Affectée le ${pdfDate(c.assignedAt)}`,
         c.dueOn ? `échéance ${pdfDate(c.dueOn)}` : null,

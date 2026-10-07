@@ -74,7 +74,7 @@ export default async function CourseOverviewPage(props: PageProps<"/espace/forma
         <div className="min-w-0 space-y-8">
           <header>
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              {course.category ? <Badge tone="navy">{course.category}</Badge> : null}
+              {course.category ? <Badge tone="brand">{course.category}</Badge> : null}
               <Badge>{COURSE_LEVELS[course.level]}</Badge>
               {completed ? <Badge tone="success" dot>Terminée</Badge> : null}
             </div>
@@ -158,7 +158,7 @@ export default async function CourseOverviewPage(props: PageProps<"/espace/forma
               <ul className="grid grid-cols-1 gap-x-6 gap-y-2.5 md:grid-cols-2">
                 {course.objectives.map((o, i) => (
                   <li key={i} className="flex gap-3 text-body text-ink-700">
-                    <Target className="mt-0.5 size-4 shrink-0 text-teal-600" aria-hidden />
+                    <Target className="mt-0.5 size-4 shrink-0 text-accent-600" aria-hidden />
                     {o}
                   </li>
                 ))}

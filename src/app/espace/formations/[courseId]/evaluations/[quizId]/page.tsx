@@ -44,10 +44,10 @@ export default async function QuizPage(props: PageProps<"/espace/formations/[cou
       </div>
 
       <header className="mb-6">
-        <p className="text-label font-medium text-teal-700">{quiz.module?.title}</p>
+        <p className="text-label font-medium text-accent-700">{quiz.module?.title}</p>
         <h1 className="mt-1 text-title font-semibold text-ink-900">{quiz.title}</h1>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Badge tone="navy">{status.question_count} question{status.question_count > 1 ? "s" : ""}</Badge>
+          <Badge tone="brand">{status.question_count} question{status.question_count > 1 ? "s" : ""}</Badge>
           <Badge>Seuil de réussite : {status.pass_threshold} %</Badge>
           <Badge>
             Tentatives : {status.attempts_used}/{status.max_attempts}
@@ -99,7 +99,7 @@ export default async function QuizPage(props: PageProps<"/espace/formations/[cou
           <Card>
             <CardBody className="space-y-4">
               <div className="flex items-start gap-3">
-                <ClipboardCheck className="mt-0.5 size-5 shrink-0 text-teal-600" aria-hidden />
+                <ClipboardCheck className="mt-0.5 size-5 shrink-0 text-accent-600" aria-hidden />
                 <div className="space-y-2 text-body text-ink-700">
                   {quiz.instructions ? <p className="whitespace-pre-line">{quiz.instructions}</p> : null}
                   <ul className="list-disc space-y-1 pl-5 text-ink-600">

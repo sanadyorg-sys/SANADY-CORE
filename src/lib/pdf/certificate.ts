@@ -1,5 +1,6 @@
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import QRCode from "qrcode";
+import { BRAND_LOGO_PNG_BASE64 } from "./brand-logo";
 import { COLORS, pdfDate, pdfDuration, pdfSafe, wrapText } from "./common";
 
 export interface CertificateData {
@@ -40,22 +41,23 @@ export async function renderCertificatePdf(data: CertificateData): Promise<Uint8
 
   // Frame
   page.drawRectangle({ x: 0, y: 0, width, height, color: COLORS.white });
-  page.drawRectangle({ x: 22, y: 22, width: width - 44, height: height - 44, borderColor: COLORS.navy, borderWidth: 1.6 });
-  page.drawRectangle({ x: 30, y: 30, width: width - 60, height: height - 60, borderColor: COLORS.teal, borderWidth: 0.5 });
-  page.drawRectangle({ x: 22, y: height - 30, width: width - 44, height: 8, color: COLORS.navy });
+  page.drawRectangle({ x: 22, y: 22, width: width - 44, height: height - 44, borderColor: COLORS.brand, borderWidth: 1.6 });
+  page.drawRectangle({ x: 30, y: 30, width: width - 60, height: height - 60, borderColor: COLORS.accent, borderWidth: 0.5 });
+  page.drawRectangle({ x: 22, y: height - 30, width: width - 44, height: 8, color: COLORS.accent });
 
-  // Wordmark (placeholder until the official logo is supplied)
-  const mark = "S A N A D Y";
-  page.drawRectangle({ x: (width - bold.widthOfTextAtSize(mark, 15)) / 2 - 14, y: height - 86, width: 4, height: 17, color: COLORS.teal });
-  center(mark, height - 84, 15, bold, COLORS.navy);
-  center("Plateforme de formation et de développement professionnel des enseignants", height - 104, 9, regular, COLORS.muted);
+  // Official logo (never recoloured or stretched: scaled by height only).
+  const logo = await pdf.embedPng(Buffer.from(BRAND_LOGO_PNG_BASE64, "base64"));
+  const logoHeight = 52;
+  const logoWidth = (logo.width / logo.height) * logoHeight;
+  page.drawImage(logo, { x: (width - logoWidth) / 2, y: height - 100, width: logoWidth, height: logoHeight });
+  center("Plateforme de formation et de développement professionnel des enseignants", height - 116, 9, regular, COLORS.muted);
 
-  center("CERTIFICAT DE FIN DE FORMATION", height - 160, 24, bold, COLORS.navy);
+  center("CERTIFICAT DE FIN DE FORMATION", height - 160, 24, bold, COLORS.brand);
   page.drawLine({
     start: { x: width / 2 - 40, y: height - 176 },
     end: { x: width / 2 + 40, y: height - 176 },
     thickness: 1.2,
-    color: COLORS.teal,
+    color: COLORS.accent,
   });
 
   center("Ce certificat est décerné à", height - 210, 12, regular, COLORS.muted);
@@ -64,7 +66,7 @@ export async function renderCertificatePdf(data: CertificateData): Promise<Uint8
 
   center("pour avoir suivi l’intégralité de la formation", height - 286, 12, regular, COLORS.muted);
   const titleLines = wrapText(`« ${data.courseTitle} »`, bold, 17, width - 220).slice(0, 2);
-  titleLines.forEach((line, i) => center(line, height - 316 - i * 22, 17, bold, COLORS.navy));
+  titleLines.forEach((line, i) => center(line, height - 316 - i * 22, 17, bold, COLORS.brand));
   const afterTitle = height - 316 - (titleLines.length - 1) * 22;
   center("et réussi l’ensemble de ses évaluations (score minimal de 70 % par module).", afterTitle - 26, 12, regular, COLORS.muted);
 
@@ -97,7 +99,7 @@ export async function renderCertificatePdf(data: CertificateData): Promise<Uint8
     errorCorrectionLevel: "M",
     margin: 1,
     width: 360,
-    color: { dark: "#123653", light: "#FFFFFF" },
+    color: { dark: "#1C1917", light: "#FFFFFF" },
   });
   const qr = await pdf.embedPng(qrPng);
   const qrX = width - 70 - qrSize;
@@ -109,7 +111,7 @@ export async function renderCertificatePdf(data: CertificateData): Promise<Uint8
     y: qrY - 11,
     size: 7.5,
     font: bold,
-    color: COLORS.navy,
+    color: COLORS.accentText,
   });
   const urlText = pdfSafe(data.verificationUrl.replace(/^https?:\/\//, ""));
   const urlSize = Math.min(6.5, (qrSize + 120) / Math.max(1, regular.widthOfTextAtSize(urlText, 1)));

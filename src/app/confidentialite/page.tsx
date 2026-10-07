@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Wordmark } from "@/components/brand/wordmark";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Confidentialité et données personnelles" };
@@ -24,9 +24,9 @@ export default async function PrivacyPage() {
       <header className="border-b border-line">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-6">
           <Link href="/" className="rounded-sm">
-            <Wordmark className="text-lg" />
+            <BrandLogo className="h-9" />
           </Link>
-          <Link href="/" className="text-label font-medium text-teal-700 hover:underline">
+          <Link href="/" className="text-label font-medium text-accent-700 hover:underline">
             Retour à la plateforme
           </Link>
         </div>
@@ -49,7 +49,7 @@ export default async function PrivacyPage() {
               {contact ? (
                 <>
                   {" "}
-                  Contact : <a href={`mailto:${contact}`} className="font-medium text-teal-700 underline">{contact}</a>.
+                  Contact : <a href={`mailto:${contact}`} className="font-medium text-accent-700 underline">{contact}</a>.
                 </>
               ) : null}
             </p>

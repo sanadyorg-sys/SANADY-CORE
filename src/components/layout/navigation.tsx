@@ -125,11 +125,11 @@ export function SidebarNav({
                     aria-current={active ? "page" : undefined}
                     className={cn(
                       "group flex h-9 items-center gap-3 rounded-md px-3 text-body font-medium transition-colors",
-                      active ? "bg-navy-50 text-navy-800" : "text-ink-600 hover:bg-ink-50 hover:text-ink-900",
+                      active ? "bg-accent-50 text-ink-900 shadow-[inset_3px_0_0_var(--color-accent-500)]" : "text-ink-600 hover:bg-ink-50 hover:text-ink-900",
                     )}
                   >
                     <Icon
-                      className={cn("size-[1.0625rem] shrink-0", active ? "text-navy-700" : "text-ink-400 group-hover:text-ink-600")}
+                      className={cn("size-[1.0625rem] shrink-0", active ? "text-accent-600" : "text-ink-400 group-hover:text-ink-600")}
                       aria-hidden
                     />
                     <span className="truncate">{item.label}</span>

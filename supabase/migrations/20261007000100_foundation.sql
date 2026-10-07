@@ -110,7 +110,7 @@ create table public.platform_settings (
   id                            boolean primary key default true check (id),
   inactivity_threshold_days     smallint not null default 14 check (inactivity_threshold_days between 3 and 180),
   invitation_validity_days      smallint not null default 7  check (invitation_validity_days between 1 and 30),
-  certificate_issuer_name       text not null default 'SANADY' check (char_length(certificate_issuer_name) between 2 and 120),
+  certificate_issuer_name       text not null default 'Fondation Sanady' check (char_length(certificate_issuer_name) between 2 and 120),
   certificate_signatory_name    text check (char_length(certificate_signatory_name) <= 120),
   certificate_signatory_title   text check (char_length(certificate_signatory_title) <= 120),
   support_email                 text check (support_email = lower(support_email)),

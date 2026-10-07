@@ -53,7 +53,7 @@ export function LearnerProgress({
                   c.enrollment_status === "completed" ? (
                     <Badge tone="success" dot>Terminée</Badge>
                   ) : c.started_at ? (
-                    <Badge tone="teal" dot>En cours</Badge>
+                    <Badge tone="accent" dot>En cours</Badge>
                   ) : (
                     <Badge>Non commencée</Badge>
                   )
@@ -126,7 +126,7 @@ export function LearnerProgress({
                               <TD align="right">{formatScore(a.score_percent)}</TD>
                               <TD>{a.passed ? <Badge tone="success">Réussie</Badge> : <Badge tone="danger">Non validée</Badge>}</TD>
                               <TD align="right">
-                                <Link href={attemptHref(a.id)} className="text-label font-medium text-teal-700 hover:underline">
+                                <Link href={attemptHref(a.id)} className="text-label font-medium text-accent-700 hover:underline">
                                   Détail
                                 </Link>
                               </TD>

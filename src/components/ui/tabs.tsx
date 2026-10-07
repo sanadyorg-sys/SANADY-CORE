@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 const tabClass = (active: boolean) =>
   cn(
     "relative -mb-px inline-flex h-10 items-center gap-2 whitespace-nowrap border-b-2 px-1 text-body font-medium transition-colors",
-    active ? "border-teal-600 text-ink-900" : "border-transparent text-ink-500 hover:border-ink-300 hover:text-ink-800",
+    active ? "border-accent-600 text-ink-900" : "border-transparent text-ink-500 hover:border-ink-300 hover:text-ink-800",
   );
 
 /** Route-based tabs (each tab is a URL). */
@@ -72,7 +72,7 @@ export function Tabs({
             value={item.value}
             className={cn(
               tabClass(false),
-              "data-[state=active]:border-teal-600 data-[state=active]:text-ink-900",
+              "data-[state=active]:border-accent-600 data-[state=active]:text-ink-900",
             )}
           >
             {item.label}

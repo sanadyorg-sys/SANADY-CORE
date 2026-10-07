@@ -37,7 +37,7 @@ export default async function CertificatesPage() {
               <li key={c.id}>
                 <Card className="flex h-full flex-col p-5">
                   <div className="flex items-start gap-4">
-                    <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-700 ring-1 ring-teal-100">
+                    <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-700 ring-1 ring-accent-100">
                       <Award className="size-5" aria-hidden />
                     </div>
                     <div className="min-w-0 flex-1">

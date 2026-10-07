@@ -41,18 +41,18 @@ const escape = (s: string) =>
 
 function layout(title: string, paragraphs: string[], cta: { label: string; url: string }, footnote: string) {
   const html = `<!doctype html>
-<html lang="fr"><body style="margin:0;background:#f3f6f9;font-family:Inter,Segoe UI,Arial,sans-serif;color:#1f2e3c">
+<html lang="fr"><body style="margin:0;background:#f7f6f4;font-family:Inter,Segoe UI,Arial,sans-serif;color:#292522">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px">
 <tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #dce3ea;border-radius:8px">
-<tr><td style="padding:24px 32px;border-bottom:1px solid #dce3ea;font-weight:600;letter-spacing:.14em;color:#123653">SANADY</td></tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #e3e0db;border-radius:8px">
+<tr><td style="padding:20px 32px;border-bottom:1px solid #e3e0db"><img src="${publicEnv.appUrl}/brand/sanady-logo.png" alt="Fondation Sanady" height="44" style="display:block;height:44px;width:auto;border:0"></td></tr>
 <tr><td style="padding:28px 32px">
-<h1 style="margin:0 0 16px;font-size:20px;line-height:28px;color:#13202c">${escape(title)}</h1>
+<h1 style="margin:0 0 16px;font-size:20px;line-height:28px;color:#1a1715">${escape(title)}</h1>
 ${paragraphs.map((p) => `<p style="margin:0 0 14px;font-size:15px;line-height:24px">${p}</p>`).join("\n")}
-<p style="margin:24px 0"><a href="${escape(cta.url)}" style="display:inline-block;background:#123653;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:6px">${escape(cta.label)}</a></p>
-<p style="margin:0;font-size:13px;line-height:20px;color:#677889">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><span style="word-break:break-all">${escape(cta.url)}</span></p>
+<p style="margin:24px 0"><a href="${escape(cta.url)}" style="display:inline-block;background:#1c1917;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:6px">${escape(cta.label)}</a></p>
+<p style="margin:0;font-size:13px;line-height:20px;color:#6e6962">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><span style="word-break:break-all">${escape(cta.url)}</span></p>
 </td></tr>
-<tr><td style="padding:16px 32px;border-top:1px solid #dce3ea;font-size:12px;line-height:18px;color:#677889">${escape(footnote)}</td></tr>
+<tr><td style="padding:16px 32px;border-top:1px solid #e3e0db;font-size:12px;line-height:18px;color:#6e6962">${escape(footnote)}</td></tr>
 </table></td></tr></table></body></html>`;
   const text = [title, "", ...paragraphs.map((p) => p.replace(/<[^>]+>/g, "")), "", `${cta.label} : ${cta.url}`, "", footnote].join("\n");
   return { html, text };

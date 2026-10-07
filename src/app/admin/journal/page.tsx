@@ -82,7 +82,7 @@ export default async function AuditLogPage(props: PageProps<"/admin/journal">) {
                     <TD className="whitespace-nowrap">{formatDateTime(row.created_at)}</TD>
                     <TD>{row.actor ? row.actor.full_name || row.actor.email : <span className="text-ink-500">Système</span>}</TD>
                     <TD>
-                      <Badge tone={row.action === "delete" ? "danger" : row.action === "insert" ? "teal" : "neutral"}>
+                      <Badge tone={row.action === "delete" ? "danger" : row.action === "insert" ? "accent" : "neutral"}>
                         {AUDIT_ACTIONS[row.action] ?? row.action}
                       </Badge>
                     </TD>

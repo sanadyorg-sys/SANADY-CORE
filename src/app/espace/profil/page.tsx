@@ -91,12 +91,12 @@ export default async function ProfilePage() {
             <CardHeader title="Vos données" />
             <CardBody className="space-y-3 text-body text-ink-600">
               <p className="flex gap-2">
-                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-teal-600" aria-hidden />
+                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-accent-600" aria-hidden />
                 Un établissement ne voit votre progression que pour les formations qu’il vous a lui-même affectées.
               </p>
               <p>
                 Notice acceptée le {formatDate(viewer.profile.privacy_acknowledged_at)}.{" "}
-                <Link href="/confidentialite" className="font-medium text-teal-700 hover:underline">
+                <Link href="/confidentialite" className="font-medium text-accent-700 hover:underline">
                   Consulter la notice
                 </Link>
               </p>

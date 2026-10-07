@@ -83,7 +83,7 @@ export function CurriculumEditor({ courseId, modules }: { courseId: string; modu
           <li key={m.id}>
             <Card className="overflow-hidden">
               <div className="flex flex-wrap items-center gap-3 border-b border-line bg-ink-25 px-4 py-3">
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-navy-700 text-caption font-semibold text-white">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-brand-700 text-caption font-semibold text-white">
                   {mi + 1}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -191,7 +191,7 @@ export function CurriculumEditor({ courseId, modules }: { courseId: string; modu
                 </li>
                 {m.quiz ? (
                   <li className={cn("flex flex-wrap items-center gap-3 px-4 py-3", m.quiz.question_count === 0 && "bg-warning-50/60")}>
-                    <ClipboardCheck className="size-4 shrink-0 text-teal-600" aria-hidden />
+                    <ClipboardCheck className="size-4 shrink-0 text-accent-600" aria-hidden />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-body font-medium text-ink-800">{m.quiz.title}</p>
                       <p className="text-caption text-ink-500">Évaluation obligatoire · seuil {m.quiz.pass_threshold} % · {m.quiz.max_attempts} tentatives</p>
@@ -306,7 +306,7 @@ function AddLessonDialog({ courseId, moduleId }: { courseId: string; moduleId: s
                 key={o.value}
                 className={cn(
                   "flex cursor-pointer items-center gap-2.5 rounded-md border px-3 py-2.5 text-body",
-                  kind === o.value ? "border-teal-600 bg-teal-50/60 ring-1 ring-teal-600" : "border-line-strong hover:bg-ink-25",
+                  kind === o.value ? "border-accent-600 bg-accent-50/60 ring-1 ring-accent-600" : "border-line-strong hover:bg-ink-25",
                 )}
               >
                 <input type="radio" name="kind" value={o.value} checked={kind === o.value} onChange={() => setKind(o.value)} className="sr-only" />

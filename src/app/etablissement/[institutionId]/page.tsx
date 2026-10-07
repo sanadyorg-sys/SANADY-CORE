@@ -97,7 +97,7 @@ export default async function InstitutionDashboardPage(props: PageProps<"/etabli
                   <dl className="grid grid-cols-3 gap-4">
                     {[
                       { label: "Terminées", value: overview.completed_assignments, dot: "bg-success-600" },
-                      { label: "En cours", value: overview.in_progress_assignments, dot: "bg-teal-600" },
+                      { label: "En cours", value: overview.in_progress_assignments, dot: "bg-accent-600" },
                       { label: "Non commencées", value: overview.not_started_assignments, dot: "bg-ink-300" },
                     ].map((s) => (
                       <div key={s.label}>

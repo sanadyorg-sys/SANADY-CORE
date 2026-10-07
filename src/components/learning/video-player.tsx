@@ -307,7 +307,7 @@ export function VideoPlayer({
         {!playing && !error ? (
           <button
             onClick={togglePlay}
-            className="absolute left-1/2 top-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-navy-800 shadow-pop transition-transform hover:scale-105"
+            className="absolute left-1/2 top-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-brand-800 shadow-pop transition-transform hover:scale-105"
             aria-label={time > 0 ? "Reprendre la lecture" : "Lire la vidéo"}
           >
             <Play className="ml-1 size-7" fill="currentColor" aria-hidden />
@@ -383,7 +383,7 @@ export function VideoPlayer({
                 <MenuLabel>Vitesse de lecture</MenuLabel>
                 {SPEEDS.map((s) => (
                   <MenuItem key={s} onSelect={() => changeRate(s)}>
-                    <span className={cn("tabular", s === rate && "font-semibold text-teal-700")}>
+                    <span className={cn("tabular", s === rate && "font-semibold text-accent-700")}>
                       {s === 1 ? "Normale" : `${s}×`}
                     </span>
                   </MenuItem>
