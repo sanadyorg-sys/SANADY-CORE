@@ -107,7 +107,7 @@ export default async function CourseAssignmentPage(props: PageProps<"/etablissem
                           variant="danger-ghost"
                           action={unassignCourse.bind(null, a.id, institutionId)}
                           confirm={{
-                            title: "Retirer cette affectation ?",
+                            title: "Retirer cette affectation ?",
                             description:
                               "L’enseignant n’aura plus accès à la formation via l’établissement. Sa progression est conservée et réapparaîtra si la formation lui est de nouveau affectée.",
                             confirmLabel: "Retirer l’affectation",

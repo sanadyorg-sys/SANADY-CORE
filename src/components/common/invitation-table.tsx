@@ -77,7 +77,7 @@ export function InvitationTable({
                       variant="danger-ghost"
                       action={revokeInvitation.bind(null, inv.id)}
                       confirm={{
-                        title: "Annuler cette invitation ?",
+                        title: "Annuler cette invitation ?",
                         description: `Le lien envoyé à ${inv.email} ne fonctionnera plus.`,
                         confirmLabel: "Annuler l’invitation",
                       }}

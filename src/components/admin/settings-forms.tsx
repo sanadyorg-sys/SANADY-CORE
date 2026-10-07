@@ -126,7 +126,7 @@ function CategoryRow({ category }: { category: CourseCategory }) {
             size="icon-sm"
             action={deleteCategory.bind(null, category.id)}
             confirm={{
-              title: `Supprimer la catégorie « ${category.name} » ?`,
+              title: `Supprimer la catégorie « ${category.name} » ?`,
               description: "Les formations de cette catégorie n’en auront plus ; une catégorie est requise pour publier.",
               confirmLabel: "Supprimer",
             }}

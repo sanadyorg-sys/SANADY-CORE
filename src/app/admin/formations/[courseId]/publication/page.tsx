@@ -93,7 +93,7 @@ export default async function PublicationPage(props: PageProps<"/admin/formation
                   size="md"
                   action={deleteCourse.bind(null, courseId)}
                   confirm={{
-                    title: "Supprimer définitivement cette formation ?",
+                    title: "Supprimer définitivement cette formation ?",
                     description: "Les modules, leçons et évaluations du brouillon seront supprimés. Cette action est irréversible.",
                     confirmLabel: "Supprimer",
                   }}

@@ -50,7 +50,7 @@ export function CourseStatusActions({
               <EyeOff aria-hidden /> Dépublier
             </Button>
           }
-          title="Repasser la formation en brouillon ?"
+          title="Repasser la formation en brouillon ?"
           description={
             activeLearners > 0
               ? `${activeLearners} enseignant(s) suivent actuellement cette formation : ils n’y auront plus accès jusqu’à sa republication. Leur progression est conservée.`
@@ -68,7 +68,7 @@ export function CourseStatusActions({
               <Archive aria-hidden /> Archiver
             </Button>
           }
-          title="Archiver la formation ?"
+          title="Archiver la formation ?"
           description="Une formation archivée n’est plus accessible ni attribuable. Les certificats déjà délivrés restent valides et vérifiables."
           confirmLabel="Archiver"
           onConfirm={() => apply("archived")}

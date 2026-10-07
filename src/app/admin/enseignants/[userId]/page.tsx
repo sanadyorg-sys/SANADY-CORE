@@ -41,7 +41,7 @@ export default async function PersonPage(props: PageProps<"/admin/enseignants/[u
               variant="danger-ghost"
               action={setUserStatus.bind(null, userId, "suspended")}
               confirm={{
-                title: "Suspendre ce compte ?",
+                title: "Suspendre ce compte ?",
                 description: "La personne ne pourra plus se connecter ni accéder aux formations. Ses données sont conservées et le compte peut être réactivé.",
                 confirmLabel: "Suspendre le compte",
               }}
@@ -137,7 +137,7 @@ export default async function PersonPage(props: PageProps<"/admin/enseignants/[u
                       variant="danger-ghost"
                       action={revokeCourseFromUser.bind(null, p.course.id, userId)}
                       confirm={{
-                        title: "Retirer cet accès individuel ?",
+                        title: "Retirer cet accès individuel ?",
                         description: "La progression est conservée. L’accès peut subsister si un établissement a affecté cette formation.",
                         confirmLabel: "Retirer",
                       }}

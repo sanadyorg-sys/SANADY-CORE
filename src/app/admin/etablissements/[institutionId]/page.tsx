@@ -70,7 +70,7 @@ export default async function AdminInstitutionPage(props: PageProps<"/admin/etab
                 variant="danger-ghost"
                 action={setInstitutionStatus.bind(null, institution.id, "suspended")}
                 confirm={{
-                  title: "Suspendre l’établissement ?",
+                  title: "Suspendre l’établissement ?",
                   description:
                     "Ses administrateurs perdent l’accès à l’espace établissement et les formations affectées par l’établissement deviennent inaccessibles. Aucune donnée n’est supprimée.",
                   confirmLabel: "Suspendre",
@@ -139,7 +139,7 @@ export default async function AdminInstitutionPage(props: PageProps<"/admin/etab
                       variant="danger-ghost"
                       action={revokeCourseFromInstitution.bind(null, p.course.id, institution.id)}
                       confirm={{
-                        title: "Retirer cette autorisation ?",
+                        title: "Retirer cette autorisation ?",
                         description:
                           "Les affectations de cette formation dans l’établissement seront retirées et les enseignants concernés n’y auront plus accès par ce biais. Leur progression est conservée.",
                         confirmLabel: "Retirer l’autorisation",
@@ -189,7 +189,7 @@ export default async function AdminInstitutionPage(props: PageProps<"/admin/etab
                         variant="danger-ghost"
                         action={revokeMembership.bind(null, m.id, institution.id)}
                         confirm={{
-                          title: `Retirer ${m.user.full_name || m.user.email} de l’établissement ?`,
+                          title: `Retirer ${m.user.full_name || m.user.email} de l’établissement ?`,
                           description: "Le compte personnel, la progression et les certificats sont conservés.",
                           confirmLabel: "Retirer",
                         }}

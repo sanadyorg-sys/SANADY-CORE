@@ -116,7 +116,7 @@ export default async function CourseAuthorizationsPage(props: PageProps<"/admin/
                   <ActionButton
                     variant="danger-ghost"
                     action={revokeCourseFromUser.bind(null, courseId, p.user!.id)}
-                    confirm={{ title: "Retirer cet accès individuel ?", description: "La progression de l’enseignant est conservée.", confirmLabel: "Retirer" }}
+                    confirm={{ title: "Retirer cet accès individuel ?", description: "La progression de l’enseignant est conservée.", confirmLabel: "Retirer" }}
                   >
                     Retirer
                   </ActionButton>

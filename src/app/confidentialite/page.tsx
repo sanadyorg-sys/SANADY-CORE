@@ -42,7 +42,9 @@ export default async function PrivacyPage() {
           <section>
             <h2>1. Responsable du traitement</h2>
             <p>
-              Les données sont traitées par {operator}, opérateur de la plateforme SANADY, dans le respect de la loi n° 09-08
+              Les données sont traitées par{" "}
+              {operator === "SANADY" ? "l’opérateur de la plateforme SANADY" : `${operator}, opérateur de la plateforme SANADY`}, dans le
+              respect de la loi n° 09-08
               relative à la protection des personnes physiques à l’égard du traitement des données à caractère personnel.
               {contact ? (
                 <>
@@ -83,7 +85,7 @@ export default async function PrivacyPage() {
           </section>
 
           <section>
-            <h2>4. Qui peut consulter vos données ?</h2>
+            <h2>4. Qui peut consulter vos données ?</h2>
             <ul>
               <li>
                 <strong className="font-semibold text-ink-900">Vous-même</strong> : l’ensemble de vos données.

@@ -261,7 +261,7 @@ function SubmitAttempt({
           <Send aria-hidden /> Terminer et soumettre
         </Button>
       }
-      title="Soumettre vos réponses ?"
+      title="Soumettre vos réponses ?"
       description={
         unanswered > 0
           ? `${unanswered} question${unanswered > 1 ? "s restent" : " reste"} sans réponse et ${unanswered > 1 ? "seront comptées" : "sera comptée"} comme incorrecte${unanswered > 1 ? "s" : ""}. Une fois soumise, la tentative ne peut plus être modifiée.`

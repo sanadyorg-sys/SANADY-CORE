@@ -50,7 +50,7 @@ function layout(title: string, paragraphs: string[], cta: { label: string; url: 
 <h1 style="margin:0 0 16px;font-size:20px;line-height:28px;color:#13202c">${escape(title)}</h1>
 ${paragraphs.map((p) => `<p style="margin:0 0 14px;font-size:15px;line-height:24px">${p}</p>`).join("\n")}
 <p style="margin:24px 0"><a href="${escape(cta.url)}" style="display:inline-block;background:#123653;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:6px">${escape(cta.label)}</a></p>
-<p style="margin:0;font-size:13px;line-height:20px;color:#677889">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><span style="word-break:break-all">${escape(cta.url)}</span></p>
+<p style="margin:0;font-size:13px;line-height:20px;color:#677889">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><span style="word-break:break-all">${escape(cta.url)}</span></p>
 </td></tr>
 <tr><td style="padding:16px 32px;border-top:1px solid #dce3ea;font-size:12px;line-height:18px;color:#677889">${escape(footnote)}</td></tr>
 </table></td></tr></table></body></html>`;

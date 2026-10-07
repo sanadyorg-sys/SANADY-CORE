@@ -45,7 +45,7 @@ export default async function AdminsPage() {
                       variant="danger-ghost"
                       action={removePlatformAdmin.bind(null, a.user.id)}
                       confirm={{
-                        title: "Retirer le rôle d’administrateur ?",
+                        title: "Retirer le rôle d’administrateur ?",
                         description: "La personne conserve son compte personnel mais perd l’accès à l’administration SANADY.",
                         confirmLabel: "Retirer le rôle",
                       }}

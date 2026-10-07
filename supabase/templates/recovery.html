@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr">
+  <body style="margin:0;background:#f3f6f9;font-family:Inter,Segoe UI,Arial,sans-serif;color:#1f2e3c">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px">
+      <tr><td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #dce3ea;border-radius:8px">
+          <tr><td style="padding:24px 32px;border-bottom:1px solid #dce3ea;font-weight:600;letter-spacing:.14em;color:#123653">SANADY</td></tr>
+          <tr><td style="padding:28px 32px">
+            <h1 style="margin:0 0 16px;font-size:20px;line-height:28px;color:#13202c">Définir un nouveau mot de passe</h1>
+            <p style="margin:0 0 14px;font-size:15px;line-height:24px">Une demande de réinitialisation du mot de passe de votre compte SANADY a été effectuée. Ce lien est valable une heure et ne peut être utilisé qu’une seule fois.</p>
+            <p style="margin:24px 0"><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/nouveau-mot-de-passe" style="display:inline-block;background:#123653;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:6px">Choisir un nouveau mot de passe</a></p>
+            <p style="margin:0;font-size:13px;line-height:20px;color:#677889">Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail : votre mot de passe reste inchangé.</p>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>

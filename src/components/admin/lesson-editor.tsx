@@ -230,7 +230,7 @@ export function ResourcesEditor({ lesson, resources }: { lesson: Lesson; resourc
                 variant="danger-ghost"
                 size="icon-sm"
                 action={removeLessonResource.bind(null, r.id, lesson.course_id)}
-                confirm={{ title: `Supprimer « ${r.title} » ?`, description: "Le fichier sera supprimé définitivement.", confirmLabel: "Supprimer" }}
+                confirm={{ title: `Supprimer « ${r.title} » ?`, description: "Le fichier sera supprimé définitivement.", confirmLabel: "Supprimer" }}
               >
                 <Trash2 aria-label="Supprimer la ressource" />
               </ActionButton>

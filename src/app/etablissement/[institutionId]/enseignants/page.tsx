@@ -116,7 +116,7 @@ export default async function TeacherDirectoryPage(props: PageProps<"/etablissem
                         variant="danger-ghost"
                         action={revokeMembership.bind(null, t.membership_id, institutionId)}
                         confirm={{
-                          title: `Retirer ${t.full_name || t.email} de l’établissement ?`,
+                          title: `Retirer ${t.full_name || t.email} de l’établissement ?`,
                           description:
                             "Ses affectations de formation seront retirées et l’établissement n’aura plus accès à son suivi. Son compte personnel, sa progression et ses certificats sont conservés.",
                           confirmLabel: "Retirer",

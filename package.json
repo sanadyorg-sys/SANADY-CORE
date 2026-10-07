@@ -18,7 +18,8 @@
     "test:unit": "vitest run tests/unit",
     "test:e2e": "playwright test",
     "postinstall": "node scripts/copy-pdf-worker.mjs",
-    "admin:create": "node --env-file=.env.local scripts/create-admin.mjs"
+    "admin:create": "node --env-file=.env.local scripts/create-admin.mjs",
+    "db:types": "npx supabase gen types typescript --linked > src/lib/database.generated.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -39,6 +40,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@electric-sql/pglite": "^0.5.8",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",

@@ -27,7 +27,7 @@ export default async function SignInPage(props: PageProps<"/connexion">) {
       <SignInForm suite={suite} notice={motif} />
       <div className="mt-8 border-t border-line pt-6 text-body text-ink-600">
         <p>
-          L’accès à SANADY se fait uniquement sur invitation. Votre établissement vous a remis un code d’inscription ?{" "}
+          L’accès à SANADY se fait uniquement sur invitation. Votre établissement vous a remis un code d’inscription ?{" "}
           <Link href="/rejoindre" className="font-medium text-teal-700 hover:underline">
             Rejoindre avec un code
           </Link>

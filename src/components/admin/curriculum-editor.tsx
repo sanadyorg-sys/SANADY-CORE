@@ -118,7 +118,7 @@ export function CurriculumEditor({ courseId, modules }: { courseId: string; modu
                     size="icon-sm"
                     action={removeModule.bind(null, m.id, courseId)}
                     confirm={{
-                      title: `Supprimer le module « ${m.title} » ?`,
+                      title: `Supprimer le module « ${m.title} » ?`,
                       description:
                         "Ses leçons et son évaluation seront supprimées. Si des enseignants ont déjà commencé ce module, il sera archivé (masqué) afin de conserver leur historique.",
                       confirmLabel: "Supprimer",
@@ -176,7 +176,7 @@ export function CurriculumEditor({ courseId, modules }: { courseId: string; modu
                         size="icon-sm"
                         action={removeLesson.bind(null, l.id, courseId)}
                         confirm={{
-                          title: `Supprimer la leçon « ${l.title} » ?`,
+                          title: `Supprimer la leçon « ${l.title} » ?`,
                           description: "Si des enseignants l’ont déjà commencée, elle sera archivée (masquée) et leur historique conservé.",
                           confirmLabel: "Supprimer",
                         }}
