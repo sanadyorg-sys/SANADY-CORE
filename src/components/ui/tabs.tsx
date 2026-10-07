@@ -16,10 +16,13 @@ const tabClass = (active: boolean) =>
 export function LinkTabs({
   items,
   exact = false,
+  activeHref,
   className,
 }: {
   items: Array<{ href: string; label: ReactNode; count?: number }>;
   exact?: boolean;
+  /** Explicit active item (for tabs that differ only by query string). */
+  activeHref?: string;
   className?: string;
 }) {
   const pathname = usePathname();
@@ -27,7 +30,7 @@ export function LinkTabs({
     <nav aria-label="Sections" className={cn("border-b border-line", className)}>
       <ul className="-mb-px flex gap-6 overflow-x-auto">
         {items.map((item) => {
-          const active = exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const active = activeHref !== undefined ? item.href === activeHref : exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <li key={item.href}>
               <Link href={item.href} aria-current={active ? "page" : undefined} className={tabClass(active)}>

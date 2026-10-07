@@ -1408,6 +1408,7 @@ begin
     'best_score', v_best,
     'open_attempt_id', v_open,
     'unlocked', private.module_lessons_complete(v_user, v_quiz.module_id),
+    'question_count', (select count(*) from public.questions q where q.quiz_id = p_quiz and q.archived_at is null),
     'exhausted', not coalesce(v_pass, false) and v_open is null and v_used >= v_quiz.max_attempts
   );
 end;

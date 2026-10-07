@@ -146,3 +146,41 @@
   .no-print { display: none !important; }
   body { background: #fff; }
 }
+
+/* ─── Media range inputs (video seek bar and volume) ───────────────────── */
+.video-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--color-teal-300) var(--played, 0%), rgb(255 255 255 / 0.3) var(--played, 0%));
+}
+.video-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
+}
+.video-range::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.3);
+}
+.video-range::-moz-range-progress {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--color-teal-300);
+}
+.video-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 9999px;
+  background: #fff;
+}
+.video-range:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}

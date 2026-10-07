@@ -17,9 +17,14 @@ const relativeFmt = new Intl.RelativeTimeFormat("fr-FR", { numeric: "auto" });
 type DateInput = string | Date | null | undefined;
 const toDate = (d: DateInput) => (d ? (d instanceof Date ? d : new Date(d)) : null);
 
+/** French ordinal for the first day of the month: « 1er octobre 2026 ». */
+export function firstOfMonth(formatted: string) {
+  return formatted.replace(/^1 /, "1er ");
+}
+
 export function formatDate(d: DateInput, fallback = "—") {
   const date = toDate(d);
-  return date ? dateFmt.format(date) : fallback;
+  return date ? firstOfMonth(dateFmt.format(date)) : fallback;
 }
 
 export function formatShortDate(d: DateInput, fallback = "—") {

@@ -282,6 +282,7 @@ export interface QuizStatus {
   best_score: number | null;
   open_attempt_id: UUID | null;
   unlocked: boolean;
+  question_count: number;
   exhausted: boolean;
 }
 
