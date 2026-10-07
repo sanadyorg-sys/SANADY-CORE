@@ -117,6 +117,12 @@ export function AppShell({
   );
 }
 
+function ContextIcon({ kind, className }: { kind?: ShellContext["kind"]; className?: string }) {
+  if (kind === "admin") return <ShieldCheck className={className} aria-hidden />;
+  if (kind === "institution") return <Building2 className={className} aria-hidden />;
+  return <GraduationCap className={className} aria-hidden />;
+}
+
 function ContextSwitcher({
   contexts,
   current,
@@ -126,13 +132,10 @@ function ContextSwitcher({
   current?: ShellContext;
   fallbackLabel: string;
 }) {
-  const Icon = (kind?: ShellContext["kind"]) =>
-    kind === "admin" ? ShieldCheck : kind === "institution" ? Building2 : GraduationCap;
-  const CurrentIcon = Icon(current?.kind);
   const box = (
     <>
       <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-navy-700 text-white">
-        <CurrentIcon className="size-4" aria-hidden />
+        <ContextIcon kind={current?.kind} className="size-4" />
       </span>
       <span className="min-w-0 flex-1 text-left">
         <span className="block truncate text-label font-semibold text-ink-900">{current?.label ?? fallbackLabel}</span>
@@ -160,11 +163,10 @@ function ContextSwitcher({
     >
       <MenuLabel>Changer d’espace</MenuLabel>
       {contexts.map((c) => {
-        const ItemIcon = Icon(c.kind);
         return (
           <MenuItem key={c.key} asChild>
             <Link href={c.href}>
-              <ItemIcon className="text-ink-500" aria-hidden />
+              <ContextIcon kind={c.kind} className="text-ink-500" />
               <span className="min-w-0 flex-1 truncate">{c.label}</span>
               {c.key === current?.key ? <Check className="text-teal-600" aria-label="Espace actuel" /> : null}
             </Link>
