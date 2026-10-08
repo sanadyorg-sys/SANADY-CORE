@@ -48,8 +48,10 @@ const courseIds = state.courseIds.length
   ? state.courseIds
   : (await sql(`select id from public.courses where title in ('Évaluation formative en classe','Gestion de classe bienveillante','Numérique éducatif responsable')`)).map((r) => r.id);
 for (const id of courseIds) {
-  const { data: lessons } = await admin.from("lessons").select("id, pdf_path").eq("course_id", id);
-  const paths = (lessons ?? []).map((l) => l.pdf_path).filter(Boolean);
+  const { data: lessons } = await admin.from("lessons").select("id, pdf_path, video_provider, video_ref").eq("course_id", id);
+  const paths = (lessons ?? [])
+    .flatMap((l) => [l.pdf_path, l.video_provider === "storage" ? l.video_ref : null])
+    .filter(Boolean);
   if (paths.length) await admin.storage.from("course-media").remove(paths);
 }
 await sql(`begin;

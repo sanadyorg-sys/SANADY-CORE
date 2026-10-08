@@ -33,7 +33,7 @@ export function ProgressBar({
       >
         <div className={cn("h-full rounded-full transition-[width] duration-500", fill)} style={{ width: `${pct}%` }} />
       </div>
-      {showValue ? <span className="tabular w-10 shrink-0 text-right text-label font-medium text-ink-700">{pct} %</span> : null}
+      {showValue ? <span className="tabular min-w-12 shrink-0 whitespace-nowrap text-right text-label font-medium text-ink-700">{pct}&nbsp;%</span> : null}
     </div>
   );
 }

@@ -23,6 +23,7 @@
     "db:apply": "node --env-file=.env.local scripts/db-apply-remote.mjs",
     "demo:seed": "node --env-file=.env.local scripts/demo/seed-demo.mjs",
     "demo:remove": "node --env-file=.env.local scripts/demo/remove-demo.mjs",
+    "demo:videos": "node --env-file=.env.local scripts/demo/add-demo-videos.mjs",
     "mfa:reset": "node --env-file=.env.local scripts/reset-mfa.mjs"
   },
   "dependencies": {
