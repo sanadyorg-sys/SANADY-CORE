@@ -166,7 +166,7 @@ function ResumeCard({ course }: { course: Awaited<ReturnType<typeof getLearnerCo
               <p className="mt-1.5 text-caption text-ink-500">
                 {course.completed_lessons} leçon{course.completed_lessons > 1 ? "s" : ""} terminée{course.completed_lessons > 1 ? "s" : ""} sur{" "}
                 {course.mandatory_lessons} · {course.quizzes_passed}/{course.quizzes_total} évaluation
-                {course.quizzes_total > 1 ? "s" : ""} réussie{course.quizzes_passed > 1 ? "s" : ""}
+                {course.quizzes_total > 1 ? "s" : ""} réussie{course.quizzes_total > 1 ? "s" : ""}
               </p>
             </div>
           </div>

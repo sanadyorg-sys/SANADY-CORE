@@ -12,3 +12,4 @@ next-env.d.ts
 public/pdf.worker.min.mjs
 supabase/.temp/
 .DS_Store
+scripts/demo/.demo-state.json
