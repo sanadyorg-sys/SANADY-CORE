@@ -21,7 +21,7 @@ Logo rules: size by height only (`<BrandLogo className="h-10" />`), never recolo
 | Token | Value | Origin / use |
 |---|---|---|
 | `brand-700` | #1C1917 | Wordmark black (softened for UI) — primary buttons, headings |
-| `accent-500` | #F95A05 | Logo orange (measured) — progress, active states, rules (non-text, ≥ 3:1) |
+| `accent-500` | #F95A05 | **Official orange** (validated by the foundation) — logo, icons, progress, tiles, and the `brand` button (size `xl`, 19 px bold = large text, 3.2:1) |
 | `accent-600` | #E04E00 | Focus ring, fills |
 | `accent-700` | #C94400 | Orange **text** and accent buttons (4.9:1 on white) |
 | `ink-50` | #F7F6F4 | Page canvas (warm neutral) |
@@ -58,7 +58,7 @@ Radii 3–10 px (restrained). Shadows: `shadow-xs` (controls), `shadow-sm` (card
 
 | Component | Notes |
 |---|---|
-| `Button` | primary, accent, secondary, ghost, danger, danger-ghost · sm/md/lg/icon · `loading` · `asChild` |
+| `Button` | primary, **brand** (#F95A05, size xl only), accent, accent-outline, secondary, ghost, danger, danger-ghost · sm/md/lg/xl/icon · `loading` · `asChild` |
 | `Field`, `Input`, `Textarea`, `Select`, `Checkbox` | `Field` wires label, hint, error (`aria-describedby`, `aria-invalid`) |
 | `SearchForm`, `FilterSelect` | GET forms: filters live in the URL |
 | `Table`, `Pagination` | Horizontal scroll on small screens; server-side pagination |

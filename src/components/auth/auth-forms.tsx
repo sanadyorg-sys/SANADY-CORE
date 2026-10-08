@@ -54,7 +54,7 @@ export function SignInForm({ suite, notice }: { suite?: string; notice?: string 
           Mot de passe oublié&nbsp;?
         </Link>
       </div>
-      <SubmitButton variant="accent" size="lg" className="h-12 w-full text-[1rem] font-semibold">
+      <SubmitButton variant="brand" size="xl" className="w-full">
         Se connecter <ArrowRight aria-hidden />
       </SubmitButton>
     </form>

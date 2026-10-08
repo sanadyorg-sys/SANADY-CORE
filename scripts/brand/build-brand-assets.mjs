@@ -3,30 +3,30 @@
  * Builds the web, PDF and icon assets from the high-resolution sources
  * supplied by the foundation (ASSETSSO/upgraded assets):
  *
- *   Fondation Sanady Logo.png                         → logo (dark & light), PDF logo
+ *   Logo Fondation Sanady recoloré en orange.png      → logo (dark & light), PDF logo
  *   Logo sourire orange minimaliste (1).png           → favicon.ico, icon.png, apple-icon.png
  *   Élève souriante en rouge, classe lumineuse.png    → sign-in photo
  *
  *   node scripts/brand/build-brand-assets.mjs ["path/to/upgraded assets"]
  *
- * Colour note: the high-resolution logo renders the dots and smile in red
- * (#F82000) whereas the banner, the smile mark and the reference design use
- * the foundation orange (#F95A05). The accent hue is aligned to #F95A05
- * (shape, lightness and anti-aliasing untouched). Set ALIGN_ACCENT = false
- * to keep the file's colours exactly as supplied.
+ * Colour: the official accent is exactly #F95A05 (validated by the
+ * foundation). Accent pixels of the logo and of the smile mark are set to
+ * #F95A05; anti-aliased edges keep their blend with white or black, so
+ * outlines stay smooth. Set EXACT_ACCENT = false to keep the files as supplied.
  */
 import sharp from "sharp";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const ALIGN_ACCENT = true;
+const EXACT_ACCENT = true;
+const ACCENT = [0xf9, 0x5a, 0x05]; // #F95A05
 const SRC = process.argv[2] ?? "../ASSETSSO/upgraded assets";
 const OUT = join("public", "brand");
 const APP = join("src", "app");
 mkdirSync(OUT, { recursive: true });
 
 const files = {
-  logo: join(SRC, "Fondation Sanady Logo.png"),
+  logo: join(SRC, "Logo Fondation Sanady recoloré en orange.png"),
   smile: join(SRC, "Logo sourire orange minimaliste (1).png"),
   photo: join(SRC, "Élève souriante en rouge, classe lumineuse.png"),
 };
@@ -42,14 +42,7 @@ function rgbToHsl(r, g, b) {
   let h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
   return [h * 60, s, l];
 }
-function hslToRgb(h, s, l) {
-  const c = (1 - Math.abs(2 * l - 1)) * s;
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-  const m = l - c / 2;
-  const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
-  return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
-}
-const TARGET_HUE = rgbToHsl(0xf9, 0x5a, 0x05)[0]; // ≈ 20.9°
+const ACCENT_L = rgbToHsl(...ACCENT)[2]; // ≈ 0.498
 
 /** Raw RGBA transform helper. */
 async function mapPixels(input, fn) {
@@ -63,28 +56,35 @@ async function mapPixels(input, fn) {
 }
 
 // ─── 1. Logo ──────────────────────────────────────────────────────────────
-const alignAccent = (r, g, b, a) => {
-  if (!ALIGN_ACCENT) return [r, g, b, a];
+/** Sets red-orange accent pixels to exactly #F95A05, preserving edge blends. */
+const exactAccent = (r, g, b, a) => {
+  if (!EXACT_ACCENT) return [r, g, b, a];
   const [h, s, l] = rgbToHsl(r, g, b);
-  // Red-orange accent pixels (incl. anti-aliased edges): move the hue only.
-  if (s > 0.35 && (h >= 345 || h <= 30)) return [...hslToRgb(TARGET_HUE, s, l), a];
-  return [r, g, b, a];
+  if (!(s > 0.35 && (h >= 345 || h <= 35))) return [r, g, b, a];
+  const lerp = (from, to, t) => from.map((c, i) => Math.round(c + (to[i] - c) * t));
+  if (Math.abs(l - ACCENT_L) < 0.06) return [...ACCENT, a];
+  return l > ACCENT_L
+    ? [...lerp(ACCENT, [255, 255, 255], (l - ACCENT_L) / (1 - ACCENT_L)), a]
+    : [...lerp(ACCENT, [0, 0, 0], (ACCENT_L - l) / ACCENT_L), a];
 };
+/** Re-applies the exact accent after resizing (resampling averages colours). */
+const exact = async (buf) => (await mapPixels(buf, exactAccent)).png({ compressionLevel: 9 }).toBuffer();
+
 const lightVariant = (r, g, b, a) => {
   const [, s] = rgbToHsl(r, g, b);
   return s > 0.35 && r > 120 ? [r, g, b, a] : [255, 255, 255, a]; // black & grey → white
 };
 
-const logoAligned = await (await mapPixels(files.logo, alignAccent)).png().toBuffer();
+const logoAligned = await (await mapPixels(files.logo, exactAccent)).png().toBuffer();
 const trimmed = await sharp(logoAligned).trim({ threshold: 1 }).toBuffer();
 const pad = { top: 8, bottom: 8, left: 8, right: 8, background: { r: 0, g: 0, b: 0, alpha: 0 } };
-await sharp(trimmed).resize({ height: 300 }).extend(pad).png({ compressionLevel: 9 }).toFile(join(OUT, "sanady-logo.png"));
-await (await mapPixels(await sharp(trimmed).resize({ height: 300 }).extend(pad).png().toBuffer(), lightVariant))
+writeFileSync(join(OUT, "sanady-logo.png"), await exact(await sharp(trimmed).resize({ height: 300 }).extend(pad).png().toBuffer()));
+await (await mapPixels(await exact(await sharp(trimmed).resize({ height: 300 }).extend(pad).png().toBuffer()), lightVariant))
   .png({ compressionLevel: 9 })
   .toFile(join(OUT, "sanady-logo-light.png"));
 console.log("✓ sanady-logo.png, sanady-logo-light.png");
 
-const pdfLogo = await sharp(trimmed).resize({ height: 240 }).png({ compressionLevel: 9 }).toBuffer();
+const pdfLogo = await exact(await sharp(trimmed).resize({ height: 240 }).png().toBuffer());
 writeFileSync(
   join("src", "lib", "pdf", "brand-logo.ts"),
   `// Generated by scripts/brand/build-brand-assets.mjs — do not edit.\n` +
@@ -99,7 +99,8 @@ const smileAlpha = await (await mapPixels(files.smile, (r, g, b) => {
   const a = 1 - Math.min(r, g, b) / 255; // colour-to-alpha against white
   const k = a > 0.04 ? a : 0;
   const un = (c) => (k > 0 ? Math.round(Math.max(0, Math.min(255, (c - 255 * (1 - k)) / k))) : 0);
-  return [un(r), un(g), un(b), Math.round(k * 255)];
+  const [R, G, B] = exactAccent(un(r), un(g), un(b), 255);
+  return [R, G, B, Math.round(k * 255)];
 })).png().toBuffer();
 const smileTight = await sharp(smileAlpha).trim({ threshold: 1 }).toBuffer();
 
@@ -122,7 +123,7 @@ async function iconPng(size, { bg = null, margin = 0.12, radius = 0 } = {}) {
 
 const WHITE = { r: 255, g: 255, b: 255, alpha: 1 };
 // Browser tab icons: white rounded tile → visible on light AND dark tab bars.
-const tile = (s) => iconPng(s, { bg: WHITE, margin: 0.1, radius: Math.round(s * 0.22) });
+const tile = async (s) => exact(await iconPng(s, { bg: WHITE, margin: 0.1, radius: Math.round(s * 0.22) }));
 const ico16 = await tile(16), ico32 = await tile(32), ico48 = await tile(48);
 
 /** Minimal ICO container with PNG-encoded images (supported by all modern browsers). */
@@ -142,8 +143,8 @@ function buildIco(images) {
 }
 writeFileSync(join(APP, "favicon.ico"), buildIco([{ size: 16, png: ico16 }, { size: 32, png: ico32 }, { size: 48, png: ico48 }]));
 writeFileSync(join(APP, "icon.png"), await tile(512));
-writeFileSync(join(APP, "apple-icon.png"), await iconPng(180, { bg: WHITE, margin: 0.16 })); // iOS rounds corners itself
-writeFileSync(join(OUT, "sanady-smile.png"), await sharp(smileTight).resize({ width: 512 }).png().toBuffer());
+writeFileSync(join(APP, "apple-icon.png"), await exact(await iconPng(180, { bg: WHITE, margin: 0.16 }))); // iOS rounds corners itself
+writeFileSync(join(OUT, "sanady-smile.png"), await exact(await sharp(smileTight).resize({ width: 512 }).png().toBuffer()));
 console.log("✓ src/app/favicon.ico (16/32/48), icon.png (512), apple-icon.png (180), public/brand/sanady-smile.png");
 
 // ─── 3. Sign-in photograph ────────────────────────────────────────────────

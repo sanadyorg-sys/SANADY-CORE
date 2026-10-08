@@ -46,7 +46,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           <ul className="mt-7 flex flex-wrap items-center gap-y-3 divide-x divide-line">
             {FEATURES.map(({ icon: Icon, label }) => (
               <li key={label} className="flex items-center gap-2.5 px-5 first:pl-0 last:pr-0">
-                <Icon className="size-7 shrink-0 text-accent-600" strokeWidth={1.6} aria-hidden />
+                <Icon className="size-7 shrink-0 text-accent-500" strokeWidth={1.6} aria-hidden />
                 <span className="text-body font-medium text-ink-800">{label}</span>
               </li>
             ))}
@@ -55,7 +55,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
         <div className="relative mt-auto pt-10">
           <BrandTagline className="h-12" />
-          <svg aria-hidden viewBox="0 0 120 10" className="mt-1 h-2.5 w-24 text-accent-500/60">
+          <svg aria-hidden viewBox="0 0 120 10" className="mt-1 h-2.5 w-24 text-accent-500">
             <path d="M2 7 C 30 2, 70 2, 118 5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
           </svg>
         </div>
