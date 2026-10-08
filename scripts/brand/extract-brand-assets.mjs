@@ -57,7 +57,8 @@ const region = (x0, y0, x1, y1) => ({
   width: Math.round((x1 - x0) * width),
   height: Math.round((y1 - y0) * bannerHeight),
 });
-const LOGO = region(0.045, 0.335, 0.33, 0.705);
+// Generous bounds (the logo is trimmed afterwards); the photo starts at x ≈ 0.354.
+const LOGO = region(0.045, 0.3, 0.35, 0.745);
 const TAGLINE = region(0.055, 0.73, 0.31, 0.92);
 const PHOTO = region(0.355, 0, 1, 1);
 
@@ -88,6 +89,8 @@ async function toTransparentPng(rect, file, { lightVariant = false, scale = 2, e
   }
   await sharp(out, { raw: { width: meta.width, height: meta.height, channels: 4 } })
     .trim({ threshold: 1 })
+    // Clear space so anti-aliased edges are never shaved by the bounding box.
+    .extend({ top: 6, bottom: 6, left: 6, right: 6, background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .resize({ width: meta.width * scale, kernel: "lanczos3" })
     .png({ compressionLevel: 9 })
     .toFile(join(OUT, file));
@@ -95,7 +98,7 @@ async function toTransparentPng(rect, file, { lightVariant = false, scale = 2, e
 }
 
 // The banner's doodle line ends just above the logo's top-right corner.
-const LOGO_ERASE = [{ x0: 0.9, y0: 0, x1: 1, y1: 0.3 }];
+const LOGO_ERASE = [{ x0: 0.87, y0: 0, x1: 1, y1: 0.225 }];
 await toTransparentPng(LOGO, "sanady-logo.png", { erase: LOGO_ERASE });
 await toTransparentPng(LOGO, "sanady-logo-light.png", { lightVariant: true, erase: LOGO_ERASE });
 await toTransparentPng(TAGLINE, "sanady-tagline.png");
