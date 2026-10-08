@@ -92,7 +92,8 @@ export default async function PrivacyPage() {
               </li>
               <li>
                 <strong className="font-semibold text-ink-900">Votre établissement</strong>, uniquement si vous l’avez rejoint en donnant
-                votre accord : votre nom, votre e-mail et, <em>pour les seules formations qu’il vous a affectées</em>, votre progression,
+                votre accord : votre nom, votre e-mail, votre fonction, votre discipline, votre téléphone s’il est renseigné et,{" "}
+                <em>pour les seules formations qu’il vous a affectées</em>, votre progression,
                 vos résultats aux évaluations et l’état de votre certificat. Vos formations personnelles ne lui sont jamais visibles.
               </li>
               <li>

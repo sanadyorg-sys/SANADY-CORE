@@ -13,7 +13,10 @@ export function InstitutionConsent({ institutionName, error }: { institutionName
     <div className="rounded-md border border-line bg-ink-25 p-4">
       <p className="mb-2 text-label font-semibold text-ink-900">Ce que {institutionName} pourra consulter</p>
       <ul className="mb-3 list-disc space-y-1 pl-5 text-label text-ink-600">
-        <li>votre nom, votre adresse e-mail et votre date d’affiliation ;</li>
+        <li>
+          votre nom, votre adresse e-mail, votre fonction et votre discipline, votre téléphone si vous l’avez renseigné, et votre
+          date d’affiliation ;
+        </li>
         <li>
           pour les seules formations que l’établissement vous affecte : votre progression, vos résultats aux évaluations et
           l’état de votre certificat.

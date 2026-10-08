@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, ShieldCheck } from "lucide-react";
+import { MfaCard } from "@/components/profile/mfa-card";
 import { LeaveInstitutionButton, PasswordForm, ProfileForm } from "@/components/profile/profile-forms";
 import { buttonClasses } from "@/components/ui/button";
 import { Badge, Card, CardBody, CardHeader, PageHeader } from "@/components/ui/surface";
@@ -42,6 +43,12 @@ export default async function ProfilePage() {
             <CardHeader title="Sécurité" description="Changez régulièrement votre mot de passe et ne le partagez jamais." />
             <CardBody>
               <PasswordForm />
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader title="Double authentification" />
+            <CardBody>
+              <MfaCard enrolled={viewer.mfaEnrolled} required={viewer.isSanadyAdmin} />
             </CardBody>
           </Card>
         </div>

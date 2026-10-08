@@ -45,11 +45,11 @@ async function sql(query) {
 }
 const lit = (v) => (v === null || v === undefined ? "null" : `'${String(v).replace(/'/g, "''")}'`);
 const arr = (a) => `array[${a.map(lit).join(",")}]::text[]`;
-/** Runs statements as an authenticated user (RLS and function checks apply). */
+/** Runs statements as an authenticated, two-factor-verified user (RLS and function checks apply). */
 const asUser = (uid, statements) =>
   `set local role authenticated;
    select set_config('request.jwt.claim.sub', ${lit(uid)}, true);
-   select set_config('request.jwt.claims', ${lit(JSON.stringify({ sub: uid, role: "authenticated" }))}, true);
+   select set_config('request.jwt.claims', ${lit(JSON.stringify({ sub: uid, role: "authenticated", aal: "aal2" }))}, true);
    ${statements}
    reset role;`;
 const tx = (body) => sql(`begin;\n${body}\ncommit;`);

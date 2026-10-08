@@ -103,3 +103,26 @@ test.describe("responsive layout", () => {
     expect(res.headers()["x-powered-by"]).toBeUndefined();
   });
 });
+
+test.describe("content security policy", () => {
+  test("sends a per-request nonce policy and blocks nothing the app needs", async ({ page }) => {
+    const violations: string[] = [];
+    page.on("console", (msg) => {
+      if (/Content Security Policy|Refused to/i.test(msg.text())) violations.push(msg.text());
+    });
+    const first = await page.goto("/connexion");
+    const csp = first?.headers()["content-security-policy"] ?? "";
+    expect(csp).toMatch(/script-src 'self' 'nonce-[A-Za-z0-9+/=]+' 'strict-dynamic'/);
+    expect(csp).toContain("frame-ancestors 'none'");
+    expect(csp).toContain("object-src 'none'");
+
+    // Interactive hydration works (Next.js scripts carry the nonce).
+    await page.getByLabel("Mot de passe", { exact: true }).fill("x");
+    await page.getByRole("link", { name: "Rejoindre avec un code" }).click();
+    await expect(page).toHaveURL(/\/rejoindre/);
+
+    const second = await page.request.get("/connexion");
+    expect(second.headers()["content-security-policy"]).not.toEqual(csp);
+    expect(violations).toEqual([]);
+  });
+});

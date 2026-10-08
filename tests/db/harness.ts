@@ -56,10 +56,17 @@ export class TestDb {
     return id;
   }
 
-  /** Runs `fn` inside a transaction as the given user and role. */
-  async as<T>(userId: string | null, fn: (q: Query) => Promise<T>, role: Role = "authenticated"): Promise<T> {
+  /**
+   * Runs `fn` inside a transaction as the given user and role. Sessions are
+   * two-factor verified (aal2) by default; pass "aal1" to simulate a
+   * password-only session.
+   */
+  async as<T>(userId: string | null, fn: (q: Query) => Promise<T>, role: Role = "authenticated", aal: "aal1" | "aal2" = "aal2"): Promise<T> {
     return this.pg.transaction(async (tx: Transaction) => {
       await tx.query(`select set_config('request.jwt.claim.sub', $1, true)`, [userId ?? ""]);
+      await tx.query(`select set_config('request.jwt.claims', $1, true)`, [
+        userId ? JSON.stringify({ sub: userId, role, aal }) : "",
+      ]);
       await tx.exec(`set local role ${role}`);
       const q: Query = async (sql, params = []) => (await tx.query(sql, params)).rows as never;
       return fn(q);

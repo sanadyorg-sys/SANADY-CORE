@@ -6,6 +6,7 @@
 |---|---|
 | Authentication | Supabase Auth, e-mail + password. Public sign-up disabled. Identity on the server comes from a verified JWT (`getClaims`). Sessions refreshed in `proxy.ts`. |
 | Registration | Invitation-only. Tokens: 256-bit random, SHA-256 hashed at rest, single use, expiring (setting, default 7 days), revocable, audited. Enrollment codes: 12 characters from an unambiguous alphabet, expiry, usage limit, revocation, usage counter. |
+| Two-factor (TOTP) | **Mandatory for SANADY administrators**: the database itself (`private.is_sanady_admin`) grants admin privileges only to sessions with `aal = aal2`, so a stolen password alone cannot read or change platform data. The app guides admins to `/securite/activer` (QR code) and `/securite/verification` (code at each sign-in). Optional for everyone else from **Mon profil**. Lost phone: `npm run mfa:reset -- --email <address>` (service role). Tested in `tests/db/mfa.test.ts`. |
 | Passwords | Minimum 10 characters with letters and digits (app + Supabase policy). Re-authentication before change. Neutral responses on reset (no account enumeration). |
 | Authorization | Role guards in layouts **and** RLS on every table **and** checks inside every function. A direct URL or API call cannot bypass access. |
 | Assessment integrity | Correct answers never sent before submission; grading on the server; attempt limits in the function and in unique indexes; row lock against double submission. |
@@ -16,6 +17,7 @@
 | Errors | Stable codes mapped to French copy; internal details never shown; error boundaries show a reference digest only. |
 | Audit | Triggers record create/update/delete on institutions, memberships, invitations, codes, courses, modules, lessons, quizzes, questions, permissions, assignments, roles, settings, certificates — field names only, no personal data. Explicit entries for attempt resets and account suspension. Append-only (no update/delete privilege). |
 | Secrets | Service-role key server-only (`server-only` guard, never `NEXT_PUBLIC_`). |
+| Content-Security-Policy | Set per request in `proxy.ts`: `script-src` with a fresh nonce + `strict-dynamic` (no inline or third-party scripts), `object-src none`, `frame-ancestors none`, `base-uri`/`form-action self`; images, media and connections limited to the app, the project's Supabase origin and Mux. All pages are rendered per request so Next.js can apply the nonce. Tested in `tests/e2e/public.spec.ts`. |
 | Headers | `X-Frame-Options: DENY`, `nosniff`, strict referrer policy, HSTS, restrictive permissions policy; `X-Powered-By` removed. Invitation and verification pages send `no-referrer`. |
 | Suspension | Profile status blocks access in RLS and guards; Auth ban blocks sign-in and token refresh. |
 
@@ -24,7 +26,7 @@
 - One personal account per teacher; membership is a separate, revocable, consented link.
 - An institution sees a teacher's progress **only** for courses it assigned, and only while the teacher is an active, consenting member. Personal learning is never visible to it. This is enforced in RLS and tested (`tests/db/access.test.ts`, scenario 14).
 - Teachers can leave an institution at any time from their profile.
-- Consent text is shown at the moment of joining, stating exactly what the institution will see.
+- Consent text is shown at the moment of joining, stating exactly what the institution will see (name, e-mail, job title, subject, phone if provided, membership date, and progress on assigned courses only). The privacy notice lists the same fields.
 - Activity tracking is described honestly: it measures activity, not attention or competence. "Needs support" indicators are inactivity and exhausted attempts only, and are labelled as not being a competence assessment.
 - Public certificate verification returns only name, course, completion date, duration, number, status and issuer.
 

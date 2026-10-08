@@ -19,6 +19,10 @@ export interface Viewer {
   institutions: ViewerInstitution[];
   /** Institutions the viewer administers. */
   adminInstitutions: ViewerInstitution[];
+  /** Assurance level of the current session (from the verified JWT). */
+  aal: "aal1" | "aal2";
+  /** True when a second factor (TOTP) is enrolled and verified. */
+  mfaEnrolled: boolean;
 }
 
 /**
@@ -31,8 +35,9 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
   const { data: claimsData } = await supabase.auth.getClaims();
   const userId = claimsData?.claims?.sub;
   if (!userId) return null;
+  const aal = claimsData?.claims?.aal === "aal2" ? "aal2" : "aal1";
 
-  const [profileRes, roleRes, membershipRes] = await Promise.all([
+  const [profileRes, roleRes, membershipRes, aalRes] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
     supabase.from("platform_roles").select("role").eq("user_id", userId).maybeSingle(),
     supabase
@@ -40,6 +45,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
       .select("role, institution:institutions(id, name, identifier, status)")
       .eq("user_id", userId)
       .eq("status", "active"),
+    supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
   ]);
 
   const profile = profileRes.data as Profile | null;
@@ -58,21 +64,33 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
     isSanadyAdmin: Boolean(roleRes.data) && profile.status === "active",
     institutions,
     adminInstitutions: institutions.filter((i) => i.role === "admin"),
+    aal,
+    mfaEnrolled: aalRes.data?.nextLevel === "aal2",
   };
 });
 
-/** Requires an authenticated, active, onboarded user. */
-export async function requireViewer({ allowOnboarding = false } = {}): Promise<Viewer> {
+/**
+ * Requires an authenticated, active, onboarded user. Anyone who enrolled a
+ * second factor must have verified it in this session (aal2).
+ */
+export async function requireViewer({ allowOnboarding = false, allowPendingMfa = false } = {}): Promise<Viewer> {
   const viewer = await getViewer();
   if (!viewer) redirect("/connexion");
   if (viewer.profile.status !== "active") redirect("/deconnexion?motif=compte_suspendu");
+  if (!allowPendingMfa && viewer.mfaEnrolled && viewer.aal !== "aal2") redirect("/securite/verification");
   if (!allowOnboarding && !viewer.profile.onboarded_at) redirect("/bienvenue");
   return viewer;
 }
 
+/**
+ * SANADY administrators must use two-factor authentication. The database
+ * refuses admin privileges to aal1 sessions; this guard guides the user.
+ */
 export async function requireSanadyAdmin(): Promise<Viewer> {
   const viewer = await requireViewer();
   if (!viewer.isSanadyAdmin) redirect("/");
+  if (!viewer.mfaEnrolled) redirect("/securite/activer?suite=/admin");
+  if (viewer.aal !== "aal2") redirect("/securite/verification?suite=/admin");
   return viewer;
 }
 

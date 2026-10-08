@@ -22,7 +22,8 @@
     "db:types": "npx supabase gen types typescript --linked > src/lib/database.generated.ts",
     "db:apply": "node --env-file=.env.local scripts/db-apply-remote.mjs",
     "demo:seed": "node --env-file=.env.local scripts/demo/seed-demo.mjs",
-    "demo:remove": "node --env-file=.env.local scripts/demo/remove-demo.mjs"
+    "demo:remove": "node --env-file=.env.local scripts/demo/remove-demo.mjs",
+    "mfa:reset": "node --env-file=.env.local scripts/reset-mfa.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
