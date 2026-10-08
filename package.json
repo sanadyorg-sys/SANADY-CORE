@@ -19,7 +19,8 @@
     "test:e2e": "playwright test",
     "postinstall": "node scripts/copy-pdf-worker.mjs",
     "admin:create": "node --env-file=.env.local scripts/create-admin.mjs",
-    "db:types": "npx supabase gen types typescript --linked > src/lib/database.generated.ts"
+    "db:types": "npx supabase gen types typescript --linked > src/lib/database.generated.ts",
+    "db:apply": "node --env-file=.env.local scripts/db-apply-remote.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
