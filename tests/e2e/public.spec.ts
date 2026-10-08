@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const PUBLIC_PAGES = ["/connexion", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide"];
+const PUBLIC_PAGES = ["/connexion", "/aide", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide"];
 
 async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -33,10 +33,12 @@ test.describe("public pages", () => {
 test.describe("sign-in page", () => {
   test("is invitation-only and exposes labelled fields", async ({ page }) => {
     await page.goto("/connexion");
-    await expect(page.getByRole("heading", { name: "Connexion" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Bienvenue sur SANADY" })).toBeVisible();
     await expect(page.getByLabel("Adresse e-mail")).toBeVisible();
     await expect(page.getByLabel("Mot de passe", { exact: true })).toBeVisible();
-    await expect(page.getByText("L’accès à SANADY se fait uniquement sur invitation.")).toBeVisible();
+    await expect(page.getByText("L’accès à la plateforme se fait uniquement sur invitation.")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Rejoindre avec un code" })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Besoin d’aide/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /inscri/i })).toHaveCount(0);
   });
 
@@ -81,7 +83,7 @@ test.describe("access control", () => {
 test.describe("responsive layout", () => {
   test("brand panel is shown on large screens only", async ({ page }, testInfo) => {
     await page.goto("/connexion");
-    const panel = page.getByText("Plateforme de formation et de développement professionnel des enseignants.");
+    const panel = page.getByText("Ensemble, faisons grandir l’éducation.");
     if (testInfo.project.name === "desktop") await expect(panel).toBeVisible();
     else await expect(panel).toBeHidden();
   });

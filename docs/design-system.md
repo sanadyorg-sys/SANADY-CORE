@@ -23,7 +23,7 @@ Logo rules: size by height only (`<BrandLogo className="h-10" />`), never recolo
 | `brand-700` | #1C1917 | Wordmark black (softened for UI) — primary buttons, headings |
 | `accent-500` | #F95A05 | Logo orange (measured) — progress, active states, rules (non-text, ≥ 3:1) |
 | `accent-600` | #E04E00 | Focus ring, fills |
-| `accent-700` | #B83F00 | Orange **text** and accent buttons (5.6:1 on white) |
+| `accent-700` | #C94400 | Orange **text** and accent buttons (4.9:1 on white) |
 | `ink-50` | #F7F6F4 | Page canvas (warm neutral) |
 | `success / warning / danger` | semantic | Status only — never use orange for errors |
 

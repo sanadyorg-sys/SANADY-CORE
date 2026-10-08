@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { completeOnboarding, requestPasswordReset, signIn, updatePassword } from "@/server/actions/auth";
 import { Field, Input, Checkbox } from "@/components/ui/field";
 import { FormMessage, SubmitButton } from "@/components/ui/form";
@@ -13,7 +13,7 @@ export function PasswordInput(props: React.ComponentProps<typeof Input>) {
   const [visible, setVisible] = useState(false);
   return (
     <div className="relative">
-      <Input {...props} type={visible ? "text" : "password"} className="pr-10" />
+      <Input {...props} type={visible ? "text" : "password"} className={["pr-10", props.className].filter(Boolean).join(" ")} />
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
@@ -35,18 +35,27 @@ export function SignInForm({ suite, notice }: { suite?: string; notice?: string 
       <FormMessage state={state} />
       <input type="hidden" name="suite" value={suite ?? ""} />
       <Field label="Adresse e-mail" error={state.fieldErrors?.email}>
-        <Input name="email" type="email" autoComplete="email" inputMode="email" required autoFocus />
+        <Input
+          name="email"
+          type="email"
+          autoComplete="email"
+          inputMode="email"
+          placeholder="nom@exemple.ma"
+          required
+          autoFocus
+          className="h-11"
+        />
       </Field>
       <Field label="Mot de passe" error={state.fieldErrors?.password}>
-        <PasswordInput name="password" autoComplete="current-password" required />
+        <PasswordInput name="password" autoComplete="current-password" required className="h-11" />
       </Field>
       <div className="flex justify-end">
         <Link href="/mot-de-passe-oublie" className="text-label font-medium text-accent-700 hover:underline">
-          Mot de passe oublié ?
+          Mot de passe oublié&nbsp;?
         </Link>
       </div>
-      <SubmitButton size="lg" className="w-full">
-        Se connecter
+      <SubmitButton variant="accent" size="lg" className="h-12 w-full text-[1rem] font-semibold">
+        Se connecter <ArrowRight aria-hidden />
       </SubmitButton>
     </form>
   );

@@ -3,7 +3,7 @@ import { LoaderCircle } from "lucide-react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-export type ButtonVariant = "primary" | "accent" | "secondary" | "ghost" | "danger" | "danger-ghost";
+export type ButtonVariant = "primary" | "accent" | "accent-outline" | "secondary" | "ghost" | "danger" | "danger-ghost";
 export type ButtonSize = "sm" | "md" | "lg" | "icon" | "icon-sm";
 
 const base =
@@ -14,6 +14,7 @@ const base =
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-brand-700 text-white hover:bg-brand-800 active:bg-brand-900 shadow-xs",
   accent: "bg-accent-700 text-white hover:bg-accent-800 active:bg-accent-900 shadow-xs",
+  "accent-outline": "bg-surface text-accent-700 border border-accent-600/70 hover:bg-accent-50 active:bg-accent-100",
   secondary:
     "bg-surface text-ink-800 border border-line-strong hover:bg-ink-50 hover:border-ink-400 active:bg-ink-100 shadow-xs",
   ghost: "text-ink-700 hover:bg-ink-100 hover:text-ink-900 active:bg-ink-200",
