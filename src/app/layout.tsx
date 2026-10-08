@@ -28,7 +28,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={inter.variable}>
-      <body className="min-h-dvh font-sans">
+      {/* Browser extensions (ColorZilla, Grammarly…) inject attributes on <body>;
+          this only ignores attribute differences on this element, not its children. */}
+      <body className="min-h-dvh font-sans" suppressHydrationWarning>
         <Toaster>{children}</Toaster>
       </body>
     </html>
