@@ -5,7 +5,8 @@
  *
  *   Logo Fondation Sanady recoloré en orange.png      → logo (dark & light), PDF logo
  *   Logo sourire orange minimaliste (1).png           → favicon.ico, icon.png, apple-icon.png
- *   Élève souriante en rouge, classe lumineuse.png    → sign-in photo
+ *   Élève souriante en rouge, classe lumineuse.png    → landscape photo
+ *   Écolière souriante dans une classe lumineuse.png  → full-height sign-in photo (portrait)
  *
  *   node scripts/brand/build-brand-assets.mjs ["path/to/upgraded assets"]
  *
@@ -29,6 +30,7 @@ const files = {
   logo: join(SRC, "Logo Fondation Sanady recoloré en orange.png"),
   smile: join(SRC, "Logo sourire orange minimaliste (1).png"),
   photo: join(SRC, "Élève souriante en rouge, classe lumineuse.png"),
+  portrait: join(SRC, "Écolière souriante dans une classe lumineuse.png"),
 };
 
 // ─── colour helpers ───────────────────────────────────────────────────────
@@ -150,3 +152,5 @@ console.log("✓ src/app/favicon.ico (16/32/48), icon.png (512), apple-icon.png 
 // ─── 3. Sign-in photograph ────────────────────────────────────────────────
 await sharp(files.photo).resize({ width: 1400 }).jpeg({ quality: 82, mozjpeg: true }).toFile(join(OUT, "sanady-classroom.jpg"));
 console.log("✓ sanady-classroom.jpg (1400 px)");
+await sharp(files.portrait).jpeg({ quality: 84, mozjpeg: true }).toFile(join(OUT, "sanady-classroom-portrait.jpg"));
+console.log("✓ sanady-classroom-portrait.jpg");
