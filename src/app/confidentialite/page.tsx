@@ -67,6 +67,10 @@ export default async function PrivacyPage() {
               <li>Évaluations : réponses soumises, scores, nombre de tentatives.</li>
               <li>Certificats : numéro, date d’obtention, formation concernée.</li>
               <li>Sécurité : journaux techniques de connexion et d’administration.</li>
+              <li>
+                Demandes d’accès envoyées depuis le site : nom, prénom, e-mail, et si vous les indiquez fonction, discipline,
+                établissement, ville, formation souhaitée et message.
+              </li>
             </ul>
             <p className="mt-3">
               Le suivi du visionnage mesure une activité (portions de vidéo lues, pages affichées). Il ne mesure ni l’attention ni la
@@ -81,6 +85,7 @@ export default async function PrivacyPage() {
               <li>Corriger les évaluations et délivrer les certificats.</li>
               <li>Permettre à votre établissement d’accompagner les formations qu’il vous a affectées.</li>
               <li>Assurer la sécurité de la plateforme.</li>
+              <li>Étudier les demandes d’accès et, le cas échéant, envoyer une invitation.</li>
             </ul>
           </section>
 
@@ -114,6 +119,7 @@ export default async function PrivacyPage() {
               <li>Données de compte et de suivi : pendant la durée d’utilisation du compte, puis supprimées ou anonymisées dans un délai de 3 ans après la dernière activité.</li>
               <li>Certificats : conservés afin de permettre leur vérification, sauf demande de suppression.</li>
               <li>Journaux d’administration : 3 ans.</li>
+              <li>Demandes d’accès : 12 mois au plus après leur traitement.</li>
             </ul>
           </section>
 

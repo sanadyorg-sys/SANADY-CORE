@@ -115,6 +115,8 @@ export interface CourseCategory {
 
 export interface Course {
   id: UUID;
+  /** Shown in the public catalog when published. */
+  public_listing: boolean;
   title: string;
   summary: string;
   description: string;

@@ -88,7 +88,7 @@ export async function requireViewer({ allowOnboarding = false, allowPendingMfa =
  */
 export async function requireSanadyAdmin(): Promise<Viewer> {
   const viewer = await requireViewer();
-  if (!viewer.isSanadyAdmin) redirect("/");
+  if (!viewer.isSanadyAdmin) redirect("/mon-espace");
   if (!viewer.mfaEnrolled) redirect("/securite/activer?suite=/admin");
   if (viewer.aal !== "aal2") redirect("/securite/verification?suite=/admin");
   return viewer;
@@ -97,7 +97,7 @@ export async function requireSanadyAdmin(): Promise<Viewer> {
 export async function requireInstitutionAdmin(institutionId: string) {
   const viewer = await requireViewer();
   const institution = viewer.adminInstitutions.find((i) => i.id === institutionId);
-  if (!institution) redirect("/");
+  if (!institution) redirect("/mon-espace");
   return { viewer, institution };
 }
 

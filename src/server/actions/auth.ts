@@ -37,7 +37,7 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
     await supabase.auth.signOut();
     return { ok: false, message: "Ce compte est suspendu. Contactez l’administration SANADY." };
   }
-  redirect(safeRedirectPath(suite, viewer ? homeFor(viewer) : "/"));
+  redirect(safeRedirectPath(suite, viewer ? homeFor(viewer) : "/mon-espace"));
 }
 
 export async function signOut() {
@@ -92,7 +92,7 @@ export async function updatePassword(_prev: ActionState, formData: FormData): Pr
     };
   }
   const viewer = await getViewer();
-  redirect(viewer ? homeFor(viewer) : "/");
+  redirect(viewer ? homeFor(viewer) : "/connexion");
 }
 
 export async function completeOnboarding(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -118,5 +118,5 @@ export async function completeOnboarding(_prev: ActionState, formData: FormData)
   if (error) return { ok: false, message: errorMessage(error) };
 
   const viewer = await getViewer();
-  redirect(viewer ? homeFor(viewer) : "/");
+  redirect(viewer ? homeFor(viewer) : "/connexion");
 }

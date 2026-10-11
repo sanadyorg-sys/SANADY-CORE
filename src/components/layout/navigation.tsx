@@ -11,6 +11,7 @@ import {
   ClipboardList,
   FileText,
   History,
+  Inbox,
   LayoutDashboard,
   Library,
   Mail,
@@ -52,6 +53,7 @@ export function navigationFor(area: Area, institutionId?: string): NavSection[] 
         items: [
           { href: "/admin/etablissements", label: "Établissements", icon: Building2 },
           { href: "/admin/enseignants", label: "Gestion des enseignants", icon: Users },
+          { href: "/admin/demandes", label: "Demandes d’accès", icon: Inbox },
           { href: "/admin/invitations", label: "Invitations", icon: Mail },
         ],
       },

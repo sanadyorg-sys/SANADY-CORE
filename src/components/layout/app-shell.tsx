@@ -55,7 +55,7 @@ export function AppShell({
   const sidebar = (onNavigate?: () => void) => (
     <div className="flex h-full flex-col">
       <div className="flex h-16 shrink-0 items-center px-5">
-        <Link href="/" className="rounded-sm" onClick={onNavigate}>
+        <Link href="/mon-espace" className="rounded-sm" onClick={onNavigate}>
           <BrandLogo className="h-10" priority />
         </Link>
       </div>
@@ -100,7 +100,7 @@ export function AppShell({
           >
             {sidebar(() => setMobileOpen(false))}
           </Drawer>
-          <Link href="/" className="lg:hidden">
+          <Link href="/mon-espace" className="lg:hidden">
             <BrandLogo className="h-8" />
           </Link>
           <p className="hidden truncate text-label font-medium text-ink-500 lg:block">{current?.label ?? areaTitle[area]}</p>

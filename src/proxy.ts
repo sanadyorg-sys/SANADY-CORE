@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * Content-Security-Policy (nonce-based). Authorization itself is enforced
  * server-side (layouts, actions) and in the database (RLS).
  */
-const PROTECTED_PREFIXES = ["/espace", "/etablissement", "/admin", "/bienvenue", "/securite"];
+const PROTECTED_PREFIXES = ["/mon-espace", "/espace", "/etablissement", "/admin", "/bienvenue", "/securite"];
 
 const supabaseOrigin = (() => {
   try {

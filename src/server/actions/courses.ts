@@ -8,7 +8,7 @@ import { PUBLICATION_ISSUES, errorMessage, messageFor } from "@/lib/errors";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, CourseStatus } from "@/lib/types";
-import { optionalText, parseInput, uuidSchema } from "@/lib/validation";
+import { checkboxSchema, optionalText, parseInput, uuidSchema } from "@/lib/validation";
 import { requireSanadyAdmin } from "@/server/auth";
 import { MEDIA_BUCKET } from "@/server/media";
 
@@ -59,6 +59,7 @@ export async function updateCourse(_prev: ActionState, formData: FormData): Prom
       level: z.enum(["debutant", "intermediaire", "avance"]),
       target_audience: z.string().trim().max(300),
       estimated_minutes: z.union([z.coerce.number().int().min(1, "Durée invalide.").max(100000), z.literal("")]),
+      public_listing: checkboxSchema,
     }),
     formData,
   );
@@ -82,10 +83,13 @@ export async function updateCourse(_prev: ActionState, formData: FormData): Prom
       level: d.level,
       target_audience: d.target_audience,
       estimated_minutes: d.estimated_minutes === "" ? null : d.estimated_minutes,
+      public_listing: d.public_listing,
     })
     .eq("id", d.id);
   if (error) return { ok: false, message: errorMessage(error) };
   revalidateCourse(d.id);
+  revalidatePath("/formations");
+  revalidatePath("/");
   return { ok: true, message: "Informations enregistrées." };
 }
 

@@ -53,6 +53,8 @@ for (const id of courseIds) {
     .flatMap((l) => [l.pdf_path, l.video_provider === "storage" ? l.video_ref : null])
     .filter(Boolean);
   if (paths.length) await admin.storage.from("course-media").remove(paths);
+  const { data: covers } = await admin.storage.from("course-covers").list(id);
+  if (covers?.length) await admin.storage.from("course-covers").remove(covers.map((f) => `${id}/${f.name}`));
 }
 await sql(`begin;
   delete from public.enrollments where course_id in (${courseIds.map(lit).join(",") || "null"});

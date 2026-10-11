@@ -225,7 +225,7 @@ const instId = randomUUID();
 await tx(
   asUser(
     adminId,
-    `update public.courses set status = 'published' where id in (${lit(evalC.id)}, ${lit(gestC.id)});
+    `update public.courses set status = 'published', public_listing = true where id in (${lit(evalC.id)}, ${lit(gestC.id)});
      insert into public.institutions (id, name, identifier, type, city, contact_email, created_by)
      values (${lit(instId)}, 'Lycée Ibn Khaldoun (démo)', 'DEMO-LYC-001', 'lycee', 'Casablanca', 'contact.demo@example.com', ${lit(adminId)});`,
   ),

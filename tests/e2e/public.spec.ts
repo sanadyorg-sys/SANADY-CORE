@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const PUBLIC_PAGES = ["/connexion", "/aide", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide"];
+const PUBLIC_PAGES = ["/", "/formations", "/a-propos", "/demande-acces", "/connexion", "/aide", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide"];
 
 async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -60,7 +60,7 @@ test.describe("sign-in page", () => {
 });
 
 test.describe("access control", () => {
-  for (const path of ["/espace", "/espace/formations", "/admin", "/admin/formations", "/etablissement/00000000-0000-0000-0000-000000000000"]) {
+  for (const path of ["/mon-espace", "/espace", "/espace/formations", "/admin", "/admin/formations", "/etablissement/00000000-0000-0000-0000-000000000000"]) {
     test(`${path} redirects anonymous visitors to sign-in`, async ({ page }) => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/connexion\?suite=/);
@@ -124,5 +124,38 @@ test.describe("content security policy", () => {
     const second = await page.request.get("/connexion");
     expect(second.headers()["content-security-policy"]).not.toEqual(csp);
     expect(violations).toEqual([]);
+  });
+});
+
+test.describe("public website", () => {
+  test("home page leads to the catalog and the access request", async ({ page }, testInfo) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Développez vos pratiques");
+    await page.getByRole("searchbox", { name: "Que souhaitez-vous apprendre ?" }).fill("évaluation");
+    await page.getByRole("button", { name: "Rechercher" }).click();
+    await expect(page).toHaveURL(/\/formations\?q=%C3%A9valuation/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Catalogue des formations");
+    if (testInfo.project.name === "mobile") {
+      await expect(page.getByRole("banner").getByRole("link", { name: "Demander un accès" })).toBeHidden();
+      await page.getByRole("button", { name: "Ouvrir le menu" }).click();
+      await page.getByRole("dialog").getByRole("link", { name: "Demander un accès" }).click();
+    } else {
+      await page.getByRole("banner").getByRole("link", { name: "Demander un accès" }).click();
+    }
+    await expect(page).toHaveURL(/\/demande-acces/);
+  });
+
+  test("an unknown course page returns 404", async ({ page }) => {
+    const res = await page.goto("/formations/00000000-0000-0000-0000-000000000000");
+    expect(res?.status()).toBe(404);
+    const bad = await page.goto("/formations/pas-un-identifiant");
+    expect(bad?.status()).toBe(404);
+  });
+
+  test("the access request form validates before sending", async ({ page }) => {
+    await page.goto("/demande-acces");
+    await page.getByRole("button", { name: "Envoyer ma demande" }).click();
+    await expect(page.getByText("Veuillez saisir votre prénom.")).toBeVisible();
+    await expect(page.getByText("Veuillez accepter le traitement de vos données pour envoyer la demande.")).toBeVisible();
   });
 });

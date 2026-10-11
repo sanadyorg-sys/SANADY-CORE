@@ -39,11 +39,11 @@ describe("migrations", () => {
     expect(rows).toEqual([]);
   });
 
-  it("exposes only certificate verification and public platform identity to anon", async () => {
+  it("exposes only certificate verification, platform identity and the public catalog to anon", async () => {
     const rows = await db.sql<{ proname: string }>(
       `select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace
         where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')`,
     );
-    expect(rows.map((r) => r.proname).sort()).toEqual(["public_platform_info", "verify_certificate"]);
+    expect(rows.map((r) => r.proname).sort()).toEqual(["public_catalog", "public_course", "public_platform_info", "verify_certificate"]);
   });
 });

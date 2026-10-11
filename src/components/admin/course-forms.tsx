@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { createCourse, updateCourse } from "@/server/actions/courses";
-import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
 import { FormActions, FormMessage, SubmitButton, useActionToast } from "@/components/ui/form";
 import { COURSE_LEVELS } from "@/lib/labels";
 import { INITIAL_ACTION_STATE, type Course, type CourseCategory } from "@/lib/types";
@@ -79,6 +79,12 @@ export function CourseInfoForm({ course, categories }: { course: Course; categor
       <Field label="Public visé" optional hint="Ex. : Enseignants du primaire, cycle 2." error={state.fieldErrors?.target_audience}>
         <Input name="target_audience" defaultValue={course.target_audience} maxLength={300} />
       </Field>
+      <Checkbox
+        name="public_listing"
+        defaultChecked={course.public_listing}
+        label="Afficher dans le catalogue public"
+        description="Une fois publiée, la formation est présentée sur le site public (programme, objectifs, durée — jamais le contenu). Laissez décoché pour une formation réservée à certains établissements."
+      />
       <FormActions>
         <SubmitButton>Enregistrer</SubmitButton>
       </FormActions>
