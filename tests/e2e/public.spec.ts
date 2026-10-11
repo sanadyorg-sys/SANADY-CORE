@@ -60,7 +60,7 @@ test.describe("sign-in page", () => {
 });
 
 test.describe("access control", () => {
-  for (const path of ["/mon-espace", "/espace", "/espace/formations", "/espace/bibliotheque", "/admin/bibliotheque", "/admin", "/admin/formations", "/etablissement/00000000-0000-0000-0000-000000000000"]) {
+  for (const path of ["/mon-espace", "/espace", "/espace/formations", "/espace/bibliotheque", "/admin/bibliotheque", "/admin/rapports", "/admin", "/admin/formations", "/etablissement/00000000-0000-0000-0000-000000000000"]) {
     test(`${path} redirects anonymous visitors to sign-in`, async ({ page }) => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/connexion\?suite=/);
@@ -77,6 +77,10 @@ test.describe("access control", () => {
     expect(cert.status()).toBe(401);
     const report = await request.get("/api/rapports/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000");
     expect(report.status()).toBe(401);
+    const adminCsv = await request.get("/api/exports/admin/formations");
+    expect(adminCsv.status()).toBe(401);
+    const institutionCsv = await request.get("/api/exports/etablissement/00000000-0000-0000-0000-000000000000/enseignants");
+    expect(institutionCsv.status()).toBe(401);
   });
 });
 
