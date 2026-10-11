@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 const STEPS = [
   { icon: Mail, title: "Vous envoyez votre demande", text: "Quelques informations suffisent." },
-  { icon: Search, title: "L’équipe SANADY l’étudie", text: "Généralement sous quelques jours ouvrés." },
+  { icon: Search, title: "L’équipe SANADY l’étudie", text: "Chaque demande est examinée individuellement." },
   { icon: UserCheck, title: "Vous recevez une invitation", text: "Un lien personnel, valable plusieurs jours, par e-mail." },
   { icon: KeyRound, title: "Vous créez votre compte", text: "Et vous commencez votre première formation." },
 ];

@@ -42,18 +42,38 @@ export default async function AboutPage() {
 
       <section className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-20">
         <div>
-          <h2 className="text-[1.875rem] font-bold leading-tight tracking-tight text-ink-900">Notre mission</h2>
+          <h2 className="text-[1.875rem] font-bold leading-tight tracking-tight text-ink-900">La Fondation Sanady</h2>
           <div className="mt-5 space-y-4 text-reading text-ink-700">
             <p>
-              Offrir à chaque enseignant un accès simple et gratuit à des formations de qualité, conçues avec des spécialistes de
-              l’éducation et pensées pour la réalité des classes marocaines.
+              La Fondation Sanady est une association marocaine reconnue d’utilité publique. Elle œuvre depuis 2009 contre l’abandon
+              et l’échec scolaires des élèves des établissements publics issus de milieux socio-économiques défavorisés, ruraux et
+              péri-urbains.
             </p>
+            <figure className="border-l-4 border-accent-500 pl-5">
+              <figcaption className="text-label font-semibold uppercase tracking-wider text-ink-500">Mission</figcaption>
+              <blockquote className="mt-1 text-ink-800">
+                « Offrir un accompagnement éducatif continu et de qualité aux élèves issus de milieux socio-économiques défavorisés,
+                afin de contribuer à leur réussite scolaire et libérer leur potentiel. »
+              </blockquote>
+            </figure>
+            <figure className="border-l-4 border-accent-500 pl-5">
+              <figcaption className="text-label font-semibold uppercase tracking-wider text-ink-500">Vision</figcaption>
+              <blockquote className="mt-1 text-ink-800">« Aucun élève de l’école publique ne devrait abandonner ou échouer à l’école. »</blockquote>
+            </figure>
             <p>
-              Chaque formation alterne vidéos, documents et évaluations. Les enseignants avancent à leur rythme, sur l’appareil de leur
-              choix, et obtiennent un certificat vérifiable lorsqu’ils ont validé l’ensemble du parcours.
+              SANADY, sa plateforme de formation, prolonge le programme de formation continue des enseignants : chaque formation
+              alterne vidéos, documents et évaluations, à suivre à son rythme, jusqu’à un certificat vérifiable.
+            </p>
+            <p className="text-label text-ink-500">
+              Source :{" "}
+              <a href="https://sanady.org/presentation/" className="font-medium text-accent-700 hover:underline" rel="noopener noreferrer" target="_blank">
+                sanady.org
+              </a>
             </p>
           </div>
         </div>
+        <div>
+          <h2 className="mb-5 text-section font-semibold text-ink-900">Les engagements de la plateforme</h2>
         <ul className="grid gap-5 sm:grid-cols-2">
           {VALUES.map((v) => (
             <li key={v.title} className="rounded-xl border border-line bg-surface p-6">
@@ -63,6 +83,7 @@ export default async function AboutPage() {
             </li>
           ))}
         </ul>
+        </div>
       </section>
 
       <section id="etablissements" className="scroll-mt-24 bg-ink-25">

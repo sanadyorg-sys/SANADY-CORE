@@ -44,7 +44,7 @@ const STEPS = [
 ];
 
 const FEATURES = [
-  { icon: PlayCircle, title: "Vidéos et documents", text: "Des contenus courts et concrets, conçus par des spécialistes de l’éducation." },
+  { icon: PlayCircle, title: "Vidéos et documents", text: "Des contenus courts et concrets, pensés pour la pratique en classe." },
   { icon: MonitorSmartphone, title: "Sur tous vos appareils", text: "Votre progression est enregistrée et vous suit d’un appareil à l’autre." },
   { icon: ClipboardCheck, title: "Évaluations formatives", text: "Des questions corrigées et expliquées pour ancrer vos acquis." },
   { icon: QrCode, title: "Certificat vérifiable", text: "Chaque certificat porte un numéro et un QR code, vérifiables par tous." },
@@ -78,7 +78,7 @@ export default async function HomePage() {
             </h1>
             <p className="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-ink-600 sm:text-[1.125rem]">
               Des formations gratuites, conçues pour les enseignants, à suivre à votre rythme : vidéos, documents, évaluations
-              et certificat reconnu par la Fondation Sanady.
+              et certificat délivré par la Fondation Sanady.
             </p>
 
             <form action="/formations" role="search" className="mt-8 flex max-w-xl flex-col gap-2 sm:flex-row">
