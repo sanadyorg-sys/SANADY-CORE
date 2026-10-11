@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef } from "react";
+import { Download } from "lucide-react";
+import { buttonClasses } from "@/components/ui/button";
 import { Alert } from "@/components/ui/surface";
 import { Skeleton } from "@/components/ui/feedback";
 import { useToast } from "@/components/ui/toast";
@@ -16,7 +18,7 @@ const PdfReader = dynamic(() => import("./pdf-reader"), {
 
 export type LessonMedia =
   | { kind: "video"; source: { type: "mp4" | "hls"; url: string; poster?: string } }
-  | { kind: "pdf"; url: string; pageCount: number }
+  | { kind: "pdf"; url: string; pageCount: number; downloadUrl?: string | null }
   | { kind: "unavailable"; message: string };
 
 /**
@@ -82,15 +84,24 @@ export function LessonExperience({
   }
 
   return (
-    <PdfReader
-      lessonId={lessonId}
-      url={media.url}
-      pageCount={media.pageCount}
-      resumePage={preview ? 1 : resumePosition}
-      initialViewed={pagesViewed}
-      completionThreshold={completionThreshold}
-      onProgress={preview ? undefined : onProgress}
-      trackProgress={!preview}
-    />
+    <div className="space-y-3">
+      {media.downloadUrl ? (
+        <div className="flex justify-end">
+          <a href={media.downloadUrl} className={buttonClasses({ variant: "secondary", size: "sm" })}>
+            <Download aria-hidden /> Télécharger le document
+          </a>
+        </div>
+      ) : null}
+      <PdfReader
+        lessonId={lessonId}
+        url={media.url}
+        pageCount={media.pageCount}
+        resumePage={preview ? 1 : resumePosition}
+        initialViewed={pagesViewed}
+        completionThreshold={completionThreshold}
+        onProgress={preview ? undefined : onProgress}
+        trackProgress={!preview}
+      />
+    </div>
   );
 }

@@ -63,5 +63,11 @@ await sql(`begin;
   delete from public.institutions where identifier = 'DEMO-LYC-001';
 commit;`);
 console.log(`✓ ${courseIds.length} demo courses and the demo institution removed`);
+// 3) Demonstration documents of the library (official linked resources are kept).
+const demoDocs = await sql(`select id, file_path from public.library_resources where source_label = 'Démonstration SANADY'`);
+const docPaths = demoDocs.map((d) => d.file_path).filter(Boolean);
+if (docPaths.length) await admin.storage.from("library").remove(docPaths);
+await sql(`delete from public.library_resources where source_label = 'Démonstration SANADY'`);
+console.log(`✓ ${demoDocs.length} demonstration library documents removed`);
 if (existsSync(STATE)) rmSync(STATE);
 console.log("Demo data removed. Categories are kept.");

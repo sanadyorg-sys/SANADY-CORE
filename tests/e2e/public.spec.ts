@@ -60,7 +60,7 @@ test.describe("sign-in page", () => {
 });
 
 test.describe("access control", () => {
-  for (const path of ["/mon-espace", "/espace", "/espace/formations", "/admin", "/admin/formations", "/etablissement/00000000-0000-0000-0000-000000000000"]) {
+  for (const path of ["/mon-espace", "/espace", "/espace/formations", "/espace/bibliotheque", "/admin/bibliotheque", "/admin", "/admin/formations", "/etablissement/00000000-0000-0000-0000-000000000000"]) {
     test(`${path} redirects anonymous visitors to sign-in`, async ({ page }) => {
       await page.goto(path);
       await expect(page).toHaveURL(/\/connexion\?suite=/);

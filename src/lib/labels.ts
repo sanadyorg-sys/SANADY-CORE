@@ -6,7 +6,10 @@ import type {
   LearningEventType,
   LessonKind,
   MembershipSource,
+  LibraryKind,
+  LibraryStatus,
   QuestionKind,
+  SchoolLevel,
 } from "./types";
 
 export const INSTITUTION_TYPES: Record<InstitutionType, string> = {
@@ -96,4 +99,25 @@ export const AUDIT_ACTIONS: Record<string, string> = {
   quiz_attempts_reset: "Réinitialisation des tentatives",
   user_suspended: "Suspension du compte",
   user_reactivated: "Réactivation du compte",
+};
+
+export const LIBRARY_KINDS: Record<LibraryKind, string> = {
+  guide: "Guide pédagogique",
+  support: "Support de formation",
+  fiche: "Fiche d’activité",
+  reference: "Document de référence",
+  externe: "Ressource externe officielle",
+};
+
+export const SCHOOL_LEVELS: Record<SchoolLevel, string> = {
+  prescolaire: "Préscolaire",
+  primaire: "Primaire",
+  college: "Collège",
+  lycee: "Lycée",
+};
+
+export const LIBRARY_STATUSES: Record<LibraryStatus, string> = {
+  draft: "Brouillon",
+  published: "Publiée",
+  archived: "Archivée",
 };

@@ -107,8 +107,11 @@ async function resolveMedia(lesson: Lesson): Promise<LessonMedia> {
   if (!lesson.pdf_path || !lesson.pdf_page_count) {
     return { kind: "unavailable", message: "Le document de cette leçon n’est pas encore disponible." };
   }
-  const url = await signedMediaUrl(lesson.pdf_path, 3600);
+  const [url, downloadUrl] = await Promise.all([
+    signedMediaUrl(lesson.pdf_path, 3600),
+    lesson.pdf_downloadable ? signedMediaUrl(lesson.pdf_path, 3600, `${lesson.title.slice(0, 80)}.pdf`) : Promise.resolve(null),
+  ]);
   return url
-    ? { kind: "pdf", url, pageCount: lesson.pdf_page_count }
+    ? { kind: "pdf", url, pageCount: lesson.pdf_page_count, downloadUrl }
     : { kind: "unavailable", message: "Le document n’a pas pu être chargé. Veuillez réessayer." };
 }

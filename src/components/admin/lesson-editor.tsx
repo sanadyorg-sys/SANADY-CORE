@@ -61,6 +61,14 @@ export function LessonDetailsForm({ lesson }: { lesson: Lesson }) {
         label="Leçon obligatoire"
         description="Les leçons obligatoires conditionnent l’accès à l’évaluation du module et l’obtention du certificat."
       />
+      {lesson.kind === "pdf" ? (
+        <Checkbox
+          name="pdf_downloadable"
+          defaultChecked={lesson.pdf_downloadable}
+          label="Autoriser le téléchargement du document"
+          description="Décoché : le document se lit uniquement dans le lecteur intégré."
+        />
+      ) : null}
       <FormActions>
         <SubmitButton>Enregistrer</SubmitButton>
       </FormActions>

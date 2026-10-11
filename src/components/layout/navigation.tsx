@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Award,
+  BookMarked,
   BookOpen,
   Building2,
   ChartColumn,
@@ -44,6 +45,7 @@ export function navigationFor(area: Area, institutionId?: string): NavSection[] 
         title: "Pédagogie",
         items: [
           { href: "/admin/formations", label: "Formations", icon: Library },
+          { href: "/admin/bibliotheque", label: "Bibliothèque", icon: BookMarked },
           { href: "/admin/suivi", label: "Suivi pédagogique", icon: ChartColumn },
           { href: "/admin/certificats", label: "Certificats", icon: Award },
         ],
@@ -77,6 +79,7 @@ export function navigationFor(area: Area, institutionId?: string): NavSection[] 
           { href: `${base}/formations`, label: "Formations autorisées", icon: Library },
           { href: `${base}/suivi`, label: "Suivi individuel", icon: ClipboardList },
           { href: `${base}/rapports`, label: "Rapports", icon: FileText },
+          { href: "/espace/bibliotheque", label: "Bibliothèque", icon: BookMarked },
         ],
       },
     ];
@@ -88,6 +91,7 @@ export function navigationFor(area: Area, institutionId?: string): NavSection[] 
         { href: "/espace/formations", label: "Mes formations", icon: BookOpen },
         { href: "/espace/evaluations", label: "Mes évaluations", icon: ClipboardCheck },
         { href: "/espace/certificats", label: "Mes certificats", icon: Award },
+        { href: "/espace/bibliotheque", label: "Bibliothèque", icon: BookMarked },
         { href: "/espace/profil", label: "Mon profil", icon: UserRound },
       ],
     },

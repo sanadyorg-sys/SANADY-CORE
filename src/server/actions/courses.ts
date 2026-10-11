@@ -290,6 +290,7 @@ export async function updateLesson(_prev: ActionState, formData: FormData): Prom
       estimated_minutes: z.union([z.coerce.number().int().min(1).max(1440), z.literal("")]),
       is_mandatory: z.union([z.literal("on"), z.undefined(), z.null()]),
       completion_threshold: z.union([z.coerce.number().int().min(50, "Minimum 50 %.").max(100, "Maximum 100 %."), z.literal("")]),
+      pdf_downloadable: checkboxSchema,
     }),
     formData,
   );
@@ -304,6 +305,7 @@ export async function updateLesson(_prev: ActionState, formData: FormData): Prom
       estimated_minutes: d.estimated_minutes === "" ? null : d.estimated_minutes,
       is_mandatory: d.is_mandatory === "on",
       completion_threshold: d.completion_threshold === "" ? null : d.completion_threshold / 100,
+      pdf_downloadable: d.pdf_downloadable,
     })
     .eq("id", d.id);
   if (error) return { ok: false, message: errorMessage(error) };

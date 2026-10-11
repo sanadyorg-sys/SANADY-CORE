@@ -156,6 +156,8 @@ export interface Lesson {
   video_duration_seconds: number | null;
   pdf_path: string | null;
   pdf_page_count: number | null;
+  /** Learners may download the lesson PDF (administrator decision). */
+  pdf_downloadable: boolean;
   completion_threshold: number | null;
   archived_at: Timestamp | null;
 }
@@ -428,3 +430,32 @@ export interface ActionState {
 }
 
 export const INITIAL_ACTION_STATE: ActionState = { ok: false };
+
+/* ─── Bibliothèque pédagogique ─────────────────────────────────────────── */
+
+export type LibraryKind = "guide" | "support" | "fiche" | "reference" | "externe";
+export type SchoolLevel = "prescolaire" | "primaire" | "college" | "lycee";
+export type LibraryStatus = "draft" | "published" | "archived";
+
+export interface LibraryResource {
+  id: UUID;
+  title: string;
+  description: string;
+  kind: LibraryKind;
+  levels: SchoolLevel[];
+  subject: string | null;
+  category_id: UUID | null;
+  course_id: UUID | null;
+  file_path: string | null;
+  file_name: string | null;
+  file_size: number | null;
+  mime_type: string | null;
+  page_count: number | null;
+  external_url: string | null;
+  allow_download: boolean;
+  source_label: string;
+  published_year: string | null;
+  status: LibraryStatus;
+  created_at: string;
+  updated_at: string;
+}

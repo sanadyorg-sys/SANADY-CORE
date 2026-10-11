@@ -23,7 +23,7 @@ export function FileUploader({
   label,
   hint,
 }: {
-  bucket: "course-media" | "course-covers";
+  bucket: "course-media" | "course-covers" | "library";
   accept: string;
   maxBytes: number;
   buildPath: (file: File) => string;
