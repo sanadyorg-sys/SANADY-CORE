@@ -9,7 +9,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, LibraryStatus } from "@/lib/types";
 import { checkboxSchema, parseInput, uuidSchema } from "@/lib/validation";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { LIBRARY_BUCKET } from "@/server/queries/library";
 
 const LEVELS = ["prescolaire", "primaire", "college", "lycee"] as const;
@@ -33,7 +33,7 @@ const optional = (max: number, message?: string) =>
 /* ─── Create / update ───────────────────────────────────────────────────── */
 
 export async function saveLibraryResource(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   const parsed = parseInput(
     z.object({
       id: z.union([uuidSchema, z.literal("")]).optional(),
@@ -93,7 +93,7 @@ export async function saveLibraryResource(_prev: ActionState, formData: FormData
     return { ok: true, message: "Ressource enregistrée." };
   }
 
-  const viewer = await requireSanadyAdmin();
+  const viewer = await requireStaff(["admin", "manager"]);
   const { data, error } = await supabase
     .from("library_resources")
     .insert({ ...values, status: "draft", created_by: viewer.id })
@@ -118,7 +118,7 @@ const MIME_TYPES = [
 
 /** Registers an uploaded file; PDFs are opened on the server to count pages. */
 export async function setLibraryFile(input: { id: string; path: string; fileName: string; size: number; mimeType: string }): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   const parsed = z
     .object({
       id: uuidSchema,
@@ -165,7 +165,7 @@ export async function setLibraryFile(input: { id: string; path: string; fileName
 }
 
 export async function removeLibraryFile(id: string): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   if (!uuidSchema.safeParse(id).success) return { ok: false, message: messageFor("not_found") };
   const supabase = await createClient();
   const { data } = await supabase.from("library_resources").select("file_path, status").eq("id", id).maybeSingle();
@@ -185,7 +185,7 @@ export async function removeLibraryFile(id: string): Promise<ActionState> {
 /* ─── Status and deletion ───────────────────────────────────────────────── */
 
 export async function setLibraryStatus(id: string, status: LibraryStatus): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   if (!uuidSchema.safeParse(id).success || !["draft", "published", "archived"].includes(status)) {
     return { ok: false, message: messageFor("not_found") };
   }
@@ -203,7 +203,7 @@ export async function setLibraryStatus(id: string, status: LibraryStatus): Promi
 }
 
 export async function deleteLibraryResource(id: string): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   if (!uuidSchema.safeParse(id).success) return { ok: false, message: messageFor("not_found") };
   const supabase = await createClient();
   const { data } = await supabase.from("library_resources").select("file_path").eq("id", id).maybeSingle();

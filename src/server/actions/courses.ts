@@ -9,12 +9,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, CourseStatus, QuestionKind } from "@/lib/types";
 import { checkboxSchema, optionalText, parseInput, uuidSchema } from "@/lib/validation";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireSanadyAdmin, requireStaff } from "@/server/auth";
 import { MEDIA_BUCKET } from "@/server/media";
 
 /*
  * All writes run with the administrator's session: RLS (is_sanady_admin)
- * is the final authority; requireSanadyAdmin() gives a clean early exit.
+ * is the final authority; requireStaff() / requireSanadyAdmin() give a clean early exit.
  */
 
 const coursePath = (id: string) => `/admin/formations/${id}`;
@@ -26,7 +26,7 @@ const revalidateCourse = (id: string) => {
 /* ─── Courses ──────────────────────────────────────────────────────────── */
 
 export async function createCourse(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const parsed = parseInput(
     z.object({
       title: z.string().trim().min(3, "Le titre doit comporter au moins 3 caractères.").max(200),
@@ -47,7 +47,7 @@ export async function createCourse(_prev: ActionState, formData: FormData): Prom
 }
 
 export async function updateCourse(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireSanadyAdmin();
+  const viewer = await requireStaff();
   const parsed = parseInput(
     z.object({
       id: uuidSchema,
@@ -83,7 +83,8 @@ export async function updateCourse(_prev: ActionState, formData: FormData): Prom
       level: d.level,
       target_audience: d.target_audience,
       estimated_minutes: d.estimated_minutes === "" ? null : d.estimated_minutes,
-      public_listing: d.public_listing,
+      // Public listing is a publication decision: staff only (trainers never send it).
+      ...(viewer.isCourseStaff ? { public_listing: d.public_listing } : {}),
     })
     .eq("id", d.id);
   if (error) return { ok: false, message: errorMessage(error) };
@@ -94,7 +95,7 @@ export async function updateCourse(_prev: ActionState, formData: FormData): Prom
 }
 
 export async function setCourseCover(courseId: string, path: string | null): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const supabase = await createClient();
   const { data: before } = await supabase.from("courses").select("cover_path").eq("id", courseId).maybeSingle();
   const { error } = await supabase.from("courses").update({ cover_path: path }).eq("id", courseId);
@@ -108,7 +109,7 @@ export async function setCourseCover(courseId: string, path: string | null): Pro
 export type PublishResult = ActionState & { issues?: Array<{ message: string; label?: string }> };
 
 export async function setCourseStatus(courseId: string, status: CourseStatus): Promise<PublishResult> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const supabase = await createClient();
 
   if (status === "published") {
@@ -129,13 +130,85 @@ export async function setCourseStatus(courseId: string, status: CourseStatus): P
   const messages: Record<CourseStatus, string> = {
     published: "Formation publiée.",
     draft: "Formation repassée en brouillon : les enseignants n’y ont plus accès.",
+    review: "Formation soumise à la revue.",
     archived: "Formation archivée.",
   };
   return { ok: true, message: messages[status] };
 }
 
+/* ─── Review workflow ──────────────────────────────────────────────────── */
+
+export async function submitCourseForReview(courseId: string): Promise<PublishResult> {
+  await requireStaff();
+  if (!uuidSchema.safeParse(courseId).success) return { ok: false, message: messageFor("not_found") };
+  const supabase = await createClient();
+  const { data: issues } = await supabase.rpc("validate_course", { p_course: courseId });
+  const list = (issues ?? []) as Array<{ code: string; label?: string }>;
+  if (list.length) {
+    return {
+      ok: false,
+      message: "La formation ne peut pas être soumise tant que les points signalés ne sont pas corrigés.",
+      issues: list.map((i) => ({ message: PUBLICATION_ISSUES[i.code] ?? i.code, label: i.label })),
+    };
+  }
+  const { error } = await supabase.rpc("submit_course_for_review", { p_course: courseId });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidateCourse(courseId);
+  return { ok: true, message: "Formation soumise à la revue de l’équipe SANADY." };
+}
+
+export async function approveCourse(courseId: string): Promise<ActionState> {
+  await requireStaff(["admin", "manager"]);
+  if (!uuidSchema.safeParse(courseId).success) return { ok: false, message: messageFor("not_found") };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("approve_course", { p_course: courseId });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidateCourse(courseId);
+  return { ok: true, message: "Formation approuvée et publiée." };
+}
+
+export async function requestCourseChanges(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireStaff(["admin", "manager"]);
+  const parsed = parseInput(
+    z.object({
+      course_id: uuidSchema,
+      comment: z.string().trim().min(5, "Expliquez en quelques mots ce qui doit être modifié.").max(2000, "2 000 caractères maximum."),
+    }),
+    formData,
+  );
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("request_course_changes", { p_course: parsed.data.course_id, p_comment: parsed.data.comment });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidateCourse(parsed.data.course_id);
+  return { ok: true, message: "Formation renvoyée en brouillon avec vos remarques." };
+}
+
+/* ─── Trainers of a course ─────────────────────────────────────────────── */
+
+export async function assignCourseTrainer(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireStaff(["admin", "manager"]);
+  const parsed = parseInput(z.object({ course_id: uuidSchema, user_id: uuidSchema }), formData);
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("assign_course_trainer", { p_course: parsed.data.course_id, p_user: parsed.data.user_id });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidateCourse(parsed.data.course_id);
+  return { ok: true, message: "Formateur ajouté à la formation." };
+}
+
+export async function removeCourseTrainer(courseId: string, userId: string): Promise<ActionState> {
+  await requireStaff(["admin", "manager"]);
+  if (!uuidSchema.safeParse(courseId).success || !uuidSchema.safeParse(userId).success) return { ok: false, message: messageFor("not_found") };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("remove_course_trainer", { p_course: courseId, p_user: userId });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidateCourse(courseId);
+  return { ok: true, message: "Formateur retiré de la formation." };
+}
+
 export async function deleteCourse(courseId: string): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const supabase = await createClient();
   const { data, error } = await supabase.from("courses").delete().eq("id", courseId).eq("status", "draft").select("id");
   if (error) {
@@ -155,7 +228,7 @@ export async function deleteCourse(courseId: string): Promise<ActionState> {
 /* ─── Modules ──────────────────────────────────────────────────────────── */
 
 export async function createModule(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const parsed = parseInput(
     z.object({ course_id: uuidSchema, title: z.string().trim().min(2, "Titre trop court.").max(200) }),
     formData,
@@ -193,7 +266,7 @@ export async function createModule(_prev: ActionState, formData: FormData): Prom
 }
 
 export async function updateModule(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const parsed = parseInput(
     z.object({
       id: uuidSchema,
@@ -215,7 +288,7 @@ export async function updateModule(_prev: ActionState, formData: FormData): Prom
 }
 
 export async function reorderModules(courseId: string, ids: string[]): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const supabase = await createClient();
   const { error } = await supabase.rpc("reorder_modules", { p_course: courseId, p_ids: ids });
   if (error) return { ok: false, message: errorMessage(error) };
@@ -224,7 +297,7 @@ export async function reorderModules(courseId: string, ids: string[]): Promise<A
 }
 
 export async function removeModule(moduleId: string, courseId: string): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("remove_module", { p_module: moduleId });
   if (error) return { ok: false, message: errorMessage(error) };
@@ -241,7 +314,7 @@ export async function removeModule(moduleId: string, courseId: string): Promise<
 /* ─── Lessons ──────────────────────────────────────────────────────────── */
 
 export async function createLesson(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const parsed = parseInput(
     z.object({
       course_id: uuidSchema,
@@ -280,7 +353,7 @@ export async function createLesson(_prev: ActionState, formData: FormData): Prom
 }
 
 export async function updateLesson(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const parsed = parseInput(
     z.object({
       id: uuidSchema,
@@ -288,7 +361,7 @@ export async function updateLesson(_prev: ActionState, formData: FormData): Prom
       title: z.string().trim().min(2, "Titre trop court.").max(200),
       description: z.string().trim().max(10000),
       estimated_minutes: z.union([z.coerce.number().int().min(1).max(1440), z.literal("")]),
-      is_mandatory: z.union([z.literal("on"), z.undefined(), z.null()]),
+      is_mandatory: checkboxSchema,
       completion_threshold: z.union([z.coerce.number().int().min(50, "Minimum 50 %.").max(100, "Maximum 100 %."), z.literal("")]),
       pdf_downloadable: checkboxSchema,
     }),
@@ -303,7 +376,7 @@ export async function updateLesson(_prev: ActionState, formData: FormData): Prom
       title: d.title,
       description: d.description,
       estimated_minutes: d.estimated_minutes === "" ? null : d.estimated_minutes,
-      is_mandatory: d.is_mandatory === "on",
+      is_mandatory: d.is_mandatory,
       completion_threshold: d.completion_threshold === "" ? null : d.completion_threshold / 100,
       pdf_downloadable: d.pdf_downloadable,
     })
@@ -314,7 +387,7 @@ export async function updateLesson(_prev: ActionState, formData: FormData): Prom
 }
 
 export async function reorderLessons(moduleId: string, courseId: string, ids: string[]): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const supabase = await createClient();
   const { error } = await supabase.rpc("reorder_lessons", { p_module: moduleId, p_ids: ids });
   if (error) return { ok: false, message: errorMessage(error) };
@@ -323,7 +396,7 @@ export async function reorderLessons(moduleId: string, courseId: string, ids: st
 }
 
 export async function removeLesson(lessonId: string, courseId: string): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("remove_lesson", { p_lesson: lessonId });
   if (error) return { ok: false, message: errorMessage(error) };
@@ -347,7 +420,7 @@ export async function setLessonVideo(input: {
   ref: string;
   durationSeconds: number | null;
 }): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const parsed = z
     .object({
       lessonId: uuidSchema,
@@ -381,10 +454,19 @@ export async function setLessonVideo(input: {
 
 /** Attaches an uploaded PDF; the page count is measured on the server. */
 export async function setLessonPdf(lessonId: string, courseId: string, path: string): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   if (!uuidSchema.safeParse(lessonId).success || !storagePath.safeParse(path).success) {
     return { ok: false, message: "Données du document invalides." };
   }
+  // The service key below may delete the file: first prove, under the user's
+  // own permissions, that this lesson is editable and the file belongs to it.
+  const userClient = await createClient();
+  const { data: current } = await userClient.from("lessons").select("pdf_downloadable").eq("id", lessonId).eq("course_id", courseId).maybeSingle();
+  // Re-saving the current value changes nothing but succeeds only where RLS allows editing.
+  const { data: editable } = current
+    ? await userClient.from("lessons").update({ pdf_downloadable: (current as { pdf_downloadable: boolean }).pdf_downloadable }).eq("id", lessonId).select("id")
+    : { data: null };
+  if (!editable?.length || !path.startsWith(`${courseId}/${lessonId}/`)) return { ok: false, message: messageFor("forbidden") };
   const admin = createAdminClient();
   const { data: file, error: downloadError } = await admin.storage.from(MEDIA_BUCKET).download(path);
   if (downloadError || !file) return { ok: false, message: "Le document téléversé est introuvable." };
@@ -420,7 +502,7 @@ export async function addLessonResource(input: {
   path: string;
   sizeBytes: number;
 }): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const parsed = z
     .object({
       lessonId: uuidSchema,
@@ -444,7 +526,7 @@ export async function addLessonResource(input: {
 }
 
 export async function removeLessonResource(resourceId: string, courseId: string): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const supabase = await createClient();
   const { data, error } = await supabase.from("lesson_resources").delete().eq("id", resourceId).select("file_path");
   if (error) return { ok: false, message: errorMessage(error) };
@@ -457,7 +539,7 @@ export async function removeLessonResource(resourceId: string, courseId: string)
 /* ─── Quizzes ──────────────────────────────────────────────────────────── */
 
 export async function updateQuiz(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const parsed = parseInput(
     z.object({
       id: uuidSchema,
@@ -497,7 +579,7 @@ export interface QuestionInput {
 }
 
 export async function saveQuestion(input: QuestionInput): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const parsed = z
     .object({
       quizId: uuidSchema,
@@ -534,7 +616,7 @@ export async function saveQuestion(input: QuestionInput): Promise<ActionState> {
 }
 
 export async function removeQuestion(questionId: string, courseId: string): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("remove_question", { p_question: questionId });
   if (error) return { ok: false, message: errorMessage(error) };
@@ -549,7 +631,7 @@ export async function removeQuestion(questionId: string, courseId: string): Prom
 }
 
 export async function reorderQuestions(quizId: string, courseId: string, ids: string[]): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const supabase = await createClient();
   const { error } = await supabase.rpc("reorder_questions", { p_quiz: quizId, p_ids: ids });
   if (error) return { ok: false, message: errorMessage(error) };
@@ -602,7 +684,7 @@ export async function revokeCourseFromUser(courseId: string, userId: string): Pr
 /* ─── Categories ───────────────────────────────────────────────────────── */
 
 export async function createCategory(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const parsed = parseInput(z.object({ name: z.string().trim().min(2, "Nom trop court.").max(80) }), formData);
   if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
   const supabase = await createClient();
@@ -613,7 +695,7 @@ export async function createCategory(_prev: ActionState, formData: FormData): Pr
 }
 
 export async function deleteCategory(categoryId: string): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const supabase = await createClient();
   const { error } = await supabase.from("course_categories").delete().eq("id", categoryId);
   if (error) return { ok: false, message: errorMessage(error) };
@@ -622,7 +704,7 @@ export async function deleteCategory(categoryId: string): Promise<ActionState> {
 }
 
 export async function updateCategory(categoryId: string, name: string): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff();
   const parsed = optionalText(80).safeParse(name);
   if (!parsed.success || !parsed.data || parsed.data.length < 2) return { ok: false, message: "Nom invalide." };
   const supabase = await createClient();

@@ -8,6 +8,7 @@ import { ActionButton } from "@/components/common/action-button";
 import { LearnerProgress } from "@/components/tracking/learner-progress";
 import { Alert, Badge, Card, CardBody, CardHeader, DescriptionList, PageHeader } from "@/components/ui/surface";
 import { formatDate } from "@/lib/format";
+import { MEMBERSHIP_ROLES } from "@/lib/labels";
 import { setUserStatus } from "@/server/actions/admin";
 import { grantCourseToUser, revokeCourseFromUser } from "@/server/actions/courses";
 import { requireSanadyAdmin } from "@/server/auth";
@@ -105,7 +106,7 @@ export default async function PersonPage(props: PageProps<"/admin/enseignants/[u
                     <Link href={`/admin/etablissements/${m.institution?.id}`} className="truncate text-body font-medium text-ink-900 hover:underline">
                       {m.institution?.name}
                     </Link>
-                    <Badge tone={m.role === "admin" ? "brand" : "neutral"}>{m.role === "admin" ? "Administrateur" : "Enseignant"}</Badge>
+                    <Badge tone={m.role === "admin" ? "brand" : "neutral"}>{MEMBERSHIP_ROLES[m.role as keyof typeof MEMBERSHIP_ROLES] ?? "Membre"}</Badge>
                   </li>
                 ))}
               </ul>

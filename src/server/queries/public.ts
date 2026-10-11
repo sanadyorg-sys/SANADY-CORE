@@ -38,6 +38,8 @@ export interface PublicCourse {
   published_at: string | null;
   updated_at: string;
   category: string | null;
+  /** Trainers in charge of the course (name and job title only). */
+  trainers?: Array<{ name: string | null; job_title: string | null }>;
   modules: Array<{
     id: UUID;
     title: string;

@@ -15,7 +15,7 @@ export async function GET(_request: Request, ctx: RouteContext<"/api/rapports/[i
 
   const viewer = await getViewer();
   if (!viewer) return new NextResponse("Authentification requise", { status: 401 });
-  const institution = viewer.adminInstitutions.find((i) => i.id === institutionId);
+  const institution = viewer.supervisedInstitutions.find((i) => i.id === institutionId);
   if (!institution) return new NextResponse("Accès refusé", { status: 403 });
   if (!(await rateLimit(`report:${viewer.id}`, 60, 10 * 60))) return new NextResponse("Trop de demandes", { status: 429 });
 

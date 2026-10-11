@@ -123,7 +123,7 @@ export async function acceptInvitationAsCurrentUser(_prev: ActionState, formData
   });
   if (error) return { ok: false, message: errorMessage(error) };
 
-  if (invitation.kind === "institution_admin" && invitation.institution_id) {
+  if ((invitation.kind === "institution_admin" || invitation.kind === "institution_supervisor") && invitation.institution_id) {
     redirect(`/etablissement/${invitation.institution_id}`);
   }
   if (invitation.kind === "platform_admin") redirect("/admin");
@@ -135,7 +135,7 @@ export async function acceptInvitationAsCurrentUser(_prev: ActionState, formData
 export async function createInvitation(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = parseInput(
     z.object({
-      kind: z.enum(["platform_admin", "teacher", "institution_admin", "institution_teacher"]),
+      kind: z.enum(["platform_admin", "teacher", "institution_admin", "institution_teacher", "institution_supervisor"]),
       email: emailSchema,
       institution_id: z.union([uuidSchema, z.literal("")]).optional(),
     }),

@@ -6,7 +6,7 @@ import { FilterSelect, SearchForm } from "@/components/ui/search-form";
 import { Alert, Badge, Card, PageHeader } from "@/components/ui/surface";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { formatRelative } from "@/lib/format";
-import { requireInstitutionAdmin } from "@/server/auth";
+import { requireInstitutionViewer } from "@/server/auth";
 import { getTeacherSummaries } from "@/server/queries/institution";
 
 export const metadata: Metadata = { title: "Rapports" };
@@ -21,7 +21,7 @@ const FILTERS: Record<string, { label: string; test: (t: Awaited<ReturnType<type
 export default async function ReportsPage(props: PageProps<"/etablissement/[institutionId]/rapports">) {
   const { institutionId } = await props.params;
   const sp = await props.searchParams;
-  await requireInstitutionAdmin(institutionId);
+  await requireInstitutionViewer(institutionId);
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const filtre = typeof sp.filtre === "string" && sp.filtre in FILTERS ? sp.filtre : "";
 

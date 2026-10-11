@@ -7,14 +7,14 @@ import { buttonClasses } from "@/components/ui/button";
 import { Badge, Card, CardBody, CardHeader } from "@/components/ui/surface";
 import { LESSON_KINDS } from "@/lib/labels";
 import { serverEnv } from "@/lib/server-env";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { getLessonEditorData } from "@/server/queries/admin";
 
 export const metadata: Metadata = { title: "Leçon" };
 
 export default async function LessonEditorPage(props: PageProps<"/admin/formations/[courseId]/programme/lecons/[lessonId]">) {
   const { courseId, lessonId } = await props.params;
-  await requireSanadyAdmin();
+  await requireStaff();
   const data = await getLessonEditorData(lessonId);
   if (!data || data.lesson.course_id !== courseId || data.lesson.archived_at) notFound();
   const { lesson, resources } = data;

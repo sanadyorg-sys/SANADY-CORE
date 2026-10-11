@@ -9,13 +9,13 @@ import { Alert, Badge, Card, CardBody, CardHeader, PageHeader } from "@/componen
 import { LIBRARY_STATUSES } from "@/lib/labels";
 import { uuidSchema } from "@/lib/validation";
 import { deleteLibraryResource, setLibraryStatus } from "@/server/actions/library";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { getLibraryResource, libraryEditorOptions } from "@/server/queries/library";
 
 export const metadata: Metadata = { title: "Ressource de la bibliothèque" };
 
 export default async function EditLibraryResourcePage({ params }: PageProps<"/admin/bibliotheque/[resourceId]">) {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   const { resourceId } = await params;
   if (!uuidSchema.safeParse(resourceId).success) notFound();
   const [resource, options] = await Promise.all([getLibraryResource(resourceId), libraryEditorOptions()]);

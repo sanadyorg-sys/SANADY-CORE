@@ -37,6 +37,9 @@ const MESSAGES: Record<string, string> = {
 
   // Courses
   course_unavailable: "Cette formation n’est pas disponible.",
+  course_not_draft: "Seule une formation en brouillon peut être soumise à la revue.",
+  course_not_in_review: "Cette formation n’est pas (ou plus) en attente de revue.",
+  not_a_trainer: "Cette personne n’a pas le rôle de formateur. Attribuez-lui d’abord ce rôle dans « Équipe SANADY ».",
   course_not_publishable: "La formation ne peut pas être publiée tant que les points signalés ne sont pas corrigés.",
   course_not_authorized: "Cette formation n’est pas autorisée pour votre établissement.",
   course_access_denied: "Vous n’avez pas accès à cette formation.",

@@ -29,8 +29,10 @@ export const optionalText = (max: number) =>
 
 export const uuidSchema = z.uuid("Identifiant invalide.");
 
+/** An unticked checkbox is absent from FormData: absence means false. */
 export const checkboxSchema = z
-  .union([z.literal("on"), z.literal("true"), z.literal("1"), z.undefined(), z.null()])
+  .union([z.literal("on"), z.literal("true"), z.literal("1"), z.null()])
+  .optional()
   .transform((v) => v === "on" || v === "true" || v === "1");
 
 export type ParseResult<T> = { ok: true; data: T } | { ok: false; fieldErrors: Record<string, string> };

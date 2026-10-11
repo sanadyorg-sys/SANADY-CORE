@@ -3,13 +3,13 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { LibraryResourceForm } from "@/components/admin/library-forms";
 import { Card, CardBody, PageHeader } from "@/components/ui/surface";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { libraryEditorOptions } from "@/server/queries/library";
 
 export const metadata: Metadata = { title: "Nouvelle ressource" };
 
 export default async function NewLibraryResourcePage() {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   const options = await libraryEditorOptions();
   return (
     <>

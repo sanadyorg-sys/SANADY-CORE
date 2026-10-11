@@ -8,14 +8,14 @@ import { formatDateTime, formatRelative } from "@/lib/format";
 import { EVENT_LABELS } from "@/lib/labels";
 import { createClient } from "@/lib/supabase/server";
 import type { LearningEventType } from "@/lib/types";
-import { requireInstitutionAdmin } from "@/server/auth";
+import { requireInstitutionViewer } from "@/server/auth";
 import { getAssignments, getInstitutionOverview, getTeacherSummaries } from "@/server/queries/institution";
 
 export const metadata: Metadata = { title: "Tableau de bord" };
 
 export default async function InstitutionDashboardPage(props: PageProps<"/etablissement/[institutionId]">) {
   const { institutionId } = await props.params;
-  const { institution } = await requireInstitutionAdmin(institutionId);
+  const { institution, canManage } = await requireInstitutionViewer(institutionId);
   const base = `/etablissement/${institutionId}`;
   const supabase = await createClient();
 
@@ -56,6 +56,7 @@ export default async function InstitutionDashboardPage(props: PageProps<"/etabli
         title="Tableau de bord"
         description={`Suivi des formations affectées aux enseignants de ${institution.name}.`}
         actions={
+          canManage ? (
           <>
             <Link href={`${base}/enseignants/invitations`} className={buttonClasses({ variant: "secondary" })}>
               <Mail aria-hidden /> Inviter des enseignants
@@ -64,6 +65,7 @@ export default async function InstitutionDashboardPage(props: PageProps<"/etabli
               <BookOpen aria-hidden /> Affecter une formation
             </Link>
           </>
+          ) : undefined
         }
       />
 

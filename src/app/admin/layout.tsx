@@ -1,13 +1,15 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { signOut } from "@/server/actions/auth";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff, staffRole } from "@/server/auth";
 import { contextsFor, shellUser } from "@/server/shell";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const viewer = await requireSanadyAdmin();
+  const viewer = await requireStaff();
+  const role = staffRole(viewer) ?? "admin";
   return (
     <AppShell
       area="admin"
+      navRole={role}
       currentContextKey="admin"
       contexts={contextsFor(viewer)}
       user={shellUser(viewer)}

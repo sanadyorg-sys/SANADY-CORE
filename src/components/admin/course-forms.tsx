@@ -33,7 +33,7 @@ export function CreateCourseForm({ categories }: { categories: CourseCategory[] 
   );
 }
 
-export function CourseInfoForm({ course, categories }: { course: Course; categories: CourseCategory[] }) {
+export function CourseInfoForm({ course, categories, canPublish = true }: { course: Course; categories: CourseCategory[]; canPublish?: boolean }) {
   const [state, action] = useActionState(updateCourse, INITIAL_ACTION_STATE);
   useActionToast(state);
   return (
@@ -79,12 +79,14 @@ export function CourseInfoForm({ course, categories }: { course: Course; categor
       <Field label="Public visé" optional hint="Ex. : Enseignants du primaire, cycle 2." error={state.fieldErrors?.target_audience}>
         <Input name="target_audience" defaultValue={course.target_audience} maxLength={300} />
       </Field>
+      {canPublish ? (
       <Checkbox
         name="public_listing"
         defaultChecked={course.public_listing}
         label="Afficher dans le catalogue public"
         description="Une fois publiée, la formation est présentée sur le site public (programme, objectifs, durée — jamais le contenu). Laissez décoché pour une formation réservée à certains établissements."
       />
+      ) : null}
       <FormActions>
         <SubmitButton>Enregistrer</SubmitButton>
       </FormActions>

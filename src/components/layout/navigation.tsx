@@ -26,6 +26,8 @@ import {
 import { cn } from "@/lib/cn";
 
 export type Area = "teacher" | "institution" | "admin";
+/** admin area: admin | manager | trainer — institution area: admin | supervisor. */
+export type NavRole = "admin" | "manager" | "trainer" | "supervisor";
 
 interface NavItem {
   href: string;
@@ -38,7 +40,25 @@ interface NavSection {
   items: NavItem[];
 }
 
-export function navigationFor(area: Area, institutionId?: string): NavSection[] {
+export function navigationFor(area: Area, institutionId?: string, role: NavRole = "admin"): NavSection[] {
+  if (area === "admin" && role === "trainer") {
+    return [{ items: [{ href: "/admin/formations", label: "Mes formations", icon: Library }] }];
+  }
+  if (area === "admin" && role === "manager") {
+    return [
+      { items: [{ href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true }] },
+      {
+        title: "Pédagogie",
+        items: [
+          { href: "/admin/formations", label: "Formations", icon: Library },
+          { href: "/admin/bibliotheque", label: "Bibliothèque", icon: BookMarked },
+          { href: "/admin/suivi", label: "Suivi pédagogique", icon: ChartColumn },
+          { href: "/admin/rapports", label: "Rapports et statistiques", icon: ChartNoAxesCombined },
+          { href: "/admin/certificats", label: "Certificats", icon: Award },
+        ],
+      },
+    ];
+  }
   if (area === "admin") {
     return [
       { items: [{ href: "/admin", label: "Tableau de bord", icon: LayoutDashboard, exact: true }] },
@@ -65,7 +85,7 @@ export function navigationFor(area: Area, institutionId?: string): NavSection[] 
         title: "Plateforme",
         items: [
           { href: "/admin/journal", label: "Journal d’activité", icon: History },
-          { href: "/admin/administrateurs", label: "Administrateurs", icon: ShieldCheck },
+          { href: "/admin/administrateurs", label: "Équipe SANADY", icon: ShieldCheck },
           { href: "/admin/parametres", label: "Paramètres", icon: Settings },
         ],
       },
@@ -104,14 +124,16 @@ export function navigationFor(area: Area, institutionId?: string): NavSection[] 
 export function SidebarNav({
   area,
   institutionId,
+  role,
   onNavigate,
 }: {
   area: Area;
   institutionId?: string;
+  role?: NavRole;
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
-  const sections = navigationFor(area, institutionId);
+  const sections = navigationFor(area, institutionId, role);
 
   return (
     <nav aria-label="Navigation principale" className="space-y-6">

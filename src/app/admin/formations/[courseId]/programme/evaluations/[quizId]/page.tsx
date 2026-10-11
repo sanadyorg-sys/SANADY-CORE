@@ -4,14 +4,14 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { QuestionList, QuizSettingsForm } from "@/components/admin/quiz-editor";
 import { Alert, Card, CardBody, CardHeader } from "@/components/ui/surface";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { getQuizEditorData } from "@/server/queries/admin";
 
 export const metadata: Metadata = { title: "Évaluation" };
 
 export default async function QuizEditorPage(props: PageProps<"/admin/formations/[courseId]/programme/evaluations/[quizId]">) {
   const { courseId, quizId } = await props.params;
-  await requireSanadyAdmin();
+  await requireStaff();
   const data = await getQuizEditorData(quizId);
   if (!data || data.quiz.course_id !== courseId) notFound();
   const { quiz, questions } = data;

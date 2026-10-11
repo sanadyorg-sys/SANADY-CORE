@@ -8,7 +8,7 @@ import { Alert, Card, PageHeader, StatTile } from "@/components/ui/surface";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { formatDate, formatNumber, formatPercent } from "@/lib/format";
 import { parsePeriod } from "@/lib/period";
-import { requireInstitutionAdmin } from "@/server/auth";
+import { requireInstitutionViewer } from "@/server/auth";
 import { getInstitutionReport } from "@/server/queries/reports";
 
 export const metadata: Metadata = { title: "Statistiques" };
@@ -18,7 +18,7 @@ const rate = (v: number | null) => (v === null ? "—" : formatPercent(Number(v)
 
 export default async function InstitutionStatsPage(props: PageProps<"/etablissement/[institutionId]/statistiques">) {
   const { institutionId } = await props.params;
-  await requireInstitutionAdmin(institutionId);
+  await requireInstitutionViewer(institutionId);
   const period = parsePeriod(await props.searchParams);
   const report = await getInstitutionReport(institutionId, period.from, period.to);
   const k = report.kpis;

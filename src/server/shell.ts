@@ -8,12 +8,16 @@ export function contextsFor(viewer: Viewer): ShellContext[] {
   const contexts: ShellContext[] = [];
   if (viewer.isSanadyAdmin) {
     contexts.push({ key: "admin", label: "Administration SANADY", description: "Gestion de la plateforme", href: "/admin", kind: "admin" });
+  } else if (viewer.isTrainingManager) {
+    contexts.push({ key: "admin", label: "Espace pédagogique", description: "Responsable pédagogique", href: "/admin", kind: "admin" });
+  } else if (viewer.isTrainer) {
+    contexts.push({ key: "admin", label: "Espace pédagogique", description: "Formateur", href: "/admin/formations", kind: "admin" });
   }
-  for (const inst of viewer.adminInstitutions) {
+  for (const inst of viewer.supervisedInstitutions) {
     contexts.push({
       key: `inst:${inst.id}`,
       label: inst.name,
-      description: "Espace établissement",
+      description: inst.role === "supervisor" ? "Supervision (lecture seule)" : "Espace établissement",
       href: `/etablissement/${inst.id}`,
       kind: "institution",
     });

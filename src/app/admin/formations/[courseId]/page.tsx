@@ -5,14 +5,14 @@ import { CoverUploader } from "@/components/admin/cover-uploader";
 import { Card, CardBody, CardHeader } from "@/components/ui/surface";
 import { createClient } from "@/lib/supabase/server";
 import type { Course } from "@/lib/types";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { getCategories } from "@/server/queries/admin";
 
 export const metadata: Metadata = { title: "Informations de la formation" };
 
 export default async function CourseInfoPage(props: PageProps<"/admin/formations/[courseId]">) {
   const { courseId } = await props.params;
-  await requireSanadyAdmin();
+  const viewer = await requireStaff();
   const supabase = await createClient();
   const [{ data }, categories] = await Promise.all([supabase.from("courses").select("*").eq("id", courseId).maybeSingle(), getCategories()]);
   const course = data as Course | null;
@@ -23,7 +23,7 @@ export default async function CourseInfoPage(props: PageProps<"/admin/formations
       <Card>
         <CardHeader title="Informations générales" description="Ces informations sont présentées aux enseignants et aux établissements." />
         <CardBody>
-          <CourseInfoForm course={course} categories={categories} />
+          <CourseInfoForm course={course} categories={categories} canPublish={viewer.isCourseStaff} />
         </CardBody>
       </Card>
       <Card className="self-start">

@@ -30,7 +30,7 @@ export function InviteForm({
   const [kind, setKind] = useState<InvitationKind>(defaultKind ?? kinds[0]!);
   const formRef = useRef<HTMLFormElement>(null);
   const toast = useToast();
-  const needsInstitution = kind === "institution_admin" || kind === "institution_teacher";
+  const needsInstitution = kind === "institution_admin" || kind === "institution_teacher" || kind === "institution_supervisor";
   const link = state.ok ? (state.data?.link as string | undefined) : undefined;
 
   useEffect(() => {

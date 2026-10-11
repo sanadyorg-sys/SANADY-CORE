@@ -89,6 +89,11 @@ export function invitationEmail(params: {
       title: "Activez votre espace établissement",
       body: `Vous avez été désigné(e) pour administrer l’établissement <strong>${inst}</strong> sur la plateforme SANADY.`,
     },
+    institution_supervisor: {
+      subject: `Supervision de l’établissement ${params.institutionName ?? ""} sur SANADY`,
+      title: "Suivez les formations de votre établissement",
+      body: `Vous êtes invité(e) à suivre, en lecture seule, les formations des enseignants de l’établissement <strong>${inst}</strong> sur la plateforme SANADY.`,
+    },
     institution_teacher: {
       subject: `${params.institutionName ?? "Votre établissement"} vous invite sur SANADY`,
       title: "Rejoignez votre établissement sur SANADY",

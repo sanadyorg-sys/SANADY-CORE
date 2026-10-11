@@ -11,14 +11,14 @@ import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { formatDate, formatDuration, formatRelative } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { unassignCourse } from "@/server/actions/institution";
-import { requireInstitutionAdmin } from "@/server/auth";
+import { requireInstitutionViewer } from "@/server/auth";
 import { getAssignments, getAuthorizedCourses, getTeacherSummaries } from "@/server/queries/institution";
 
 export const metadata: Metadata = { title: "Affectations" };
 
 export default async function CourseAssignmentPage(props: PageProps<"/etablissement/[institutionId]/formations/[courseId]">) {
   const { institutionId, courseId } = await props.params;
-  await requireInstitutionAdmin(institutionId);
+  const { canManage } = await requireInstitutionViewer(institutionId);
   const supabase = await createClient();
 
   const [courses, teachers, assignments] = await Promise.all([
@@ -103,6 +103,7 @@ export default async function CourseAssignmentPage(props: PageProps<"/etablissem
                       </TD>
                       <TD>{e?.last_activity_at ? formatRelative(e.last_activity_at) : "—"}</TD>
                       <TD align="right">
+                        {canManage ? (
                         <ActionButton
                           variant="danger-ghost"
                           action={unassignCourse.bind(null, a.id, institutionId)}
@@ -115,6 +116,7 @@ export default async function CourseAssignmentPage(props: PageProps<"/etablissem
                         >
                           <UserMinus aria-hidden /> <span className="sr-only sm:not-sr-only">Retirer</span>
                         </ActionButton>
+                        ) : null}
                       </TD>
                     </TR>
                   );
@@ -125,6 +127,7 @@ export default async function CourseAssignmentPage(props: PageProps<"/etablissem
         </Card>
 
         <div className="space-y-6">
+          {canManage ? (
           <Card>
             <CardHeader title="Affecter la formation" />
             <CardBody>
@@ -140,6 +143,7 @@ export default async function CourseAssignmentPage(props: PageProps<"/etablissem
               />
             </CardBody>
           </Card>
+          ) : null}
           {info?.objectives?.length ? (
             <Card>
               <CardHeader title="Objectifs" />

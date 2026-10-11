@@ -12,27 +12,32 @@ import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/format";
 import { COURSE_STATUSES } from "@/lib/labels";
 import type { CourseStatus } from "@/lib/types";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { getCategories, listCourses } from "@/server/queries/admin";
 
 export const metadata: Metadata = { title: "Formations" };
 
-const STATUS_TONE: Record<CourseStatus, "neutral" | "success" | "warning"> = { draft: "neutral", published: "success", archived: "warning" };
+const STATUS_TONE: Record<CourseStatus, "neutral" | "success" | "warning" | "accent"> = { draft: "neutral", review: "accent", published: "success", archived: "warning" };
 
 export default async function AdminCoursesPage(props: PageProps<"/admin/formations">) {
-  await requireSanadyAdmin();
+  const viewer = await requireStaff();
   const sp = await props.searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
-  const statut = typeof sp.statut === "string" && ["draft", "published", "archived"].includes(sp.statut) ? sp.statut : "";
-  const [courses, categories] = await Promise.all([listCourses({ q, status: statut }), getCategories()]);
+  const statut = typeof sp.statut === "string" && ["draft", "review", "published", "archived"].includes(sp.statut) ? sp.statut : "";
+  const [courses, categories] = await Promise.all([listCourses({ q, status: statut, trainerId: viewer.isTrainer ? viewer.id : undefined }), getCategories()]);
   const tab = (s: string) => (s ? `/admin/formations?statut=${s}` : "/admin/formations");
 
   return (
     <>
       <PageHeader
-        title="Formations"
-        description="Conception, publication et autorisation des formations. Seuls les administrateurs SANADY peuvent modifier les contenus."
+        title={viewer.isTrainer ? "Mes formations" : "Formations"}
+        description={
+          viewer.isTrainer
+            ? "Les formations dont vous êtes formateur. Vous les modifiez en brouillon, puis vous les soumettez à la revue de l’équipe SANADY."
+            : "Conception, revue, publication et autorisation des formations par l’équipe pédagogique SANADY."
+        }
         actions={
+          viewer.isTrainer ? undefined : (
           <Dialog
             title="Nouvelle formation"
             trigger={
@@ -43,6 +48,7 @@ export default async function AdminCoursesPage(props: PageProps<"/admin/formatio
           >
             <CreateCourseForm categories={categories} />
           </Dialog>
+          )
         }
       />
       <LinkTabs
@@ -52,6 +58,7 @@ export default async function AdminCoursesPage(props: PageProps<"/admin/formatio
           { href: tab(""), label: "Toutes" },
           { href: tab("published"), label: "Publiées" },
           { href: tab("draft"), label: "Brouillons" },
+          { href: tab("review"), label: "En revue" },
           { href: tab("archived"), label: "Archivées" },
         ]}
       />
@@ -62,7 +69,7 @@ export default async function AdminCoursesPage(props: PageProps<"/admin/formatio
           </SearchForm>
         </div>
         {courses.length === 0 ? (
-          <EmptyState icon={Library} title={q ? "Aucun résultat" : "Aucune formation"} description={q ? undefined : "Créez votre première formation."} />
+          <EmptyState icon={Library} title={q ? "Aucun résultat" : "Aucune formation"} description={q ? undefined : viewer.isTrainer ? "Aucune formation ne vous est encore confiée. L’équipe SANADY vous ajoutera comme formateur." : "Créez votre première formation."} />
         ) : (
           <Table caption="Formations">
             <THead>

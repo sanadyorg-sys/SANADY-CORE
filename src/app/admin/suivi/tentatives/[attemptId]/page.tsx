@@ -5,13 +5,13 @@ import { ArrowLeft } from "lucide-react";
 import { AttemptQuestions, AttemptSummary } from "@/components/learning/attempt-review";
 import { createClient } from "@/lib/supabase/server";
 import type { AttemptResult } from "@/lib/types";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 
 export const metadata: Metadata = { title: "Détail d’une évaluation" };
 
 export default async function AdminAttemptPage(props: PageProps<"/admin/suivi/tentatives/[attemptId]">) {
   const { attemptId } = await props.params;
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   const supabase = await createClient();
   const [{ data, error }, { data: owner }] = await Promise.all([
     supabase.rpc("get_attempt_result", { p_attempt: attemptId }),

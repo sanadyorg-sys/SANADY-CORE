@@ -102,6 +102,14 @@ export default async function PrivacyPage() {
                 vos résultats aux évaluations et l’état de votre certificat. Vos formations personnelles ne lui sont jamais visibles.
               </li>
               <li>
+                <strong className="font-semibold text-ink-900">Les superviseurs de votre établissement</strong>, désignés par celui-ci,
+                consultent en lecture seule les mêmes informations que l’établissement (formations qu’il vous a affectées uniquement).
+              </li>
+              <li>
+                <strong className="font-semibold text-ink-900">Les formateurs et responsables pédagogiques SANADY</strong> : votre nom et
+                votre progression dans les formations dont ils ont la charge, pour accompagner les apprenants et améliorer les contenus.
+              </li>
+              <li>
                 <strong className="font-semibold text-ink-900">L’équipe d’administration SANADY</strong>, pour la gestion de la plateforme et
                 l’accompagnement des apprenants.
               </li>

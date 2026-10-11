@@ -6,7 +6,7 @@ import { LearnerProgress } from "@/components/tracking/learner-progress";
 import { buttonClasses } from "@/components/ui/button";
 import { Badge, PageHeader } from "@/components/ui/surface";
 import { formatDate } from "@/lib/format";
-import { requireInstitutionAdmin } from "@/server/auth";
+import { requireInstitutionViewer } from "@/server/auth";
 import { getAssignments, getTeacherSummaries } from "@/server/queries/institution";
 import { getLearnerDetails } from "@/server/queries/tracking";
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Suivi d’un enseignant" };
 
 export default async function TeacherTrackingPage(props: PageProps<"/etablissement/[institutionId]/suivi/[userId]">) {
   const { institutionId, userId } = await props.params;
-  await requireInstitutionAdmin(institutionId);
+  await requireInstitutionViewer(institutionId);
   const base = `/etablissement/${institutionId}`;
 
   const [teachers, assignments] = await Promise.all([getTeacherSummaries(institutionId), getAssignments(institutionId, { userId })]);

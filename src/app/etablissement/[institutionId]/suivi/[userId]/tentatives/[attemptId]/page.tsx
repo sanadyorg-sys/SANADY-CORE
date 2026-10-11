@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { AttemptQuestions, AttemptSummary } from "@/components/learning/attempt-review";
 import { createClient } from "@/lib/supabase/server";
 import type { AttemptResult } from "@/lib/types";
-import { requireInstitutionAdmin } from "@/server/auth";
+import { requireInstitutionViewer } from "@/server/auth";
 
 export const metadata: Metadata = { title: "Détail d’une évaluation" };
 
@@ -13,7 +13,7 @@ export default async function InstitutionAttemptPage(
   props: PageProps<"/etablissement/[institutionId]/suivi/[userId]/tentatives/[attemptId]">,
 ) {
   const { institutionId, userId, attemptId } = await props.params;
-  await requireInstitutionAdmin(institutionId);
+  await requireInstitutionViewer(institutionId);
   const supabase = await createClient();
   // get_attempt_result enforces visibility (assigned course of a consenting member).
   const { data, error } = await supabase.rpc("get_attempt_result", { p_attempt: attemptId });

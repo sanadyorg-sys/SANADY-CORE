@@ -10,7 +10,7 @@ import { Pagination, TBody, TD, TH, THead, TR, Table, withParams } from "@/compo
 import { formatDateTime } from "@/lib/format";
 import { LIBRARY_KINDS, LIBRARY_STATUSES, SCHOOL_LEVELS } from "@/lib/labels";
 import type { LibraryStatus } from "@/lib/types";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { LIBRARY_PAGE_SIZE, listLibrary, parseLibraryFilters } from "@/server/queries/library";
 
 export const metadata: Metadata = { title: "Bibliothèque pédagogique" };
@@ -18,7 +18,7 @@ export const metadata: Metadata = { title: "Bibliothèque pédagogique" };
 const STATUS_TONE: Record<LibraryStatus, "neutral" | "success" | "warning"> = { draft: "neutral", published: "success", archived: "warning" };
 
 export default async function AdminLibraryPage(props: PageProps<"/admin/bibliotheque">) {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   const sp = await props.searchParams;
   const filters = parseLibraryFilters(sp);
   const statut = typeof sp.statut === "string" && ["draft", "published", "archived"].includes(sp.statut) ? (sp.statut as LibraryStatus) : undefined;

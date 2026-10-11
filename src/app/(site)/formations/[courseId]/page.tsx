@@ -226,6 +226,27 @@ export default async function PublicCoursePage({ params }: PageProps<"/formation
             </section>
           ) : null}
 
+          {course.trainers?.length ? (
+            <section aria-labelledby="formateurs">
+              <h2 id="formateurs" className="text-[1.375rem] font-bold text-ink-900">
+                {course.trainers.length > 1 ? "Les formateurs" : "Le formateur"}
+              </h2>
+              <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+                {course.trainers.map((t, i) => (
+                  <li key={i} className="flex items-center gap-4 rounded-xl border border-line p-4">
+                    <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent-50 text-card font-bold text-accent-800" aria-hidden>
+                      {(t.name ?? "?").split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-card font-semibold text-ink-900">{t.name}</span>
+                      {t.job_title ? <span className="block text-label text-ink-600">{t.job_title}</span> : null}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
           {/* ─── Audience & certification ───────────────────────────────── */}
           <section className="grid gap-5 md:grid-cols-2">
             <div className="rounded-xl border border-line p-6">

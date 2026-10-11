@@ -15,7 +15,7 @@ import { Badge, Card, CardBody, CardHeader, DescriptionList, PageHeader, StatTil
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { publicEnv } from "@/lib/env";
 import { formatDate } from "@/lib/format";
-import { INSTITUTION_TYPES, MEMBERSHIP_SOURCES } from "@/lib/labels";
+import { INSTITUTION_TYPES, MEMBERSHIP_SOURCES, MEMBERSHIP_ROLES } from "@/lib/labels";
 import { setInstitutionStatus } from "@/server/actions/admin";
 import { grantCourseToInstitution, revokeCourseFromInstitution } from "@/server/actions/courses";
 import { revokeMembership } from "@/server/actions/institution";
@@ -179,7 +179,9 @@ export default async function AdminInstitutionPage(props: PageProps<"/admin/etab
                       </Link>
                       <p className="text-caption text-ink-500">{m.user.email}</p>
                     </TD>
-                    <TD>{m.role === "admin" ? <Badge tone="brand">Administrateur</Badge> : <Badge>Enseignant</Badge>}</TD>
+                    <TD>
+                      <Badge tone={m.role === "admin" ? "brand" : "neutral"}>{MEMBERSHIP_ROLES[m.role as keyof typeof MEMBERSHIP_ROLES] ?? "Membre"}</Badge>
+                    </TD>
                     <TD>
                       {formatDate(m.created_at)}
                       <p className="text-caption text-ink-500">{MEMBERSHIP_SOURCES[m.source as keyof typeof MEMBERSHIP_SOURCES]}</p>
@@ -207,7 +209,7 @@ export default async function AdminInstitutionPage(props: PageProps<"/admin/etab
         <Card>
           <CardHeader title="Inviter" description="Administrateur ou enseignant de cet établissement." />
           <CardBody>
-            <InviteForm kinds={["institution_admin", "institution_teacher"]} fixedInstitutionId={institution.id} />
+            <InviteForm kinds={["institution_admin", "institution_teacher", "institution_supervisor"]} fixedInstitutionId={institution.id} />
           </CardBody>
         </Card>
 

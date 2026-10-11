@@ -8,17 +8,29 @@ export interface ViewerInstitution {
   id: string;
   name: string;
   identifier: string;
-  role: "admin" | "teacher";
+  role: "admin" | "teacher" | "supervisor";
 }
+
+export type PlatformRole = "sanady_admin" | "training_manager" | "trainer";
+/** Staff roles allowed in the « Administration » area, as guard shorthand. */
+export type StaffRole = "admin" | "manager" | "trainer";
 
 export interface Viewer {
   id: string;
   email: string;
   profile: Profile;
   isSanadyAdmin: boolean;
+  /** Platform role, if any (administrators, training managers, trainers). */
+  platformRole: PlatformRole | null;
+  isTrainingManager: boolean;
+  isTrainer: boolean;
+  /** Administrators and training managers: all courses, reports, library. */
+  isCourseStaff: boolean;
   institutions: ViewerInstitution[];
   /** Institutions the viewer administers. */
   adminInstitutions: ViewerInstitution[];
+  /** Institutions the viewer administers or supervises (read-only). */
+  supervisedInstitutions: ViewerInstitution[];
   /** Assurance level of the current session (from the verified JWT). */
   aal: "aal1" | "aal2";
   /** True when a second factor (TOTP) is enrolled and verified. */
@@ -51,7 +63,9 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
   const profile = profileRes.data as Profile | null;
   if (!profile) return null;
 
-  type Row = { role: "admin" | "teacher"; institution: Pick<Institution, "id" | "name" | "identifier" | "status"> | null };
+  type Row = { role: ViewerInstitution["role"]; institution: Pick<Institution, "id" | "name" | "identifier" | "status"> | null };
+  const active = profile.status === "active";
+  const platformRole = active ? ((roleRes.data as { role: PlatformRole } | null)?.role ?? null) : null;
   const institutions = ((membershipRes.data ?? []) as unknown as Row[])
     .filter((m) => m.institution && m.institution.status === "active")
     .map((m) => ({ id: m.institution!.id, name: m.institution!.name, identifier: m.institution!.identifier, role: m.role }))
@@ -61,9 +75,14 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
     id: userId,
     email: profile.email,
     profile,
-    isSanadyAdmin: Boolean(roleRes.data) && profile.status === "active",
+    isSanadyAdmin: platformRole === "sanady_admin",
+    platformRole,
+    isTrainingManager: platformRole === "training_manager",
+    isTrainer: platformRole === "trainer",
+    isCourseStaff: platformRole === "sanady_admin" || platformRole === "training_manager",
     institutions,
     adminInstitutions: institutions.filter((i) => i.role === "admin"),
+    supervisedInstitutions: institutions.filter((i) => i.role === "admin" || i.role === "supervisor"),
     aal,
     mfaEnrolled: aalRes.data?.nextLevel === "aal2",
   };
@@ -88,10 +107,42 @@ export async function requireViewer({ allowOnboarding = false, allowPendingMfa =
  */
 export async function requireSanadyAdmin(): Promise<Viewer> {
   const viewer = await requireViewer();
-  if (!viewer.isSanadyAdmin) redirect("/mon-espace");
+  if (!viewer.isSanadyAdmin) redirect(staffRole(viewer) ? homeFor(viewer) : "/mon-espace");
   if (!viewer.mfaEnrolled) redirect("/securite/activer?suite=/admin");
   if (viewer.aal !== "aal2") redirect("/securite/verification?suite=/admin");
   return viewer;
+}
+
+/** Staff role of a viewer for guard purposes. */
+export function staffRole(viewer: Viewer): StaffRole | null {
+  if (viewer.isSanadyAdmin) return "admin";
+  if (viewer.isTrainingManager) return "manager";
+  if (viewer.isTrainer) return "trainer";
+  return null;
+}
+
+/**
+ * Pedagogical team guard for the « Administration » area. Administrators
+ * and training managers must use two-factor authentication (the database
+ * refuses their privileges otherwise); trainers may enable it.
+ */
+export async function requireStaff(allow: StaffRole[] = ["admin", "manager", "trainer"]): Promise<Viewer> {
+  const viewer = await requireViewer();
+  const role = staffRole(viewer);
+  if (!role || !allow.includes(role)) redirect(role ? "/admin/formations" : "/mon-espace");
+  if (role !== "trainer") {
+    if (!viewer.mfaEnrolled) redirect("/securite/activer?suite=/admin");
+    if (viewer.aal !== "aal2") redirect("/securite/verification?suite=/admin");
+  }
+  return viewer;
+}
+
+/** Institution pages readable by its administrators and supervisors. */
+export async function requireInstitutionViewer(institutionId: string) {
+  const viewer = await requireViewer();
+  const institution = viewer.supervisedInstitutions.find((i) => i.id === institutionId);
+  if (!institution) redirect("/mon-espace");
+  return { viewer, institution, canManage: institution.role === "admin" };
 }
 
 export async function requireInstitutionAdmin(institutionId: string) {
@@ -103,7 +154,8 @@ export async function requireInstitutionAdmin(institutionId: string) {
 
 /** Default landing page for a user, by role. */
 export function homeFor(viewer: Viewer): string {
-  if (viewer.isSanadyAdmin) return "/admin";
-  if (viewer.adminInstitutions[0]) return `/etablissement/${viewer.adminInstitutions[0].id}`;
+  if (viewer.isSanadyAdmin || viewer.isTrainingManager) return "/admin";
+  if (viewer.isTrainer) return "/admin/formations";
+  if (viewer.supervisedInstitutions[0]) return `/etablissement/${viewer.supervisedInstitutions[0].id}`;
   return "/espace";
 }

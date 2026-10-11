@@ -7,14 +7,14 @@ import { EmptyState, ProgressBar } from "@/components/ui/feedback";
 import { Badge, Card, PageHeader } from "@/components/ui/surface";
 import { formatDuration } from "@/lib/format";
 import { COURSE_LEVELS } from "@/lib/labels";
-import { requireInstitutionAdmin } from "@/server/auth";
+import { requireInstitutionViewer } from "@/server/auth";
 import { getAuthorizedCourses } from "@/server/queries/institution";
 
 export const metadata: Metadata = { title: "Formations autorisées" };
 
 export default async function AuthorizedCoursesPage(props: PageProps<"/etablissement/[institutionId]/formations">) {
   const { institutionId } = await props.params;
-  await requireInstitutionAdmin(institutionId);
+  await requireInstitutionViewer(institutionId);
   const courses = await getAuthorizedCourses(institutionId);
   const base = `/etablissement/${institutionId}/formations`;
 

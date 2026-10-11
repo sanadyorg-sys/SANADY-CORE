@@ -9,7 +9,7 @@ import { Card, PageHeader, StatTile } from "@/components/ui/surface";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { formatDate, formatNumber, formatPercent } from "@/lib/format";
 import { parsePeriod } from "@/lib/period";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { getAdminReport } from "@/server/queries/reports";
 
 export const metadata: Metadata = { title: "Rapports et statistiques" };
@@ -41,7 +41,7 @@ function Section({ title, description, actions, children }: { title: string; des
 }
 
 export default async function AdminReportsPage(props: PageProps<"/admin/rapports">) {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   const period = parsePeriod(await props.searchParams);
   const report = await getAdminReport(period.from, period.to);
   const k = report.kpis;

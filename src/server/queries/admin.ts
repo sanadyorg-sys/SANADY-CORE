@@ -188,8 +188,32 @@ export async function listAdmins() {
   const { data } = await supabase
     .from("platform_roles")
     .select("granted_at, user:profiles!platform_roles_user_id_fkey(id, full_name, email, status)")
+    .eq("role", "sanady_admin")
     .order("granted_at");
   return (data ?? []) as unknown as Array<{ granted_at: string; user: Pick<Profile, "id" | "full_name" | "email" | "status"> }>;
+}
+
+/** Training managers and trainers, with the courses each trainer is assigned to. */
+export async function listPedagogicalTeam() {
+  const supabase = await createClient();
+  const [{ data }, { data: assignments }] = await Promise.all([
+    supabase
+      .from("platform_roles")
+      .select("role, granted_at, user:profiles!platform_roles_user_id_fkey(id, full_name, email, status, job_title)")
+      .in("role", ["training_manager", "trainer"])
+      .order("granted_at"),
+    supabase.from("course_trainers").select("user_id, course:courses(id, title)"),
+  ]);
+  const byUser = new Map<string, Array<{ id: string; title: string }>>();
+  for (const a of (assignments ?? []) as unknown as Array<{ user_id: string; course: { id: string; title: string } | null }>) {
+    if (a.course) byUser.set(a.user_id, [...(byUser.get(a.user_id) ?? []), a.course]);
+  }
+  type Row = {
+    role: "training_manager" | "trainer";
+    granted_at: string;
+    user: Pick<Profile, "id" | "full_name" | "email" | "status" | "job_title">;
+  };
+  return ((data ?? []) as unknown as Row[]).map((r) => ({ ...r, courses: byUser.get(r.user.id) ?? [] }));
 }
 
 /* ─── Courses ──────────────────────────────────────────────────────────── */
@@ -200,14 +224,22 @@ export interface CourseListItem extends Pick<Course, "id" | "title" | "status" |
   enrollments: number;
 }
 
-export async function listCourses({ q, status }: { q?: string; status?: string }) {
+/** Courses for the pedagogical team; a trainer only gets the courses assigned to them. */
+export async function listCourses({ q, status, trainerId }: { q?: string; status?: string; trainerId?: string }) {
   const supabase = await createClient();
+  let trainerCourses: string[] | null = null;
+  if (trainerId) {
+    const { data } = await supabase.from("course_trainers").select("course_id").eq("user_id", trainerId);
+    trainerCourses = ((data ?? []) as Array<{ course_id: string }>).map((r) => r.course_id);
+    if (!trainerCourses.length) return [] as CourseListItem[];
+  }
   let query = supabase
     .from("courses")
     .select("id, title, status, updated_at, published_at, cover_path, level, category:course_categories(name)")
     .order("updated_at", { ascending: false });
   if (q) query = query.ilike("title", ilikeTerm(q));
-  if (status === "draft" || status === "published" || status === "archived") query = query.eq("status", status);
+  if (status === "draft" || status === "review" || status === "published" || status === "archived") query = query.eq("status", status);
+  if (trainerCourses) query = query.in("id", trainerCourses);
   const [{ data: courses }, { data: modules }, { data: enrollments }] = await Promise.all([
     query,
     supabase.from("modules").select("course_id").is("archived_at", null),

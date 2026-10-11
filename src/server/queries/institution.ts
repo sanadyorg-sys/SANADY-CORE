@@ -48,7 +48,7 @@ export async function getInstitutionInvitations(institutionId: string, { openOnl
     .from("invitations")
     .select("id, kind, email, institution_id, enrollment_code_id, invited_by, expires_at, email_sent_at, accepted_at, revoked_at, created_at")
     .eq("institution_id", institutionId)
-    .eq("kind", "institution_teacher")
+    .in("kind", ["institution_teacher", "institution_supervisor"])
     .order("created_at", { ascending: false })
     .limit(300);
   if (openOnly) query = query.is("accepted_at", null).is("revoked_at", null);

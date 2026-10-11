@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CurriculumEditor } from "@/components/admin/curriculum-editor";
 import { Alert } from "@/components/ui/surface";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { getCourseEditorData } from "@/server/queries/admin";
 
 export const metadata: Metadata = { title: "Programme" };
 
 export default async function CurriculumPage(props: PageProps<"/admin/formations/[courseId]/programme">) {
   const { courseId } = await props.params;
-  await requireSanadyAdmin();
+  await requireStaff();
   const data = await getCourseEditorData(courseId);
   if (!data) notFound();
 

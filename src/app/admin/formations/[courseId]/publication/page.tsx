@@ -8,14 +8,14 @@ import { Alert, Card, CardBody, CardHeader, StatTile } from "@/components/ui/sur
 import { formatDate } from "@/lib/format";
 import { PUBLICATION_ISSUES } from "@/lib/errors";
 import { deleteCourse } from "@/server/actions/courses";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { getCourseEditorData } from "@/server/queries/admin";
 
 export const metadata: Metadata = { title: "Publication" };
 
 export default async function PublicationPage(props: PageProps<"/admin/formations/[courseId]/publication">) {
   const { courseId } = await props.params;
-  await requireSanadyAdmin();
+  await requireStaff();
   const data = await getCourseEditorData(courseId);
   if (!data) notFound();
   const { course, modules, issues, stats } = data;
@@ -35,8 +35,8 @@ export default async function PublicationPage(props: PageProps<"/admin/formation
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
         <Card>
           <CardHeader
-            title="Contrôle avant publication"
-            description="La publication est refusée par la base de données tant que ces points ne sont pas réglés."
+            title="Contrôle avant soumission et publication"
+            description="La soumission à la revue et la publication sont refusées par la base de données tant que ces points ne sont pas réglés."
           />
           <CardBody>
             {issues.length === 0 ? (

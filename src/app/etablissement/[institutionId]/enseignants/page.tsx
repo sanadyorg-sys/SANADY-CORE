@@ -10,7 +10,7 @@ import { Pagination, TBody, TD, TH, THead, TR, Table, withParams } from "@/compo
 import { formatDate, formatRelative } from "@/lib/format";
 import { MEMBERSHIP_SOURCES } from "@/lib/labels";
 import { revokeMembership } from "@/server/actions/institution";
-import { requireInstitutionAdmin } from "@/server/auth";
+import { requireInstitutionViewer } from "@/server/auth";
 import { getTeacherSummaries } from "@/server/queries/institution";
 
 export const metadata: Metadata = { title: "Nos enseignants" };
@@ -19,7 +19,7 @@ const PAGE_SIZE = 25;
 export default async function TeacherDirectoryPage(props: PageProps<"/etablissement/[institutionId]/enseignants">) {
   const { institutionId } = await props.params;
   const sp = await props.searchParams;
-  await requireInstitutionAdmin(institutionId);
+  const { canManage } = await requireInstitutionViewer(institutionId);
   const base = `/etablissement/${institutionId}`;
 
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
@@ -50,20 +50,24 @@ export default async function TeacherDirectoryPage(props: PageProps<"/etablissem
             ]}
           />
         </SearchForm>
-        <Link href={`${base}/enseignants/invitations`} className={buttonClasses({ size: "sm" })}>
-          Inviter
-        </Link>
+        {canManage ? (
+          <Link href={`${base}/enseignants/invitations`} className={buttonClasses({ size: "sm" })}>
+            Inviter
+          </Link>
+        ) : null}
       </div>
 
       {all.length === 0 ? (
         <EmptyState
           icon={Users}
           title="Aucun enseignant pour le moment"
-          description="Invitez vos enseignants par e-mail ou partagez un code d’inscription."
+          description={canManage ? "Invitez vos enseignants par e-mail ou partagez un code d’inscription." : "Les enseignants rattachés à l’établissement apparaîtront ici."}
           action={
-            <Link href={`${base}/enseignants/invitations`} className={buttonClasses()}>
-              Inviter des enseignants
-            </Link>
+            canManage ? (
+              <Link href={`${base}/enseignants/invitations`} className={buttonClasses()}>
+                Inviter des enseignants
+              </Link>
+            ) : undefined
           }
         />
       ) : rows.length === 0 ? (
@@ -112,6 +116,7 @@ export default async function TeacherDirectoryPage(props: PageProps<"/etablissem
                       <Link href={`${base}/suivi/${t.user_id}`} className={buttonClasses({ variant: "ghost", size: "sm" })}>
                         Suivi
                       </Link>
+                      {canManage ? (
                       <ActionButton
                         variant="danger-ghost"
                         action={revokeMembership.bind(null, t.membership_id, institutionId)}
@@ -125,6 +130,7 @@ export default async function TeacherDirectoryPage(props: PageProps<"/etablissem
                         <UserMinus aria-hidden />
                         <span className="sr-only sm:not-sr-only">Retirer</span>
                       </ActionButton>
+                      ) : null}
                     </div>
                   </TD>
                 </TR>

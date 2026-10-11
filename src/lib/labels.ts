@@ -32,6 +32,7 @@ export const COURSE_LEVELS: Record<CourseLevel, string> = {
 
 export const COURSE_STATUSES: Record<CourseStatus, string> = {
   draft: "Brouillon",
+  review: "En revue",
   published: "Publiée",
   archived: "Archivée",
 };
@@ -52,6 +53,7 @@ export const INVITATION_KINDS: Record<InvitationKind, string> = {
   teacher: "Enseignant (compte individuel)",
   institution_admin: "Administrateur d’établissement",
   institution_teacher: "Enseignant de l’établissement",
+  institution_supervisor: "Superviseur de l’établissement (lecture seule)",
 };
 
 export const MEMBERSHIP_SOURCES: Record<MembershipSource, string> = {
@@ -120,4 +122,10 @@ export const LIBRARY_STATUSES: Record<LibraryStatus, string> = {
   draft: "Brouillon",
   published: "Publiée",
   archived: "Archivée",
+};
+
+export const MEMBERSHIP_ROLES: Record<"admin" | "teacher" | "supervisor", string> = {
+  admin: "Administrateur",
+  teacher: "Enseignant",
+  supervisor: "Superviseur",
 };

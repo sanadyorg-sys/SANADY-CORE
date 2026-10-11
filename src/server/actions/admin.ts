@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createInvitationToken } from "@/lib/tokens";
 import type { ActionState, InstitutionType } from "@/lib/types";
 import { emailSchema, optionalText, parseInput, uuidSchema } from "@/lib/validation";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireSanadyAdmin, requireStaff } from "@/server/auth";
 import { invitationEmail, invitationLink, sendEmail } from "@/server/email";
 
 const INSTITUTION_TYPES = [
@@ -160,10 +160,42 @@ export async function removePlatformAdmin(userId: string): Promise<ActionState> 
   return { ok: true, message: "Rôle d’administrateur retiré." };
 }
 
+/* ─── Pedagogical team (training managers, trainers) ───────────────────── */
+
+export async function setPlatformRole(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireSanadyAdmin();
+  const parsed = parseInput(z.object({ email: emailSchema, role: z.enum(["training_manager", "trainer"], "Choisissez un rôle.") }), formData);
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  const supabase = await createClient();
+  const { data: profile } = await supabase.from("profiles").select("id").eq("email", parsed.data.email).maybeSingle();
+  if (!profile) {
+    return {
+      ok: false,
+      fieldErrors: {
+        email: "Aucun compte avec cette adresse. Invitez d’abord la personne (Invitations → enseignant), puis attribuez-lui le rôle.",
+      },
+    };
+  }
+  const { error } = await supabase.rpc("set_platform_role", { p_user: (profile as { id: string }).id, p_role: parsed.data.role });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidatePath("/admin/administrateurs");
+  return { ok: true, message: parsed.data.role === "trainer" ? "Rôle de formateur attribué." : "Rôle de responsable pédagogique attribué." };
+}
+
+export async function removePlatformRole(userId: string): Promise<ActionState> {
+  await requireSanadyAdmin();
+  if (!uuidSchema.safeParse(userId).success) return { ok: false, message: messageFor("not_found") };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_platform_role", { p_user: userId, p_role: null });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidatePath("/admin/administrateurs");
+  return { ok: true, message: "Rôle retiré. La personne conserve son compte enseignant." };
+}
+
 /* ─── Assessment & certificates ────────────────────────────────────────── */
 
 export async function resetQuizAttempts(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   const parsed = parseInput(
     z.object({
       quiz_id: uuidSchema,

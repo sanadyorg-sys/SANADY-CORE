@@ -7,14 +7,14 @@ import { SearchForm } from "@/components/ui/search-form";
 import { Badge, Card, PageHeader } from "@/components/ui/surface";
 import { Pagination, TBody, TD, TH, THead, TR, Table, withParams } from "@/components/ui/table";
 import { formatDate } from "@/lib/format";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { listCertificates } from "@/server/queries/admin";
 
 export const metadata: Metadata = { title: "Certificats" };
 const PAGE_SIZE = 30;
 
 export default async function AdminCertificatesPage(props: PageProps<"/admin/certificats">) {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   const sp = await props.searchParams;
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const page = Math.max(1, Number(sp.page) || 1);

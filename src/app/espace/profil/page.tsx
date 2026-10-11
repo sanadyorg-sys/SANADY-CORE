@@ -6,6 +6,7 @@ import { LeaveInstitutionButton, PasswordForm, ProfileForm } from "@/components/
 import { buttonClasses } from "@/components/ui/button";
 import { Badge, Card, CardBody, CardHeader, PageHeader } from "@/components/ui/surface";
 import { formatDate } from "@/lib/format";
+import { MEMBERSHIP_ROLES } from "@/lib/labels";
 import { createClient } from "@/lib/supabase/server";
 import { requireViewer } from "@/server/auth";
 
@@ -77,7 +78,7 @@ export default async function ProfilePage() {
                       <div className="min-w-0 flex-1">
                         <p className="text-body font-medium text-ink-900">{m.institution?.name}</p>
                         <p className="text-caption text-ink-500">
-                          {m.role === "admin" ? "Administrateur" : "Enseignant"} · depuis le {formatDate(m.created_at)}
+                          {MEMBERSHIP_ROLES[m.role as keyof typeof MEMBERSHIP_ROLES] ?? "Membre"} · depuis le {formatDate(m.created_at)}
                         </p>
                         {m.role === "teacher" ? (
                           <Badge tone="neutral" className="mt-1.5">

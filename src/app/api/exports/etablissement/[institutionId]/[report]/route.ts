@@ -14,7 +14,7 @@ export async function GET(request: Request, ctx: RouteContext<"/api/exports/etab
   const { institutionId, report } = await ctx.params;
   const viewer = await getViewer();
   if (!viewer || !uuidSchema.safeParse(institutionId).success) return new Response("Accès refusé.", { status: 401 });
-  const allowed = viewer.adminInstitutions.some((i) => i.id === institutionId) || (viewer.isSanadyAdmin && viewer.aal === "aal2");
+  const allowed = viewer.supervisedInstitutions.some((i) => i.id === institutionId) || (viewer.isCourseStaff && viewer.aal === "aal2");
   if (!allowed) return new Response("Accès refusé.", { status: 403 });
 
   const period = parsePeriod(Object.fromEntries(new URL(request.url).searchParams));

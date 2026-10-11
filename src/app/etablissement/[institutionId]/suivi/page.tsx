@@ -5,7 +5,7 @@ import { EmptyState, ProgressBar } from "@/components/ui/feedback";
 import { SearchForm } from "@/components/ui/search-form";
 import { Badge, Card, PageHeader } from "@/components/ui/surface";
 import { formatRelative } from "@/lib/format";
-import { requireInstitutionAdmin } from "@/server/auth";
+import { requireInstitutionViewer } from "@/server/auth";
 import { getTeacherSummaries } from "@/server/queries/institution";
 
 export const metadata: Metadata = { title: "Suivi individuel" };
@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: "Suivi individuel" };
 export default async function TrackingIndexPage(props: PageProps<"/etablissement/[institutionId]/suivi">) {
   const { institutionId } = await props.params;
   const sp = await props.searchParams;
-  await requireInstitutionAdmin(institutionId);
+  await requireInstitutionViewer(institutionId);
   const q = typeof sp.q === "string" ? sp.q.trim().toLowerCase() : "";
   const teachers = (await getTeacherSummaries(institutionId)).filter(
     (t) => !q || `${t.full_name} ${t.email}`.toLowerCase().includes(q),

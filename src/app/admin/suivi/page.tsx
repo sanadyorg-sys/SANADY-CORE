@@ -6,13 +6,13 @@ import { EmptyState } from "@/components/ui/feedback";
 import { Alert, Card, CardHeader, PageHeader } from "@/components/ui/surface";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { formatDateTime, formatScore } from "@/lib/format";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { getExhaustedAttempts } from "@/server/queries/admin";
 
 export const metadata: Metadata = { title: "Suivi pédagogique" };
 
 export default async function AdminTrackingPage() {
-  await requireSanadyAdmin();
+  await requireStaff(["admin", "manager"]);
   const exhausted = await getExhaustedAttempts();
 
   return (

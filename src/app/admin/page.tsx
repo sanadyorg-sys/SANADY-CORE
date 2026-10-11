@@ -5,17 +5,18 @@ import { buttonClasses } from "@/components/ui/button";
 import { Alert, Card, CardBody, CardHeader, PageHeader, StatTile } from "@/components/ui/surface";
 import { formatDateTime } from "@/lib/format";
 import { AUDIT_ACTIONS, AUDIT_ENTITIES } from "@/lib/labels";
-import { requireSanadyAdmin } from "@/server/auth";
+import { requireStaff } from "@/server/auth";
 import { getPlatformOverview, listAuditLogs, listCourses } from "@/server/queries/admin";
 
 export const metadata: Metadata = { title: "Administration" };
 
 export default async function AdminDashboardPage() {
-  await requireSanadyAdmin();
-  const [overview, audit, drafts] = await Promise.all([
+  const viewer = await requireStaff(["admin", "manager"]);
+  const [overview, audit, drafts, inReview] = await Promise.all([
     getPlatformOverview(),
-    listAuditLogs({ page: 1, pageSize: 8 }),
+    viewer.isSanadyAdmin ? listAuditLogs({ page: 1, pageSize: 8 }) : Promise.resolve({ rows: [], total: 0 }),
     listCourses({ status: "draft" }),
+    listCourses({ status: "review" }),
   ]);
   const completion = overview.enrollments ? Math.round((overview.completed_enrollments / overview.enrollments) * 100) : 0;
 
@@ -26,15 +27,39 @@ export default async function AdminDashboardPage() {
         description="Vue d’ensemble de la plateforme SANADY."
         actions={
           <>
-            <Link href="/admin/invitations" className={buttonClasses({ variant: "secondary" })}>
-              <Mail aria-hidden /> Inviter
-            </Link>
+            {viewer.isSanadyAdmin ? (
+              <Link href="/admin/invitations" className={buttonClasses({ variant: "secondary" })}>
+                <Mail aria-hidden /> Inviter
+              </Link>
+            ) : null}
             <Link href="/admin/formations" className={buttonClasses()}>
               <Library aria-hidden /> Formations
             </Link>
           </>
         }
       />
+
+      {inReview.length ? (
+        <Card className="mb-6 border-accent-500/40">
+          <CardHeader
+            title={`Formations à relire (${inReview.length})`}
+            description="Soumises par leurs formateurs : approuvez-les ou demandez des modifications."
+          />
+          <ul className="divide-y divide-line">
+            {inReview.map((c) => (
+              <li key={c.id}>
+                <Link href={`/admin/formations/${c.id}/publication`} className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-ink-25">
+                  <span className="min-w-0">
+                    <span className="block truncate text-body font-medium text-ink-900">{c.title}</span>
+                    <span className="text-caption text-ink-500">Modifiée le {formatDateTime(c.updated_at)}</span>
+                  </span>
+                  <ArrowRight className="size-4 shrink-0 text-ink-400" aria-hidden />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
 
       {overview.exhausted_attempts > 0 ? (
         <Alert
@@ -117,6 +142,7 @@ export default async function AdminDashboardPage() {
           </Card>
         </div>
 
+        {viewer.isSanadyAdmin ? (
         <Card className="self-start">
           <CardHeader
             title="Activité administrative"
@@ -147,6 +173,7 @@ export default async function AdminDashboardPage() {
             </ul>
           )}
         </Card>
+        ) : null}
       </div>
 
       <div className="mt-6">

@@ -7,7 +7,7 @@ import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Drawer, Menu, MenuItem, MenuLabel, MenuSeparator } from "@/components/ui/overlay";
 import { initials } from "@/lib/format";
-import { SidebarNav, type Area } from "./navigation";
+import { SidebarNav, type Area, type NavRole } from "./navigation";
 
 export interface ShellContext {
   key: string;
@@ -35,6 +35,7 @@ const areaTitle: Record<Area, string> = {
 export function AppShell({
   area,
   institutionId,
+  navRole,
   currentContextKey,
   contexts,
   user,
@@ -43,6 +44,8 @@ export function AppShell({
 }: {
   area: Area;
   institutionId?: string;
+  /** Role inside the area (filters the menu). */
+  navRole?: NavRole;
   currentContextKey: string;
   contexts: ShellContext[];
   user: ShellUser;
@@ -63,7 +66,7 @@ export function AppShell({
         <ContextSwitcher contexts={contexts} current={current} fallbackLabel={areaTitle[area]} />
       </div>
       <div className="flex-1 overflow-y-auto px-3 pb-6">
-        <SidebarNav area={area} institutionId={institutionId} onNavigate={onNavigate} />
+        <SidebarNav area={area} institutionId={institutionId} role={navRole} onNavigate={onNavigate} />
       </div>
       <div className="border-t border-line px-5 py-3 text-caption text-ink-400">
         <Link href="/confidentialite" className="hover:text-ink-600 hover:underline" onClick={onNavigate}>

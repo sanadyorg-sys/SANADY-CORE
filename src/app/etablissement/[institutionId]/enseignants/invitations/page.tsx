@@ -20,7 +20,7 @@ export default async function InstitutionInvitationsPage(props: PageProps<"/etab
           description="L’enseignant crée son compte (ou utilise son compte existant) et donne son accord pour rejoindre l’établissement."
         />
         <CardBody>
-          <InviteForm kinds={["institution_teacher"]} fixedInstitutionId={institutionId} />
+          <InviteForm kinds={["institution_teacher", "institution_supervisor"]} fixedInstitutionId={institutionId} />
         </CardBody>
       </Card>
       <Card>
