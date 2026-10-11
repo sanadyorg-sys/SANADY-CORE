@@ -99,6 +99,16 @@ Catégories citées : partenaires institutionnels, privés, médias. **Aucun nom
 - Formations gratuites pour les enseignants.
 - Catégories de formation proposées (Pédagogie, Didactique, Évaluation, Développement professionnel) : **propositions**, configurables.
 
+## 10 bis. Décisions et chiffres fournis par le porteur du projet
+
+| Date | Élément | Décision / valeur | Statut |
+|---|---|---|---|
+| 11/10/2026 | Enseignants formés (programme de formation continue) | « 500 enseignants formés » (remplace « plus de 220 » de sanady.org, 2018) | Fourni par le porteur du projet — à confirmer par écrit par la Fondation |
+| 11/10/2026 | Partenaires institutionnels (Ministère, 12 AREF, INDH) | Bandeau prêt mais **masqué** (`SHOW_PARTNERS`) jusqu’à confirmation écrite et autorisation d’utiliser les logos | En attente |
+| 11/10/2026 | Témoignages d’enseignants | Section prête mais **masquée** (`SHOW_TESTIMONIALS`) : les exemples actuels sont fictifs ; à remplacer par de vrais témoignages (consentement écrit) | En attente |
+
+Voir aussi `docs/institution/sanady-institutional-reference.md` (synthèse rédigée par le porteur du projet).
+
 ## 11. À obtenir auprès de la Fondation
 
 1. Texte des valeurs ; équipe et organigramme publiables.

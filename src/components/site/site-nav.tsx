@@ -10,8 +10,9 @@ import { cn } from "@/lib/cn";
 
 export const SITE_LINKS = [
   { href: "/formations", label: "Formations" },
+  { href: "/programmes", label: "Programmes" },
+  { href: "/ressources", label: "Ressources & Mallette" },
   { href: "/a-propos", label: "À propos" },
-  { href: "/ressources", label: "Ressources" },
   { href: "/verifier", label: "Vérifier un certificat" },
 ];
 

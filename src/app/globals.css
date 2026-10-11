@@ -99,6 +99,51 @@
     0% { background-position: -400px 0; }
     100% { background-position: 400px 0; }
   }
+
+  /* Decorative motion — all neutralised by prefers-reduced-motion below */
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-float-slow: float 11s ease-in-out infinite;
+  --animate-float-reverse: float-reverse 8s ease-in-out infinite;
+  --animate-blob: blob 18s ease-in-out infinite;
+  --animate-aurora: aurora 16s ease-in-out infinite alternate;
+  --animate-pulse-glow: pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-fade-up: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-smile: smile 2.4s cubic-bezier(0.65, 0, 0.35, 1) both;
+  --animate-marquee: marquee 35s linear infinite;
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes float-reverse {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+  @keyframes blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -40px) scale(1.08); }
+    66% { transform: translate(-25px, 20px) scale(0.95); }
+  }
+  @keyframes aurora {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.12; }
+    50% { transform: translate(25px, -20px) scale(1.1) rotate(8deg); opacity: 0.22; }
+    100% { transform: translate(-20px, 15px) scale(0.95) rotate(-6deg); opacity: 0.14; }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(249 90 5 / 0.4); }
+    50% { box-shadow: 0 0 20px 4px rgb(249 90 5 / 0.15); }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes smile {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
 }
 
 @layer base {
@@ -133,7 +178,134 @@
   .tabular { font-variant-numeric: tabular-nums; }
 }
 
+/* ─── Effects ───────────────────────────────────────────────────────────── */
+
+/* Scroll reveal: content is only hidden once JS has confirmed it is below the
+   fold (data-reveal="pending"), so it stays visible without JavaScript. */
+[data-reveal] {
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+[data-reveal="pending"] {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* Orange dot grid, echoing the dots of the Sanady logo */
+.bg-dots {
+  background-image: radial-gradient(rgb(249 90 5 / 0.18) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+.bg-dots-light {
+  background-image: radial-gradient(rgb(255 255 255 / 0.09) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+
+.text-gradient-brand {
+  background: linear-gradient(100deg, var(--color-accent-600) 0%, var(--color-accent-700) 55%, var(--color-accent-800) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Hand-drawn orange underline (the Sanady smile) under a word */
+.smile-underline {
+  position: relative;
+  white-space: nowrap;
+}
+.smile-underline > svg {
+  position: absolute;
+  left: 0;
+  bottom: -0.28em;
+  width: 100%;
+  height: 0.42em;
+  overflow: visible;
+}
+
+/* Light sweep across a card on hover */
+.card-shine {
+  position: relative;
+  overflow: hidden;
+}
+.card-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: linear-gradient(115deg, transparent 35%, rgb(249 90 5 / 0.08) 50%, transparent 65%);
+  transform: translateX(-100%);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.card-shine:hover::after { transform: translateX(100%); }
+
+/* Subtle ambient glow on interactive cards */
+.glow-card {
+  transition:
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease;
+}
+.glow-card:hover {
+  box-shadow: 0 16px 38px -10px rgb(249 90 5 / 0.16), 0 3px 10px -2px rgb(0 0 0 / 0.04);
+}
+
+/* Subtle button sheen micro-animation */
+.btn-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.btn-sheen::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(60deg, transparent 40%, rgba(255, 255, 255, 0.22) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.btn-sheen:hover::after {
+  transform: translateX(100%);
+}
+
+/* Live radar dot */
+.live-radar {
+  position: relative;
+  display: inline-flex;
+  width: 8px;
+  height: 8px;
+}
+.live-radar::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  background-color: var(--color-accent-500);
+  opacity: 0.75;
+  animation: radar-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.live-radar::after {
+  content: "";
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background-color: var(--color-accent-600);
+}
+@keyframes radar-ping {
+  75%, 100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  [data-reveal="pending"] { opacity: 1; transform: none; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;

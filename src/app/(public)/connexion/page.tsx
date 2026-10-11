@@ -24,27 +24,27 @@ export default async function SignInPage(props: PageProps<"/connexion">) {
 
   return (
     <>
-      <div className="mb-5 flex size-14 items-center justify-center rounded-xl bg-accent-500 text-white shadow-sm">
-        <Lock className="size-7" strokeWidth={1.8} aria-hidden />
+      <div className="mb-4 sm:mb-5 flex size-12 sm:size-14 items-center justify-center rounded-xl bg-accent-500 text-white shadow-sm">
+        <Lock className="size-6 sm:size-7" strokeWidth={1.8} aria-hidden />
       </div>
-      <h1 className="text-[1.875rem] font-extrabold leading-tight tracking-[-0.02em] text-ink-900">Bienvenue sur SANADY</h1>
-      <p className="mb-8 mt-1.5 text-[1.0625rem] text-ink-600">Connectez-vous à votre espace de formation.</p>
+      <h1 className="text-2xl sm:text-[1.875rem] font-extrabold leading-tight tracking-tight text-ink-900">Bienvenue sur SANADY</h1>
+      <p className="mb-6 sm:mb-8 mt-1.5 text-sm sm:text-[1.0625rem] text-ink-600">Connectez-vous à votre espace de formation.</p>
 
       <SignInForm suite={suite} notice={motif} />
 
-      <div className="my-7 h-px bg-line" />
+      <div className="my-5 sm:my-7 h-px bg-line" />
 
-      <section aria-labelledby="code-title" className="rounded-xl border border-line bg-ink-25 px-5 py-5 text-center">
-        <h2 id="code-title" className="flex items-center justify-center gap-2.5 text-card font-semibold text-ink-900">
-          <TicketCheck className="size-6 text-accent-500" strokeWidth={1.7} aria-hidden />
+      <section aria-labelledby="code-title" className="rounded-xl border border-line bg-ink-25 p-4 sm:p-5 text-center">
+        <h2 id="code-title" className="flex items-center justify-center gap-2 text-sm sm:text-card font-semibold text-ink-900">
+          <TicketCheck className="size-5 sm:size-6 text-accent-500" strokeWidth={1.7} aria-hidden />
           Vous avez un code d’inscription&nbsp;?
         </h2>
-        <Link href="/rejoindre" className={buttonClasses({ variant: "accent-outline", size: "lg", className: "mt-4 w-full" })}>
+        <Link href="/rejoindre" className={buttonClasses({ variant: "accent-outline", size: "lg", className: "mt-3.5 sm:mt-4 w-full" })}>
           Rejoindre avec un code
         </Link>
       </section>
 
-      <p className="mt-5 text-label text-ink-500">L’accès à la plateforme se fait uniquement sur invitation.</p>
+      <p className="mt-4 sm:mt-5 text-center sm:text-left text-xs sm:text-label text-ink-500">L’accès à la plateforme se fait uniquement sur invitation.</p>
     </>
   );
 }

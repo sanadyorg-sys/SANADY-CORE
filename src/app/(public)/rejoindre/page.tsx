@@ -12,12 +12,12 @@ export default async function JoinPage() {
     <>
       <Link
         href={viewer ? "/espace/profil" : "/connexion"}
-        className="mb-6 inline-flex items-center gap-1.5 text-label font-medium text-ink-600 hover:text-ink-900"
+        className="mb-4 sm:mb-6 inline-flex items-center gap-1.5 text-xs sm:text-label font-medium text-ink-600 hover:text-ink-900 py-1"
       >
         <ArrowLeft className="size-4" aria-hidden /> {viewer ? "Retour à mon profil" : "Retour à la connexion"}
       </Link>
-      <h1 className="text-title font-semibold text-ink-900">Rejoindre un établissement</h1>
-      <p className="mb-8 mt-1 text-body text-ink-600">
+      <h1 className="text-xl sm:text-title font-bold text-ink-900">Rejoindre un établissement</h1>
+      <p className="mb-6 sm:mb-8 mt-1 text-sm sm:text-body text-ink-600">
         {viewer
           ? "Saisissez le code d’inscription remis par votre établissement pour l’associer à votre compte."
           : "Saisissez le code d’inscription remis par votre établissement. Si vous avez déjà un compte SANADY, vous pourrez l’utiliser."}

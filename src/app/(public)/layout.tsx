@@ -30,8 +30,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           className="absolute inset-0 bg-[linear-gradient(to_top,rgb(12_10_9/0.92)_0%,rgb(12_10_9/0.72)_30%,rgb(12_10_9/0.15)_58%,transparent_75%)]"
         />
 
-        <Link href="/" className="relative w-fit rounded-2xl bg-white/95 px-5 py-3.5 shadow-sm backdrop-blur-sm">
-          <BrandLogo className="h-12" priority />
+        <Link href="/" className="relative w-fit transition duration-200 hover:opacity-90">
+          <BrandLogo variant="orange" className="h-12 drop-shadow-sm" priority />
         </Link>
 
         <div className="relative max-w-[38rem] text-white">
@@ -54,24 +54,26 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       </aside>
 
       {/* ─── Form side ────────────────────────────────────────────────────── */}
-      <div className="flex min-h-dvh flex-col bg-surface">
-        <header className="flex h-20 items-center justify-between px-6 sm:px-10">
-          <Link href="/" className="rounded-sm lg:invisible">
-            <BrandLogo className="h-11" priority />
+      <div className="flex min-h-dvh flex-col bg-surface border-t-2 border-accent-500 lg:border-t-0">
+        <header className="flex h-16 sm:h-20 items-center justify-between px-4 sm:px-10 border-b border-line/50 lg:border-b-0">
+          <Link href="/" className="rounded-sm transition duration-200 hover:opacity-90">
+            <BrandLogo variant="orange" className="h-8 sm:h-11" priority />
           </Link>
-          <Link href="/aide" className="text-body font-medium text-accent-700 hover:underline">
+          <Link href="/aide" className="text-caption sm:text-body font-medium text-accent-700 hover:underline shrink-0">
             Besoin d’aide&nbsp;?
           </Link>
         </header>
-        <main id="contenu" className="flex flex-1 items-center justify-center px-6 py-8">
-          <div className="w-full max-w-[440px]">{children}</div>
+        <main id="contenu" className="flex flex-1 items-center justify-center px-4 sm:px-6 py-6 sm:py-10">
+          <div className="w-full max-w-[440px] has-[[data-wide-layout]]:max-w-2xl xl:has-[[data-wide-layout]]:max-w-3xl transition-[max-width] duration-300">
+            {children}
+          </div>
         </main>
-        <footer className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-6 py-6 text-caption text-ink-500">
-          <Link href="/verifier" className="hover:text-ink-800 hover:underline">
+        <footer className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 py-4 sm:py-6 text-xs sm:text-caption text-ink-500">
+          <Link href="/verifier" className="hover:text-ink-800 hover:underline py-1">
             Vérifier un certificat
           </Link>
           <span aria-hidden className="hidden h-3 w-px bg-line-strong sm:block" />
-          <Link href="/confidentialite" className="hover:text-ink-800 hover:underline">
+          <Link href="/confidentialite" className="hover:text-ink-800 hover:underline py-1">
             Confidentialité et données personnelles
           </Link>
         </footer>

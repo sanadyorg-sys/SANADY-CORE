@@ -14,7 +14,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const controlBase =
-  "block w-full rounded-md border bg-surface text-body text-ink-900 shadow-xs transition-colors " +
+  "block w-full rounded-md border bg-surface text-[16px] sm:text-body text-ink-900 shadow-xs transition-colors " +
   "placeholder:text-ink-400 disabled:cursor-not-allowed disabled:bg-ink-50 disabled:text-ink-500 " +
   "focus-visible:outline-none focus-visible:border-accent-600 focus-visible:ring-3 focus-visible:ring-accent-600/15";
 

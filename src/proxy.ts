@@ -31,7 +31,8 @@ function contentSecurityPolicy(nonce: string) {
     `media-src 'self' blob:${supabase} https://stream.mux.com https://*.mux.com`,
     `connect-src 'self'${supabase}${supabaseWs} https://*.mux.com`,
     "worker-src 'self' blob:",
-    "frame-src 'self' blob:",
+    // Institutional film (privacy-enhanced YouTube player, no cookies until play).
+    "frame-src 'self' blob: https://www.youtube-nocookie.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
