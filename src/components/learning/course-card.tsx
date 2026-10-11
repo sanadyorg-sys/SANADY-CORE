@@ -5,6 +5,7 @@ import { ProgressBar } from "@/components/ui/feedback";
 import { Badge, Card } from "@/components/ui/surface";
 import { formatDuration, formatRelative } from "@/lib/format";
 import { COURSE_LEVELS } from "@/lib/labels";
+import { cn } from "@/lib/cn";
 import { coverUrl } from "@/lib/media";
 import type { LearnerCourse } from "@/server/queries/learning";
 
@@ -24,18 +25,20 @@ export function CoverFallback({ title, category }: { title: string; category?: s
   );
 }
 
-export function CourseCover({ path, title, category, className }: {
+export function CourseCover({ path, title, category, className, imageClassName }: {
   path: string | null;
   title: string;
   category?: string | null;
   className?: string;
+  /** e.g. "object-left" when a narrow frame must keep the cover's title visible. */
+  imageClassName?: string;
 }) {
   const url = coverUrl(path);
   return (
     <div className={className}>
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element -- public bucket URL, sized by CSS
-        <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />
+        <img src={url} alt="" className={cn("h-full w-full object-cover", imageClassName)} loading="lazy" />
       ) : (
         <CoverFallback title={title} category={category} />
       )}

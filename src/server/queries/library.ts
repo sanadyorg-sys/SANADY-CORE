@@ -140,3 +140,13 @@ export async function libraryEditorOptions() {
     subjects: [...new Set(((subjects ?? []) as Array<{ subject: string }>).map((s) => s.subject))].sort((a, b) => a.localeCompare(b, "fr")),
   };
 }
+
+/** Recent published resources, those linked to the learner's courses first. */
+export async function libraryHighlights(courseIds: string[], limit = 3) {
+  const supabase = await createClient();
+  const base = () => supabase.from("library_resources").select(SELECT).eq("status", "published").order("updated_at", { ascending: false });
+  const linked = courseIds.length ? ((await base().in("course_id", courseIds).limit(limit)).data ?? []) : [];
+  const ids = new Set((linked as Array<{ id: string }>).map((r) => r.id));
+  const recent = linked.length < limit ? ((await base().limit(limit * 2)).data ?? []).filter((r) => !ids.has((r as { id: string }).id)) : [];
+  return [...linked, ...recent].slice(0, limit) as unknown as LibraryItem[];
+}

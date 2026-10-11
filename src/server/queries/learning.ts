@@ -240,3 +240,25 @@ export async function getAttempts(userId: string, courseId?: string): Promise<At
   const { data } = await query;
   return (data ?? []) as unknown as AttemptListItem[];
 }
+
+export interface NextStep {
+  course_id: string;
+  course_title: string;
+  step_kind: "lesson" | "quiz" | "blocked";
+  lesson_id: string | null;
+  quiz_id: string | null;
+  item_title: string;
+  module_title: string;
+  module_position: number;
+  attempts_used: number;
+  max_attempts: number;
+  due_on: string | null;
+}
+
+/** The next thing to do in each unfinished course (earliest due date first). */
+export async function getNextSteps(): Promise<NextStep[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("learner_next_steps");
+  if (error) throw error;
+  return (data ?? []) as NextStep[];
+}
