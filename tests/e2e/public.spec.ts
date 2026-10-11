@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const PUBLIC_PAGES = ["/", "/formations", "/a-propos", "/demande-acces", "/connexion", "/aide", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide"];
+const PUBLIC_PAGES = ["/", "/formations", "/a-propos", "/ressources", "/demande-acces", "/connexion", "/aide", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide"];
 
 async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
