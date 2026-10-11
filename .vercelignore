@@ -1,0 +1,12 @@
+# Never uploaded by `vercel deploy` (secrets, personal data, local artifacts)
+.env*
+!.env.example
+backups/
+scripts/demo/.demo-state.json
+test-results/
+playwright-report/
+mobile-audit/
+node_modules/
+.next/
+.git/
+*.tsbuildinfo
