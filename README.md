@@ -75,6 +75,11 @@ docs/                Architecture, database, security, design system, deployment
 - [Design system](docs/design-system.md) — brand assets, tokens, components
 - [Deployment](docs/deployment.md) — Supabase, Vercel, e-mail, video, backups
 - [Testing](docs/testing.md) — what is tested, how, and what is not
+- [Roles and permissions](docs/roles-and-permissions.md) — who can do what (matrix)
+- [Operations](docs/operations.md) — backups, retention, monitoring, incidents, costs
+- [Decision log](docs/decisions.md) — technical decisions and why
+- [Audit and roadmap](docs/audit-roadmap.md) — status against the direction brief
+- [Institutional reference](docs/institution/reference-sanady.md) — verified Foundation facts with sources
 
 ## External dependencies and open items
 
