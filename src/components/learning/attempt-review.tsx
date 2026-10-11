@@ -70,7 +70,7 @@ export function AttemptQuestions({ result }: { result: AttemptResult }) {
                         )}
                       >
                         <span className="text-ink-800">{o.label}</span>
-                        <span className="flex shrink-0 gap-1.5">
+                        <span className="flex flex-wrap justify-end gap-1.5">
                           {chosen ? <Badge tone="brand">Votre réponse</Badge> : null}
                           {result.answers_revealed && correct ? <Badge tone="success">Bonne réponse</Badge> : null}
                         </span>

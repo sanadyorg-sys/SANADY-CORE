@@ -26,7 +26,7 @@ export default async function TeacherTrackingPage(props: PageProps<"/etablisseme
 
   return (
     <>
-      <Link href={`${base}/suivi`} className="mb-5 inline-flex items-center gap-1.5 text-label font-medium text-ink-600 hover:text-ink-900">
+      <Link href={`${base}/suivi`} className="mb-5 inline-flex min-h-6 items-center gap-1.5 py-1 text-label font-medium text-ink-600 hover:text-ink-900">
         <ArrowLeft className="size-4" aria-hidden /> Suivi individuel
       </Link>
       <PageHeader
@@ -48,7 +48,7 @@ export default async function TeacherTrackingPage(props: PageProps<"/etablisseme
         <div className="mt-3 flex flex-wrap gap-2">
           {teacher.inactive ? <Badge tone="warning">Inactif depuis plus de la période de référence</Badge> : null}
           {teacher.exhausted_quizzes > 0 ? (
-            <Badge tone="danger">
+            <Badge tone="danger" className="whitespace-normal!">
               {teacher.exhausted_quizzes} évaluation{teacher.exhausted_quizzes > 1 ? "s" : ""} aux tentatives épuisées — intervention SANADY requise
             </Badge>
           ) : null}

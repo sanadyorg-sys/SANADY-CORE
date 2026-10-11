@@ -28,7 +28,7 @@ export function LinkTabs({
   const pathname = usePathname();
   return (
     <nav aria-label="Sections" className={cn("border-b border-line", className)}>
-      <ul className="-mb-px flex gap-6 overflow-x-auto">
+      <ul className="relative -mb-px flex gap-6 overflow-x-auto">
         {items.map((item) => {
           const exactMatch = item.exact ?? exact;
           const active =
@@ -65,7 +65,7 @@ export function Tabs({
 }) {
   return (
     <RadixTabs.Root defaultValue={defaultValue} className={className}>
-      <RadixTabs.List className="flex gap-6 overflow-x-auto border-b border-line" aria-label="Sections">
+      <RadixTabs.List className="relative flex gap-6 overflow-x-auto border-b border-line" aria-label="Sections">
         {items.map((item) => (
           <RadixTabs.Trigger
             key={item.value}

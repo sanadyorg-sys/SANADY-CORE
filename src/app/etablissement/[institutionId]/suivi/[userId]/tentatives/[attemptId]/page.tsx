@@ -24,7 +24,7 @@ export default async function InstitutionAttemptPage(
     <div className="mx-auto max-w-4xl">
       <Link
         href={`/etablissement/${institutionId}/suivi/${userId}`}
-        className="mb-5 inline-flex items-center gap-1.5 text-label font-medium text-ink-600 hover:text-ink-900"
+        className="mb-5 inline-flex min-h-6 items-center gap-1.5 py-1 text-label font-medium text-ink-600 hover:text-ink-900"
       >
         <ArrowLeft className="size-4" aria-hidden /> Retour au suivi de l’enseignant
       </Link>

@@ -158,7 +158,7 @@ export default function ResourcesPage() {
       {/* ─── Focus Mallette Pédagogique ───────────────────────────────────── */}
       <section className="border-b border-line bg-surface">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <Reveal className="grid items-center gap-10 rounded-3xl border-2 border-accent-500/30 bg-gradient-to-br from-accent-50/50 via-surface to-accent-50/20 p-8 shadow-xs lg:grid-cols-[1.4fr_1fr] lg:p-12">
+          <Reveal className="grid items-center gap-10 rounded-3xl border-2 border-accent-500/30 bg-gradient-to-br from-accent-50/50 via-surface to-accent-50/20 p-5 shadow-xs sm:p-8 lg:grid-cols-[1.4fr_1fr] lg:p-12">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-700 px-3.5 py-1 text-label font-bold text-white shadow-xs">
                 <Sparkles className="size-3.5" aria-hidden /> Outil de Référence National
@@ -196,7 +196,7 @@ export default function ResourcesPage() {
               </div>
             </div>
 
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-accent-200 bg-surface/90 p-8 text-center shadow-md backdrop-blur-sm">
+            <div className="flex min-w-0 flex-col items-center justify-center rounded-2xl border border-accent-200 bg-surface/90 p-6 text-center shadow-md backdrop-blur-sm sm:p-8">
               <span className="flex size-16 items-center justify-center rounded-2xl bg-accent-100 text-accent-700 shadow-xs">
                 <PackageCheck className="size-8" aria-hidden />
               </span>

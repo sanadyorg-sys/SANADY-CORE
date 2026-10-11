@@ -29,7 +29,38 @@ export default async function MyAssessmentsPage() {
             description="L’évaluation d’un module devient accessible lorsque toutes ses leçons obligatoires sont terminées."
           />
         ) : (
-          <Table caption="Historique de mes évaluations">
+          <>
+          {/* Phones: one card per attempt. */}
+          <ul className="divide-y divide-line md:hidden">
+            {attempts.map((a) => {
+              const base = `/espace/formations/${a.course_id}/evaluations/${a.quiz_id}`;
+              return (
+                <li key={a.id}>
+                  <Link href={a.status === "submitted" ? `${base}/resultats/${a.id}` : base} className="flex items-start justify-between gap-3 px-4 py-4 active:bg-ink-25">
+                    <span className="min-w-0">
+                      <span className="block font-medium text-ink-900">{a.quiz?.module?.title ?? a.quiz?.title}</span>
+                      <span className="block truncate text-caption text-ink-500">{a.course?.title}</span>
+                      <span className="mt-1 block text-caption text-ink-500">
+                        Tentative n° {a.attempt_number} · {formatDateTime(a.submitted_at ?? a.started_at)}
+                        {a.voided_at ? " · réinitialisée" : ""}
+                      </span>
+                    </span>
+                    <span className="flex shrink-0 flex-col items-end gap-1">
+                      <span className="tabular text-body font-semibold text-ink-900">{a.status === "submitted" ? formatScore(a.score_percent) : "—"}</span>
+                      {a.status === "in_progress" ? (
+                        <Badge tone="accent">En cours</Badge>
+                      ) : a.passed ? (
+                        <Badge tone="success">Réussie</Badge>
+                      ) : (
+                        <Badge tone="danger">Non validée</Badge>
+                      )}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+          <Table caption="Historique de mes évaluations" className="max-md:hidden">
             <THead>
               <tr>
                 <TH>Évaluation</TH>
@@ -81,6 +112,7 @@ export default async function MyAssessmentsPage() {
               })}
             </TBody>
           </Table>
+          </>
         )}
       </Card>
     </>

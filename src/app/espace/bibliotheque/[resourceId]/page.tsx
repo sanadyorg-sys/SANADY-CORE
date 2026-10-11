@@ -34,7 +34,7 @@ export default async function LibraryResourcePage({ params }: PageProps<"/espace
 
   return (
     <>
-      <Link href="/espace/bibliotheque" className="mb-4 inline-flex items-center gap-1.5 text-label font-medium text-ink-600 hover:text-ink-900">
+      <Link href="/espace/bibliotheque" className="mb-4 inline-flex min-h-6 items-center gap-1.5 py-1 text-label font-medium text-ink-600 hover:text-ink-900">
         <ArrowLeft className="size-4" aria-hidden /> Bibliothèque pédagogique
       </Link>
 

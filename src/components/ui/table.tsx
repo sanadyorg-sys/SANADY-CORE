@@ -4,10 +4,16 @@ import type { HTMLAttributes, ReactNode, TdHTMLAttributes, ThHTMLAttributes } fr
 import { cn } from "@/lib/cn";
 import { formatNumber } from "@/lib/format";
 
-/** Horizontally scrollable on small screens; header row stays readable. */
+/**
+ * Horizontally scrollable on small screens; header row stays readable.
+ * `contain: inline-size` stops the table's minimum width from stretching the
+ * surrounding grid or flex column: the table scrolls inside its card instead
+ * of making the whole page scroll sideways on phones. `relative` keeps
+ * absolutely positioned content (e.g. sr-only labels) inside the scroller.
+ */
 export function Table({ className, children, caption }: { className?: string; children: ReactNode; caption?: string }) {
   return (
-    <div className={cn("w-full overflow-x-auto", className)}>
+    <div className={cn("relative w-full overflow-x-auto overscroll-x-contain [contain:inline-size]", className)} tabIndex={0} role="region" aria-label={caption ?? "Tableau"}>
       <table className="w-full min-w-[640px] border-collapse text-left text-body">
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         {children}

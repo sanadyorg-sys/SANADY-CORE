@@ -40,7 +40,7 @@ export default async function CourseEditorLayout(props: LayoutProps<"/admin/form
 
   return (
     <>
-      <Link href="/admin/formations" className="mb-5 inline-flex items-center gap-1.5 text-label font-medium text-ink-600 hover:text-ink-900">
+      <Link href="/admin/formations" className="mb-5 inline-flex min-h-6 items-center gap-1.5 py-1 text-label font-medium text-ink-600 hover:text-ink-900">
         <ArrowLeft className="size-4" aria-hidden /> {viewer.isTrainer ? "Mes formations" : "Formations"}
       </Link>
       <PageHeader

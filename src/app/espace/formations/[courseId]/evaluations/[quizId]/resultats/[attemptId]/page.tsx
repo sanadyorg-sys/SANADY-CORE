@@ -38,7 +38,7 @@ export default async function AttemptResultPage(
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link href={basePath} className="mb-5 inline-flex items-center gap-1.5 text-label font-medium text-ink-600 hover:text-ink-900">
+      <Link href={basePath} className="mb-5 inline-flex min-h-6 items-center gap-1.5 py-1 text-label font-medium text-ink-600 hover:text-ink-900">
         <ArrowLeft className="size-4" aria-hidden /> {outline.course.title}
       </Link>
       <h1 className="mb-6 text-title font-semibold text-ink-900">Résultats de l’évaluation</h1>

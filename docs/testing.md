@@ -52,3 +52,15 @@ E2E_ADMIN_EMAIL=… E2E_ADMIN_PASSWORD=… \
 npm run test:e2e
 ```
 The teacher account must have at least one assigned, published course.
+
+## Mobile layout audit
+
+`scripts/mobile-audit.mjs` signs in as each role, follows the links of that area and, on every page at phone width, reports horizontal overflow (including a widened layout viewport, i.e. a zoomed-out page), elements sticking out of the screen and tap targets under 24 px. It saves one screenshot per page and a `report.json`.
+
+```
+npm run build && npx next start -p 3200
+AUDIT_ACCOUNTS='[{"name":"teacher","email":"…","password":"…","start":"/espace","scope":"/espace"}]' \
+  node scripts/mobile-audit.mjs --base http://localhost:3200 --out mobile-audit --width 360
+```
+
+Accounts with two-factor authentication take a `totpSecret`. Last run (11/10/2026): 74 pages, all roles, at 390 px and 360 px — no overflow.

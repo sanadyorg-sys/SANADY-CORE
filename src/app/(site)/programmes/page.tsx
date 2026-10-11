@@ -193,7 +193,7 @@ export default function ProgrammesPage() {
                 Retrouvez l’ensemble des modules pédagogiques conçus selon l’expérience de terrain de la Fondation Sanady.
               </p>
             </div>
-            <Link href="/formations" className={buttonClasses({ variant: "accent", size: "xl", className: "rounded-xl shadow-lg" })}>
+            <Link href="/formations" className={buttonClasses({ variant: "accent", size: "xl", className: "rounded-xl shadow-lg max-sm:h-auto max-sm:w-full max-sm:whitespace-normal! max-sm:py-3 max-sm:text-center" })}>
               <BookOpen className="size-5" aria-hidden /> Parcourir les formations <ArrowRight aria-hidden />
             </Link>
           </Reveal>

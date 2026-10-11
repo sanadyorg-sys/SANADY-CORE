@@ -356,3 +356,16 @@
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
+
+/* Touch screens: standalone text links (« Voir tout », « Télécharger »…) get the
+   WCAG 2.2 minimum target height of 24 px. Buttons with their own height or
+   padding, and links inside running text, are not affected. */
+@media (pointer: coarse) {
+  a.inline-flex:not([class*="h-"]):not([class*="py-"]),
+  a.block:not([class*="h-"]):not([class*="py-"]) {
+    min-height: 24px;
+  }
+  a.inline-flex:not([class*="h-"]):not([class*="py-"]) {
+    align-items: center;
+  }
+}

@@ -20,7 +20,7 @@ export default async function QuizEditorPage(props: PageProps<"/admin/formations
     <>
       <Link
         href={`/admin/formations/${courseId}/programme`}
-        className="mb-5 inline-flex items-center gap-1.5 text-label font-medium text-ink-600 hover:text-ink-900"
+        className="mb-5 inline-flex min-h-6 items-center gap-1.5 py-1 text-label font-medium text-ink-600 hover:text-ink-900"
       >
         <ArrowLeft className="size-4" aria-hidden /> Programme{quiz.module ? ` · ${quiz.module.title}` : ""}
       </Link>

@@ -13,7 +13,7 @@ export default async function NewLibraryResourcePage() {
   const options = await libraryEditorOptions();
   return (
     <>
-      <Link href="/admin/bibliotheque" className="mb-4 inline-flex items-center gap-1.5 text-label font-medium text-ink-600 hover:text-ink-900">
+      <Link href="/admin/bibliotheque" className="mb-4 inline-flex min-h-6 items-center gap-1.5 py-1 text-label font-medium text-ink-600 hover:text-ink-900">
         <ArrowLeft className="size-4" aria-hidden /> Bibliothèque
       </Link>
       <PageHeader title="Nouvelle ressource" description="Décrivez la ressource ; vous ajouterez ensuite son fichier, puis vous la publierez." />
