@@ -133,7 +133,7 @@ function Runner({
   const choose = (optionId: string) =>
     setAnswers((prev) => {
       const current = prev[question.id] ?? [];
-      if (question.kind === "single") return { ...prev, [question.id]: [optionId] };
+      if (question.kind !== "multiple") return { ...prev, [question.id]: [optionId] };
       return {
         ...prev,
         [question.id]: current.includes(optionId) ? current.filter((id) => id !== optionId) : [...current, optionId],
@@ -159,7 +159,11 @@ function Runner({
           <legend className="w-full">
             <span className="block whitespace-pre-line text-section font-semibold text-ink-900">{question.prompt}</span>
             <span className="mt-1.5 block text-label text-ink-500">
-              {question.kind === "single" ? "Une seule réponse possible" : "Plusieurs réponses possibles — sélectionnez toutes les bonnes réponses"}
+              {question.kind === "true_false"
+                ? "Vrai ou faux ?"
+                : question.kind === "single"
+                  ? "Une seule réponse possible"
+                  : "Plusieurs réponses possibles — sélectionnez toutes les bonnes réponses"}
               {question.points > 1 ? ` · ${question.points} points` : ""}
             </span>
           </legend>
@@ -175,7 +179,7 @@ function Runner({
                   )}
                 >
                   <input
-                    type={question.kind === "single" ? "radio" : "checkbox"}
+                    type={question.kind !== "multiple" ? "radio" : "checkbox"}
                     name={`q-${question.id}`}
                     value={option.id}
                     checked={checked}

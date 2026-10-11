@@ -26,7 +26,7 @@ export type CourseLevel = "debutant" | "intermediaire" | "avance";
 export type CourseStatus = "draft" | "published" | "archived";
 export type LessonKind = "video" | "pdf";
 export type VideoProvider = "storage" | "mux";
-export type QuestionKind = "single" | "multiple";
+export type QuestionKind = "single" | "multiple" | "true_false";
 export type EnrollmentStatus = "active" | "completed";
 export type ProgressStatus = "in_progress" | "completed";
 export type LearningEventType =
@@ -177,6 +177,10 @@ export interface Quiz {
   instructions: string;
   pass_threshold: number;
   max_attempts: number;
+  /** Random question order, drawn once per attempt. */
+  shuffle_questions: boolean;
+  /** Random answer order per attempt (never for true/false). */
+  shuffle_options: boolean;
 }
 
 export interface QuestionOption {

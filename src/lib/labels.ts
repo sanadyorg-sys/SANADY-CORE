@@ -41,6 +41,7 @@ export const LESSON_KINDS: Record<LessonKind, string> = {
 export const QUESTION_KINDS: Record<QuestionKind, string> = {
   single: "Réponse unique",
   multiple: "Réponses multiples",
+  true_false: "Vrai / faux",
 };
 
 export const INVITATION_KINDS: Record<InvitationKind, string> = {

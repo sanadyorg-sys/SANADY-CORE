@@ -7,7 +7,7 @@ import { z } from "zod";
 import { PUBLICATION_ISSUES, errorMessage, messageFor } from "@/lib/errors";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { ActionState, CourseStatus } from "@/lib/types";
+import type { ActionState, CourseStatus, QuestionKind } from "@/lib/types";
 import { checkboxSchema, optionalText, parseInput, uuidSchema } from "@/lib/validation";
 import { requireSanadyAdmin } from "@/server/auth";
 import { MEDIA_BUCKET } from "@/server/media";
@@ -462,6 +462,8 @@ export async function updateQuiz(_prev: ActionState, formData: FormData): Promis
       course_id: uuidSchema,
       title: z.string().trim().min(2, "Titre trop court.").max(200),
       instructions: z.string().trim().max(4000),
+      shuffle_questions: checkboxSchema,
+      shuffle_options: checkboxSchema,
     }),
     formData,
   );
@@ -469,7 +471,12 @@ export async function updateQuiz(_prev: ActionState, formData: FormData): Promis
   const supabase = await createClient();
   const { error } = await supabase
     .from("quizzes")
-    .update({ title: parsed.data.title, instructions: parsed.data.instructions })
+    .update({
+      title: parsed.data.title,
+      instructions: parsed.data.instructions,
+      shuffle_questions: parsed.data.shuffle_questions,
+      shuffle_options: parsed.data.shuffle_options,
+    })
     .eq("id", parsed.data.id);
   if (error) return { ok: false, message: errorMessage(error) };
   revalidateCourse(parsed.data.course_id);
@@ -480,7 +487,7 @@ export interface QuestionInput {
   quizId: string;
   courseId: string;
   questionId: string | null;
-  kind: "single" | "multiple";
+  kind: QuestionKind;
   prompt: string;
   explanation: string;
   points: number;
@@ -494,7 +501,7 @@ export async function saveQuestion(input: QuestionInput): Promise<ActionState> {
       quizId: uuidSchema,
       courseId: uuidSchema,
       questionId: uuidSchema.nullable(),
-      kind: z.enum(["single", "multiple"]),
+      kind: z.enum(["single", "multiple", "true_false"]),
       prompt: z.string().trim().min(3, "L’énoncé doit comporter au moins 3 caractères.").max(2000),
       explanation: z.string().trim().max(4000),
       points: z.number().int().min(1, "1 point minimum.").max(100),

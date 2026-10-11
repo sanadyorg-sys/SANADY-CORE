@@ -7,14 +7,14 @@ import { removeQuestion, reorderQuestions, saveQuestion, updateQuiz } from "@/se
 import { ActionButton } from "@/components/common/action-button";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/feedback";
-import { Field, Input, Select, Textarea } from "@/components/ui/field";
+import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
 import { FormActions, FormMessage, SubmitButton, useActionToast } from "@/components/ui/form";
 import { Dialog } from "@/components/ui/overlay";
 import { Badge, Card } from "@/components/ui/surface";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
 import { QUESTION_KINDS } from "@/lib/labels";
-import { INITIAL_ACTION_STATE, type Quiz } from "@/lib/types";
+import { INITIAL_ACTION_STATE, type QuestionKind, type Quiz } from "@/lib/types";
 import type { EditorQuestion } from "@/server/queries/admin";
 
 export function QuizSettingsForm({ quiz }: { quiz: Quiz }) {
@@ -31,6 +31,21 @@ export function QuizSettingsForm({ quiz }: { quiz: Quiz }) {
       <Field label="Consignes" optional hint="Affichées avant le début de l’évaluation." error={state.fieldErrors?.instructions}>
         <Textarea name="instructions" defaultValue={quiz.instructions} rows={4} />
       </Field>
+      <fieldset className="space-y-3">
+        <legend className="mb-1 text-label font-medium text-ink-800">Ordre de présentation</legend>
+        <Checkbox
+          name="shuffle_questions"
+          defaultChecked={quiz.shuffle_questions}
+          label="Mélanger l’ordre des questions"
+          description="Tiré une fois par tentative : l’ordre reste le même si l’enseignant recharge la page."
+        />
+        <Checkbox
+          name="shuffle_options"
+          defaultChecked={quiz.shuffle_options}
+          label="Mélanger l’ordre des réponses"
+          description="Ne s’applique pas aux questions vrai / faux (« Vrai » reste en premier)."
+        />
+      </fieldset>
       <FormActions>
         <SubmitButton>Enregistrer</SubmitButton>
       </FormActions>
@@ -155,7 +170,7 @@ function QuestionDialog({ quiz, question, index }: { quiz: Quiz; question?: Edit
         ];
 
   const [open, setOpen] = useState(false);
-  const [kind, setKind] = useState<"single" | "multiple">(question?.kind ?? "single");
+  const [kind, setKind] = useState<QuestionKind>(question?.kind ?? "single");
   const [prompt, setPrompt] = useState(question?.prompt ?? "");
   const [explanation, setExplanation] = useState(question?.explanation ?? "");
   const [points, setPoints] = useState(question?.points ?? 1);
@@ -177,13 +192,13 @@ function QuestionDialog({ quiz, question, index }: { quiz: Quiz; question?: Edit
   const correctCount = options.filter((o) => o.is_correct).length;
   const toggleCorrect = (key: string) =>
     setOptions((prev) =>
-      prev.map((o) => (kind === "single" ? { ...o, is_correct: o.key === key } : o.key === key ? { ...o, is_correct: !o.is_correct } : o)),
+      prev.map((o) => (kind !== "multiple" ? { ...o, is_correct: o.key === key } : o.key === key ? { ...o, is_correct: !o.is_correct } : o)),
     );
 
   const submit = () =>
     startTransition(async () => {
       setError(null);
-      if (kind === "single" && correctCount !== 1) return setError("Sélectionnez exactement une bonne réponse.");
+      if (kind !== "multiple" && correctCount !== 1) return setError("Sélectionnez exactement une bonne réponse.");
       if (kind === "multiple" && correctCount < 1) return setError("Sélectionnez au moins une bonne réponse.");
       const res = await saveQuestion({
         quizId: quiz.id,
@@ -245,9 +260,16 @@ function QuestionDialog({ quiz, question, index }: { quiz: Quiz; question?: Edit
             <Select
               value={kind}
               onChange={(e) => {
-                const next = e.target.value as "single" | "multiple";
+                const next = e.target.value as QuestionKind;
                 setKind(next);
-                if (next === "single" && correctCount !== 1) {
+                if (next === "true_false") {
+                  // Fixed answers; existing option ids are reused so edits update in place.
+                  const trueIsCorrect = options[1]?.is_correct ? false : true;
+                  setOptions([
+                    { key: options[0]?.key ?? crypto.randomUUID(), id: options[0]?.id ?? null, label: "Vrai", is_correct: trueIsCorrect },
+                    { key: options[1]?.key ?? crypto.randomUUID(), id: options[1]?.id ?? null, label: "Faux", is_correct: !trueIsCorrect },
+                  ]);
+                } else if (next === "single" && correctCount !== 1) {
                   const firstCorrect = options.find((o) => o.is_correct)?.key ?? options[0]?.key;
                   setOptions((prev) => prev.map((o) => ({ ...o, is_correct: o.key === firstCorrect })));
                 }
@@ -255,6 +277,7 @@ function QuestionDialog({ quiz, question, index }: { quiz: Quiz; question?: Edit
             >
               <option value="single">Réponse unique</option>
               <option value="multiple">Réponses multiples</option>
+              <option value="true_false">Vrai / faux</option>
             </Select>
           </Field>
           <Field label="Points">
@@ -269,14 +292,14 @@ function QuestionDialog({ quiz, question, index }: { quiz: Quiz; question?: Edit
           <legend className="mb-2 text-label font-medium text-ink-800">
             Réponses proposées{" "}
             <span className="font-normal text-ink-500">
-              — cochez {kind === "single" ? "la bonne réponse" : "toutes les bonnes réponses"}
+              — cochez {kind !== "multiple" ? "la bonne réponse" : "toutes les bonnes réponses"}
             </span>
           </legend>
           <ul className="space-y-2">
             {options.map((o, i) => (
               <li key={o.key} className="flex items-center gap-2">
                 <input
-                  type={kind === "single" ? "radio" : "checkbox"}
+                  type={kind !== "multiple" ? "radio" : "checkbox"}
                   name="correct"
                   checked={o.is_correct}
                   onChange={() => toggleCorrect(o.key)}
@@ -289,12 +312,13 @@ function QuestionDialog({ quiz, question, index }: { quiz: Quiz; question?: Edit
                   placeholder={`Réponse ${i + 1}`}
                   aria-label={`Libellé de la réponse ${i + 1}`}
                   maxLength={500}
+                  readOnly={kind === "true_false"}
                 />
                 <Button
                   variant="ghost"
                   size="icon-sm"
                   aria-label={`Retirer la réponse ${i + 1}`}
-                  disabled={options.length <= 2}
+                  disabled={options.length <= 2 || kind === "true_false"}
                   onClick={() => setOptions((prev) => prev.filter((x) => x.key !== o.key))}
                 >
                   <X />
@@ -306,7 +330,7 @@ function QuestionDialog({ quiz, question, index }: { quiz: Quiz; question?: Edit
             variant="ghost"
             size="sm"
             className="mt-2"
-            disabled={options.length >= 10}
+            disabled={options.length >= 10 || kind === "true_false"}
             onClick={() => setOptions((prev) => [...prev, { key: crypto.randomUUID(), id: null, label: "", is_correct: false }])}
           >
             <Plus aria-hidden /> Ajouter une réponse
