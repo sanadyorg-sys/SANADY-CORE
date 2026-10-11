@@ -20,6 +20,7 @@
     "postinstall": "node scripts/copy-pdf-worker.mjs",
     "admin:create": "node --env-file=.env.local scripts/create-admin.mjs",
     "db:types": "npx supabase gen types typescript --linked > src/lib/database.generated.ts",
+    "db:backup": "node --env-file=.env.local scripts/db-backup.mjs",
     "db:apply": "node --env-file=.env.local scripts/db-apply-remote.mjs",
     "demo:seed": "node --env-file=.env.local scripts/demo/seed-demo.mjs",
     "demo:remove": "node --env-file=.env.local scripts/demo/remove-demo.mjs",
