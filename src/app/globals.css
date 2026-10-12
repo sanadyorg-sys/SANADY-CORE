@@ -277,6 +277,77 @@
   }
 }
 
+/* ─── Hero product preview (components/site/hero-learner-preview.tsx) ───────
+   Plays once: the bar fills to 72 %, then the steps and the certificate pop
+   in one after another (--i = order). */
+.hero-preview-bar {
+  transform: scaleX(0.72);
+  transform-origin: left;
+  animation: hero-preview-bar 1100ms var(--ease-out-strong) 400ms both;
+}
+.hero-preview-pop {
+  animation: hero-preview-pop 320ms var(--ease-out-strong) both;
+  animation-delay: calc(700ms + var(--i, 0) * 170ms);
+}
+.hero-preview[data-wait] .hero-preview-bar,
+.hero-preview[data-wait] .hero-preview-pop {
+  animation-play-state: paused;
+}
+@keyframes hero-preview-bar {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes hero-preview-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+}
+
+/* ─── Marquee ribbons (components/site/features-marquee.tsx) ─────────────── */
+.marquee-mask {
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 1rem;
+  padding-right: 1rem; /* same as the gap, so the loop seam is invisible */
+  animation: ribbon-scroll 48s linear infinite;
+}
+@keyframes ribbon-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-reverse {
+  animation-direction: reverse;
+}
+.marquee-mask:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-preview-bar,
+  .hero-preview-pop,
+  .marquee-track {
+    animation: none;
+  }
+  .marquee-mask {
+    mask-image: none;
+  }
+  .marquee-track {
+    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-inline: 1rem;
+  }
+  .marquee-track > [aria-hidden="true"] {
+    display: none;
+  }
+}
+
 /* Light sweep across a card on hover */
 .card-shine {
   position: relative;

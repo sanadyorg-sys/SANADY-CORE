@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import { BrandDots, SmileUnderline } from "@/components/brand/brand-decor";
 import { CatalogCard } from "@/components/site/catalog-card";
+import { FeaturesMarquee } from "@/components/site/features-marquee";
+import { HeroLearnerPreview } from "@/components/site/hero-learner-preview";
 import { LearningPathsSection } from "@/components/site/learning-paths";
 import { PartnerTrustBanner } from "@/components/site/partner-trust-banner";
 import { SkillDiagnosticPreview } from "@/components/site/skill-diagnostic-preview";
@@ -164,14 +166,8 @@ export default async function HomePage() {
               <Image src={classroom} alt="Une élève souriante dans sa classe" fill priority placeholder="blur" className="object-cover" sizes="(min-width: 1024px) 560px, 100vw" />
               <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
             </div>
-            <div className="animate-float absolute -bottom-6 left-4 flex items-center gap-3 rounded-2xl border border-line bg-surface/95 p-3.5 shadow-xl backdrop-blur-sm sm:-left-6">
-              <span className="flex size-11 items-center justify-center rounded-xl bg-success-50 text-success-700 shadow-xs pulse-glow">
-                <Award className="size-5" aria-hidden />
-              </span>
-              <div>
-                <span className="block text-label font-bold text-ink-900">Certificat vérifiable</span>
-                <span className="block text-caption text-ink-500">en ligne, par QR code</span>
-              </div>
+            <div className="animate-float absolute -bottom-10 left-3 sm:-left-8">
+              <HeroLearnerPreview courseTitle={featured[0]?.title ?? "Évaluation formative en classe"} />
             </div>
             <div className="animate-float-slow absolute -top-6 right-4 hidden w-64 rounded-2xl border border-line bg-surface/95 p-3.5 shadow-xl backdrop-blur-sm sm:block lg:-right-6">
               <a href="#video-fondation" className="group flex items-center gap-3">
@@ -202,6 +198,9 @@ export default async function HomePage() {
           ))}
         </dl>
       </Reveal>
+
+      {/* ─── What the platform offers: two ribbons (Edraak-style) ──────────── */}
+      <FeaturesMarquee />
 
       {/* ─── Institutional Trust & Partners (Edraak style) ────────────────── */}
       {SHOW_PARTNERS ? <PartnerTrustBanner /> : null}
