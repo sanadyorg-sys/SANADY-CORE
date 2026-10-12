@@ -56,7 +56,7 @@ export default async function VerifyCertificatePage(props: PageProps<"/verifier/
         </div>
         <h1 className="text-2xl font-bold text-ink-900">Certificat introuvable</h1>
         <p className="mx-auto mt-2 max-w-md text-body text-ink-600">
-          Aucun certificat SANADY ne correspond à la référence <span className="font-mono font-medium text-ink-900">{code}</span>. Vérifiez la saisie ou scannez à nouveau le code QR officiel.
+          Aucun certificat SANADY ne correspond à la référence <span className="font-mono font-medium text-ink-900">{code}</span>. Vérifiez la saisie ou scannez à nouveau le code QR du certificat.
         </p>
         <div className="mt-8 flex justify-center">
           {backLink}

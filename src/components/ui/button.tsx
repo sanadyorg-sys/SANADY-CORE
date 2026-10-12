@@ -1,6 +1,6 @@
 import { Slot } from "radix-ui";
 import { LoaderCircle } from "lucide-react";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 import { cn } from "@/lib/cn";
 
 export type ButtonVariant = "primary" | "brand" | "accent" | "accent-outline" | "secondary" | "ghost" | "danger" | "danger-ghost";
@@ -50,6 +50,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Renders the child element (e.g. a Link) with button styles. */
   asChild?: boolean;
   children?: ReactNode;
+  ref?: Ref<HTMLButtonElement>;
 }
 
 export function Button({

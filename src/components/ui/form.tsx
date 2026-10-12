@@ -7,11 +7,30 @@ import { Alert } from "./surface";
 import { Button, type ButtonProps } from "./button";
 import { useToast } from "./toast";
 
-/** Submit button bound to the enclosing <form>'s pending state. */
+/**
+ * Submit button bound to the enclosing <form>'s pending state.
+ * When a submission comes back with field errors, it moves focus to the first
+ * invalid field (WCAG 3.3.1), so keyboard and screen-reader users land on
+ * what needs fixing — for every form, without per-form code.
+ */
 export function SubmitButton({ children, ...props }: ButtonProps) {
   const { pending } = useFormStatus();
+  const ref = useRef<HTMLButtonElement>(null);
+  const submitted = useRef(false);
+  useEffect(() => {
+    if (pending) {
+      submitted.current = true;
+      return;
+    }
+    if (!submitted.current) return;
+    submitted.current = false;
+    const frame = requestAnimationFrame(() => {
+      ref.current?.form?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pending]);
   return (
-    <Button type="submit" loading={pending} {...props}>
+    <Button ref={ref} type="submit" loading={pending} {...props}>
       {children}
     </Button>
   );

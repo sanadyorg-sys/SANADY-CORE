@@ -68,8 +68,8 @@ export function AppShell({
       <div className="flex-1 overflow-y-auto px-3 pb-6">
         <SidebarNav area={area} institutionId={institutionId} role={navRole} onNavigate={onNavigate} />
       </div>
-      <div className="border-t border-line px-5 py-3 text-caption text-ink-400">
-        <Link href="/confidentialite" className="hover:text-ink-600 hover:underline" onClick={onNavigate}>
+      <div className="border-t border-line px-5 py-3 text-caption text-ink-500">
+        <Link href="/confidentialite" className="hover:text-ink-800 hover:underline" onClick={onNavigate}>
           Confidentialité et données
         </Link>
       </div>

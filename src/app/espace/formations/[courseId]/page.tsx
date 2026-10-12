@@ -116,7 +116,7 @@ export default async function CourseOverviewPage(props: PageProps<"/espace/forma
               </p>
               <p className="tabular mt-2 text-stat font-semibold text-ink-900">
                 {totals.completed}
-                <span className="text-section font-normal text-ink-400">/{totals.mandatory}</span>
+                <span className="text-section font-normal text-ink-500">/{totals.mandatory}</span>
               </p>
               <ProgressBar value={lessonRatio} label="Leçons obligatoires terminées" size="sm" className="mt-3" />
             </Card>
@@ -126,7 +126,7 @@ export default async function CourseOverviewPage(props: PageProps<"/espace/forma
               </p>
               <p className="tabular mt-2 text-stat font-semibold text-ink-900">
                 {totals.quizzesPassed}
-                <span className="text-section font-normal text-ink-400">/{totals.quizzes}</span>
+                <span className="text-section font-normal text-ink-500">/{totals.quizzes}</span>
               </p>
               <p className="mt-2 text-caption text-ink-500">Seuil de réussite : 70 % · 3 tentatives par évaluation</p>
             </Card>

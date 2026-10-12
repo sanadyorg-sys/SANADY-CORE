@@ -67,8 +67,8 @@ export function LearnerProgress({
                     </dt>
                     <dd className="tabular mt-1 text-section font-semibold text-ink-900">
                       {c.completed_lessons}/{c.mandatory_lessons}
+                      <ProgressBar value={ratio} label="Leçons terminées" size="sm" className="mt-2" />
                     </dd>
-                    <ProgressBar value={ratio} label="Leçons terminées" size="sm" className="mt-2" />
                   </div>
                   <div className="rounded-md border border-line p-3">
                     <dt className="flex items-center gap-1.5 text-caption font-medium text-ink-500">
