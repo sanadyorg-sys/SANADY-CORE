@@ -66,6 +66,8 @@ export interface Institution {
   contact_email: string;
   contact_phone: string | null;
   status: AccountStatus;
+  /** « enterprise »: a company workspace managed by SANADY Enterprise. */
+  kind?: "school" | "enterprise";
   created_at: Timestamp;
 }
 

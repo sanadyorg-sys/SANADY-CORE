@@ -60,7 +60,11 @@ export default async function AdminInstitutionPage(props: PageProps<"/admin/etab
                 <InstitutionForm institution={institution} />
               </div>
             </Drawer>
-            {suspended ? (
+            {institution.kind === "enterprise" ? (
+              <Link href="/admin/partenariats/entreprises/espaces" className="text-label font-medium text-accent-700 hover:underline">
+                Statut géré dans SANADY Enterprise
+              </Link>
+            ) : suspended ? (
               <ActionButton size="md" variant="secondary" action={setInstitutionStatus.bind(null, institution.id, "active")}>
                 <CircleCheck aria-hidden /> Réactiver
               </ActionButton>
@@ -82,7 +86,10 @@ export default async function AdminInstitutionPage(props: PageProps<"/admin/etab
           </>
         }
       >
-        <div className="mt-3">{suspended ? <Badge tone="warning">Suspendu</Badge> : <Badge tone="success">Actif</Badge>}</div>
+        <div className="mt-3 flex gap-2">
+          {suspended ? <Badge tone="warning">Suspendu</Badge> : <Badge tone="success">Actif</Badge>}
+          {institution.kind === "enterprise" ? <Badge tone="accent">Espace entreprise</Badge> : null}
+        </div>
       </PageHeader>
 
       {overview ? (

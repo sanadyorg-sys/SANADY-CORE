@@ -10,6 +10,11 @@ import { useToast } from "@/components/ui/toast";
 import { INVITATION_KINDS } from "@/lib/labels";
 import { INITIAL_ACTION_STATE, type InvitationKind } from "@/lib/types";
 
+const ENTERPRISE_KINDS: Partial<Record<InvitationKind, string>> = {
+  institution_teacher: "Collaborateur de l’entreprise",
+  institution_supervisor: "Responsable de suivi (lecture seule)",
+};
+
 /**
  * Invitation form. When e-mail delivery is not configured (or fails), the
  * single-use link is shown so the administrator can transmit it — this is
@@ -20,11 +25,17 @@ export function InviteForm({
   institutions,
   fixedInstitutionId,
   defaultKind,
+  departments,
+  enterprise = false,
 }: {
   kinds: InvitationKind[];
   institutions?: Array<{ id: string; name: string }>;
   fixedInstitutionId?: string;
   defaultKind?: InvitationKind;
+  /** Company workspaces: the service the employee joins. */
+  departments?: Array<{ id: string; name: string }>;
+  /** Company workspace wording for the invitation types. */
+  enterprise?: boolean;
 }) {
   const [state, action] = useActionState(createInvitation, INITIAL_ACTION_STATE);
   const [kind, setKind] = useState<InvitationKind>(defaultKind ?? kinds[0]!);
@@ -60,7 +71,7 @@ export function InviteForm({
             <Select name="kind" value={kind} onChange={(e) => setKind(e.target.value as InvitationKind)}>
               {kinds.map((k) => (
                 <option key={k} value={k}>
-                  {INVITATION_KINDS[k]}
+                  {enterprise ? (ENTERPRISE_KINDS[k] ?? INVITATION_KINDS[k]) : INVITATION_KINDS[k]}
                 </option>
               ))}
             </Select>
@@ -87,6 +98,19 @@ export function InviteForm({
         ) : (
           <input type="hidden" name="institution_id" value="" />
         )}
+
+        {departments?.length && kind === "institution_teacher" ? (
+          <Field label="Service" optional>
+            <Select name="department_id" defaultValue="">
+              <option value="">Aucun</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        ) : null}
 
         <Field
           label="Adresse e-mail"

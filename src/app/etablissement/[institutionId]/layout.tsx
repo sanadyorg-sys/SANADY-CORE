@@ -5,11 +5,12 @@ import { contextsFor, shellUser } from "@/server/shell";
 
 export default async function InstitutionLayout(props: LayoutProps<"/etablissement/[institutionId]">) {
   const { institutionId } = await props.params;
-  const { viewer, canManage } = await requireInstitutionViewer(institutionId);
+  const { viewer, institution, canManage } = await requireInstitutionViewer(institutionId);
   return (
     <AppShell
       area="institution"
       navRole={canManage ? "admin" : "supervisor"}
+      enterprise={institution.kind === "enterprise"}
       institutionId={institutionId}
       currentContextKey={`inst:${institutionId}`}
       contexts={contextsFor(viewer)}

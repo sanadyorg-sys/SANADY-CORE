@@ -15,6 +15,18 @@ const MESSAGES: Record<string, string> = {
   invalid_transition: "Ce changement de statut n’est pas possible à cette étape.",
   already_exists: "Cet élément existe déjà.",
 
+  // SANADY Enterprise — company workspaces
+  contract_not_signed: "Un espace ne peut être préparé qu’après la signature du contrat par un approbateur.",
+  tenant_exists: "Un espace existe déjà pour ce client, ou cette adresse d’espace est déjà utilisée.",
+  tenant_inactive: "Cet espace entreprise n’est pas actif : aucun nouveau collaborateur ne peut y être ajouté.",
+  tenant_full: "Le nombre maximal de collaborateurs prévu au contrat est atteint (invitations en attente comprises).",
+  tenant_managed: "Le statut d’un espace entreprise se change depuis SANADY Enterprise.",
+  checklist_incomplete: "Toutes les étapes de mise en place doivent être terminées avant l’activation.",
+  contract_expired: "La date de fin du contrat est passée : mettez à jour les dates avant d’activer l’espace.",
+  deletion_date_required: "Fixez d’abord la date de suppression prévue des données (contrat et obligations légales).",
+  course_private_to_tenant: "Cette formation est réservée à l’espace de son entreprise : elle ne peut pas être partagée ailleurs.",
+  department_exists: "Ce service existe déjà.",
+
   // Invitations
   invitation_not_found: "Ce lien d’invitation n’est pas valide.",
   invitation_revoked: "Cette invitation a été annulée. Demandez une nouvelle invitation.",

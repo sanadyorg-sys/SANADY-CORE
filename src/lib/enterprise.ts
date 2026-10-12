@@ -109,3 +109,91 @@ export type LineCategory = keyof typeof LINE_CATEGORIES;
 export function lineTotal(l: { quantity: string | number; unit_price: string | number }) {
   return Math.round(Number(l.quantity) * Number(l.unit_price) * 100) / 100;
 }
+
+/* ─── Phase E3: company learning spaces (migration 20261019000100) ─────── */
+
+export const TENANT_STATUS = {
+  requested: { label: "Demande d’espace", tone: "brand" },
+  authorized: { label: "Création autorisée", tone: "accent" },
+  provisioning: { label: "Mise en place", tone: "warning" },
+  active: { label: "Actif", tone: "success" },
+  suspended: { label: "Suspendu", tone: "danger" },
+  offboarding: { label: "Fin de contrat en cours", tone: "warning" },
+  closed: { label: "Fermé", tone: "neutral" },
+  cancelled: { label: "Refusé", tone: "neutral" },
+} as const;
+export type TenantStatus = keyof typeof TENANT_STATUS;
+
+/** The ten provisioning steps of brief V3 §9, in order (keys of public.tenant_checklist). */
+export const TENANT_STEPS = [
+  { key: "contract_signed", label: "Contrat signé", who: "Approbateur (fiche client)" },
+  { key: "authorized", label: "Création de l’espace autorisée", who: "Approbateur" },
+  { key: "workspace", label: "Espace généré", who: "Responsable entreprises" },
+  { key: "admin_assigned", label: "Administrateur de l’entreprise désigné", who: "Responsable entreprises" },
+  { key: "limits", label: "Limites de service et dates du contrat", who: "Responsable entreprises" },
+  { key: "catalog", label: "Catalogue initialisé (au moins une formation publiée)", who: "Équipe pédagogique" },
+  { key: "storage", label: "Stockage configuré", who: "Responsable entreprises" },
+  { key: "security", label: "Contrôles de sécurité effectués", who: "Administrateur SANADY" },
+  { key: "welcome_sent", label: "Invitation de bienvenue envoyée ou acceptée", who: "Responsable entreprises" },
+  { key: "active", label: "Espace activé", who: "Responsable entreprises" },
+] as const;
+export type TenantChecklist = Record<(typeof TENANT_STEPS)[number]["key"], boolean>;
+
+/** Next statuses for the current person (mirrors public.set_tenant_status). */
+export function tenantNextSteps(from: TenantStatus, a: { manager: boolean }): TenantStatus[] {
+  if (!a.manager) return [];
+  if (from === "provisioning" || from === "suspended") return from === "suspended" ? ["active", "offboarding"] : ["active"];
+  if (from === "active") return ["suspended", "offboarding"];
+  if (from === "offboarding") return ["closed"];
+  return [];
+}
+
+export const SERVICE_PLANS = {
+  plateforme: "Espace de formation entreprise",
+  sur_mesure: "Formation sur mesure",
+  complete: "Solution complète (sur mesure + espace)",
+} as const;
+
+export const COURSE_OWNERSHIP = {
+  sanady: "Formation SANADY",
+  company: "Formation de l’entreprise",
+  joint: "Formation développée conjointement",
+  licensed: "Formation sous licence (tiers)",
+} as const;
+export type CourseOwnership = keyof typeof COURSE_OWNERSHIP;
+
+/** Slug of a workspace address (/entreprise/<slug>): lowercase, digits, dashes. */
+export function slugify(name: string) {
+  return name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60)
+    .replace(/-+$/g, "");
+}
+
+/** Words of the institution area: teachers in schools, employees in companies. */
+export function audience(kind: "school" | "enterprise" | null | undefined) {
+  return kind === "enterprise"
+    ? { one: "collaborateur", many: "collaborateurs", Many: "Collaborateurs", our: "Nos collaborateurs", place: "entreprise", space: "Espace entreprise" }
+    : { one: "enseignant", many: "enseignants", Many: "Enseignants", our: "Nos enseignants", place: "établissement", space: "Espace établissement" };
+}
+
+/**
+ * Institution-area texts are written for schools; in a company workspace the
+ * same sentences speak of employees and of the company.
+ */
+export function wording(kind: "school" | "enterprise" | null | undefined) {
+  if (kind !== "enterprise") return (text: string) => text;
+  return (text: string) =>
+    text
+      .replace(/cet établissement/g, "cette entreprise")
+      .replace(/Cet établissement/g, "Cette entreprise")
+      .replace(/un établissement/g, "une entreprise")
+      .replace(/établissement/g, "entreprise")
+      .replace(/Établissement/g, "Entreprise")
+      .replace(/enseignant/g, "collaborateur")
+      .replace(/Enseignant/g, "Collaborateur");
+}

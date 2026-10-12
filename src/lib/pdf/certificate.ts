@@ -14,6 +14,10 @@ export interface CertificateData {
   signatoryName?: string | null;
   signatoryTitle?: string | null;
   verificationUrl: string;
+  /** Company workspaces may issue an « attestation de formation » (SANADY Enterprise). */
+  kind?: "certificat" | "attestation";
+  /** Company that ordered the training, shown on its employees' documents. */
+  organization?: string | null;
 }
 
 /**
@@ -197,7 +201,8 @@ export async function renderCertificatePdf(data: CertificateData): Promise<Uint8
   });
 
   // 6. Main Diploma Title
-  center("CERTIFICAT DE FIN DE FORMATION", height - 156, 24, timesBold, charcoal);
+  const attestation = data.kind === "attestation";
+  center(attestation ? "ATTESTATION DE FORMATION" : "CERTIFICAT DE FIN DE FORMATION", height - 156, 24, timesBold, charcoal);
 
   // Title underline accent
   page.drawLine({
@@ -208,7 +213,7 @@ export async function renderCertificatePdf(data: CertificateData): Promise<Uint8
   });
 
   // 7. Recipient Lead-in & Name
-  center("Ce certificat est décerné à", height - 200, 11.5, timesItalic, softMuted);
+  center(attestation ? "Cette attestation est délivrée à" : "Ce certificat est décerné à", height - 200, 11.5, timesItalic, softMuted);
 
   const recipientName = data.recipientName;
   const nameSafe = pdfSafe(recipientName);
@@ -370,7 +375,7 @@ export async function renderCertificatePdf(data: CertificateData): Promise<Uint8
     color: softMuted,
   });
 
-  const sealMidText = "CERTIFICAT";
+  const sealMidText = attestation ? "ATTESTATION" : "CERTIFICAT";
   const sealMidWidth = helveticaBold.widthOfTextAtSize(sealMidText, 5.5);
   page.drawText(sealMidText, {
     x: sealCenter.x - sealMidWidth / 2,
@@ -471,7 +476,7 @@ export async function renderCertificatePdf(data: CertificateData): Promise<Uint8
 
   // 11. Regulatory & Pedagogical Disclaimer
   wrapText(
-    `Ce certificat atteste le suivi complet d’une formation sur la plateforme SANADY et la réussite de ses évaluations. Il ne constitue ni un diplôme ni une certification professionnelle réglementée. Vérification en ligne : ${data.verificationUrl.replace(/^https?:\/\//, "")}`,
+    `${attestation ? "Cette attestation" : "Ce certificat"} atteste le suivi complet d’une formation sur la plateforme SANADY${data.organization ? ` (espace ${data.organization})` : ""} et la réussite de ses évaluations. Il ne constitue ni un diplôme ni une certification professionnelle réglementée. Vérification en ligne : ${data.verificationUrl.replace(/^https?:\/\//, "")}`,
     helvetica,
     5.8,
     width - 190,

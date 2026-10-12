@@ -16,7 +16,9 @@ Every rule below is enforced **in the database** (row-level security and checks 
 | **Responsable des partenariats** | `platform_roles.role = partnership_manager` | Granted by an administrator | **Mandatory** |
 | **Approbateur habilité** (partenariats, Enterprise) | `partnership_signatories` (explicit grant, not a role) | Appointed by an administrator — **never by themself**; holder must be an admin or have a partnership role | **Mandatory** to use it |
 | **Responsable entreprises** (Enterprise) | `platform_roles.role = enterprise_manager` | Granted by an administrator | **Mandatory** |
-| **Responsable de production** (Enterprise) | `platform_roles.role = production_manager` | Granted by an administrator; reads only in E1–E2 | **Mandatory** |
+| **Responsable de production** (Enterprise) | `platform_roles.role = production_manager` | Granted by an administrator; reads only in E1–E3 | **Mandatory** |
+| **Administrateur d’entreprise** | `institution_memberships.role = admin` in an institution of kind `enterprise` | Invited by the enterprise manager during provisioning | Optional |
+| **Collaborateur** (employee) | `institution_memberships.role = teacher` in a company workspace | Invited by the company administrator (single or bulk), within the learner limit | Optional |
 | **Visiteur** | — | — | — |
 
 One account has at most one platform role. An account can be a member of several institutions, with one role in each.
@@ -105,5 +107,21 @@ Functions in `supabase/migrations/20261018000100_enterprise.sql`; tests in `test
 | Send an approved proposal, record accepted / declined / expired | ✅ | ✅ | — | — | — | — |
 | Add notes; tasks (assigned to enterprise staff or admins) | ✅ | ✅ | ✅ (notes) | — | — | — |
 | Grant enterprise roles, appoint approvers | ✅ (never for themself) | — | — | — | — | — |
+
+### Company workspaces (E3)
+
+| Action | Admin SANADY | Responsable entreprises | Approbateur | Administrateur d’entreprise | Collaborateur |
+|---|---|---|---|---|---|
+| Request a workspace (client contract signed) and configure limits | — | ✅ | — | — | — |
+| **Authorise** (or refuse) the creation | — | — | ✅ | — | — |
+| Generate the workspace, invite the company administrator, activate, suspend, record the end of contract, close | — | ✅ | — | — | — |
+| Confirm the security checks | ✅ | — | — | — | — |
+| Open a course to the workspace; set ownership and « reserved to this company » | ✅ | — | — | — | — |
+| **Authorise the data export** at the end of the contract | — | — | ✅ | — | — |
+| Invite employees (single, bulk), manage services, assign courses, view reports — **own workspace only** | — | — | — | ✅ | — |
+| Follow assigned courses, quizzes, attestations | — | — | — | — | ✅ |
+| See another company's employees, courses, results or reports | — | — | — | ❌ | ❌ |
+
+Enterprise staff see workspace counts (`tenant_usage`), never employee names. Employees of companies only do not see the teachers' library and are not counted in SANADY's teacher statistics.
 
 An organisation can be both a partner and an enterprise client (one record, two relationships). Enterprise staff see only the organisations with an enterprise relationship; linking a request to an existing partner uses `find_organizations_for_enterprise` (names only). Partnership and enterprise staff can see the names of other staff accounts (so histories show who decided), never teachers' profiles.

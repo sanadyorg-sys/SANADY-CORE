@@ -6,6 +6,7 @@ import { AttemptQuestions, AttemptSummary } from "@/components/learning/attempt-
 import { createClient } from "@/lib/supabase/server";
 import type { AttemptResult } from "@/lib/types";
 import { requireInstitutionViewer } from "@/server/auth";
+import { wording } from "@/lib/enterprise";
 
 export const metadata: Metadata = { title: "Détail d’une évaluation" };
 
@@ -13,7 +14,7 @@ export default async function InstitutionAttemptPage(
   props: PageProps<"/etablissement/[institutionId]/suivi/[userId]/tentatives/[attemptId]">,
 ) {
   const { institutionId, userId, attemptId } = await props.params;
-  await requireInstitutionViewer(institutionId);
+  const say = wording((await requireInstitutionViewer(institutionId)).institution.kind);
   const supabase = await createClient();
   // get_attempt_result enforces visibility (assigned course of a consenting member).
   const { data, error } = await supabase.rpc("get_attempt_result", { p_attempt: attemptId });
@@ -26,7 +27,7 @@ export default async function InstitutionAttemptPage(
         href={`/etablissement/${institutionId}/suivi/${userId}`}
         className="mb-5 inline-flex min-h-6 items-center gap-1.5 py-1 text-label font-medium text-ink-600 hover:text-ink-900"
       >
-        <ArrowLeft className="size-4" aria-hidden /> Retour au suivi de l’enseignant
+        <ArrowLeft className="size-4" aria-hidden /> {say("Retour au suivi de l’enseignant")}
       </Link>
       <h1 className="mb-6 text-title font-semibold text-ink-900">Détail de l’évaluation</h1>
       <AttemptSummary result={result} />

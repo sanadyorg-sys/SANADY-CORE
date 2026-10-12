@@ -8,6 +8,7 @@ export default async function TeacherLayout({ children }: { children: React.Reac
   return (
     <AppShell
       area="teacher"
+      enterprise={viewer.isEmployeeOnly}
       currentContextKey="teacher"
       contexts={contextsFor(viewer)}
       user={shellUser(viewer)}

@@ -94,3 +94,49 @@ export const lineSchema = z.object({
   unit: optionalText(40),
   unit_price: money,
 });
+
+/** Company workspace configuration (phase E3) — mirrors public.enterprise_tenants. */
+const count = (label: string, min: number, max: number) =>
+  z
+    .string()
+    .trim()
+    .transform((v) => v.replace(/\s/g, ""))
+    .refine((v) => /^\d{1,6}$/.test(v) && Number(v) >= min && Number(v) <= max, `${label} : nombre entre ${min} et ${max}.`);
+const optionalCount = (label: string, max: number) =>
+  z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => (v ? v.replace(/\s/g, "") : undefined))
+    .refine((v) => !v || (/^\d{1,7}$/.test(v) && Number(v) >= 1 && Number(v) <= max), `${label} : nombre invalide.`);
+const date = z.union([z.iso.date("Date invalide."), z.literal("")]).optional();
+
+export const tenantSchema = z
+  .object({
+    display_name: z.string().trim().min(2, "Nom de l’espace requis.").max(200),
+    slug: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .regex(/^[a-z0-9][a-z0-9-]{1,58}[a-z0-9]$/, "Adresse : 3 à 60 caractères, lettres minuscules, chiffres et tirets."),
+    service_plan: z.enum(["plateforme", "sur_mesure", "complete"], "Choisissez une formule."),
+    max_learners: count("Collaborateurs autorisés", 1, 100000),
+    storage_allowance_gb: z
+      .string()
+      .trim()
+      .optional()
+      .transform((v) => (v ? v.replace(",", ".") : undefined))
+      .refine((v) => !v || (/^\d{1,5}(\.\d{1,2})?$/.test(v) && Number(v) > 0), "Stockage : nombre de Go invalide."),
+    video_minutes_allowance: optionalCount("Minutes de vidéo", 10_000_000),
+    support_level: optionalText(200),
+    support_email: z.union([z.email("Adresse e-mail invalide."), z.literal("")]).optional(),
+    primary_contact_id: z.union([z.uuid(), z.literal("")]).optional(),
+    proposal_id: z.union([z.uuid(), z.literal("")]).optional(),
+    contract_start_on: date,
+    contract_end_on: date,
+    certificate_kind: z.enum(["attestation", "certificat"]).default("attestation"),
+  })
+  .refine((v) => !v.contract_start_on || !v.contract_end_on || v.contract_end_on >= v.contract_start_on, {
+    message: "La fin du contrat doit suivre son début.",
+    path: ["contract_end_on"],
+  });

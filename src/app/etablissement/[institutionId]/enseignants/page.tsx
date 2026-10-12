@@ -11,7 +11,8 @@ import { formatDate, formatRelative } from "@/lib/format";
 import { MEMBERSHIP_SOURCES } from "@/lib/labels";
 import { revokeMembership } from "@/server/actions/institution";
 import { requireInstitutionViewer } from "@/server/auth";
-import { getTeacherSummaries } from "@/server/queries/institution";
+import { getDepartments, getMembersWithDepartments, getTeacherSummaries } from "@/server/queries/institution";
+import { wording } from "@/lib/enterprise";
 
 export const metadata: Metadata = { title: "Nos enseignants" };
 const PAGE_SIZE = 25;
@@ -19,16 +20,26 @@ const PAGE_SIZE = 25;
 export default async function TeacherDirectoryPage(props: PageProps<"/etablissement/[institutionId]/enseignants">) {
   const { institutionId } = await props.params;
   const sp = await props.searchParams;
-  const { canManage } = await requireInstitutionViewer(institutionId);
+  const { canManage, institution: scope } = await requireInstitutionViewer(institutionId);
+  const say = wording(scope.kind);
   const base = `/etablissement/${institutionId}`;
 
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const statut = typeof sp.statut === "string" ? sp.statut : "";
   const page = Math.max(1, Number(sp.page) || 1);
 
-  const all = await getTeacherSummaries(institutionId);
+  const enterprise = scope.kind === "enterprise";
+  const service = typeof sp.service === "string" ? sp.service : "";
+  const [all, departments, members] = await Promise.all([
+    getTeacherSummaries(institutionId),
+    enterprise ? getDepartments(institutionId) : [],
+    enterprise ? getMembersWithDepartments(institutionId) : [],
+  ]);
+  const departmentOf = new Map(members.map((m) => [m.user_id, m.department_id]));
+  const departmentName = new Map(departments.map((d) => [d.id, d.name]));
   const filtered = all.filter((t) => {
     if (q && !`${t.full_name} ${t.email}`.toLowerCase().includes(q.toLowerCase())) return false;
+    if (service && departmentOf.get(t.user_id) !== service) return false;
     if (statut === "accompagnement") return t.inactive || t.exhausted_quizzes > 0;
     if (statut === "sans_formation") return t.assigned_courses === 0;
     return true;
@@ -44,11 +55,19 @@ export default async function TeacherDirectoryPage(props: PageProps<"/etablissem
             label="Filtrer"
             defaultValue={statut}
             options={[
-              { value: "", label: "Tous les enseignants" },
+              { value: "", label: say("Tous les enseignants") },
               { value: "accompagnement", label: "À accompagner" },
               { value: "sans_formation", label: "Sans formation affectée" },
             ]}
           />
+          {departments.length ? (
+            <FilterSelect
+              name="service"
+              label="Service"
+              defaultValue={service}
+              options={[{ value: "", label: "Tous les services" }, ...departments.map((d) => ({ value: d.id, label: d.name }))]}
+            />
+          ) : null}
         </SearchForm>
         {canManage ? (
           <Link href={`${base}/enseignants/invitations`} className={buttonClasses({ size: "sm" })}>
@@ -60,12 +79,12 @@ export default async function TeacherDirectoryPage(props: PageProps<"/etablissem
       {all.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="Aucun enseignant pour le moment"
+          title={say("Aucun enseignant pour le moment")}
           description={canManage ? "Invitez vos enseignants par e-mail ou partagez un code d’inscription." : "Les enseignants rattachés à l’établissement apparaîtront ici."}
           action={
             canManage ? (
               <Link href={`${base}/enseignants/invitations`} className={buttonClasses()}>
-                Inviter des enseignants
+                {say("Inviter des enseignants")}
               </Link>
             ) : undefined
           }
@@ -74,10 +93,11 @@ export default async function TeacherDirectoryPage(props: PageProps<"/etablissem
         <EmptyState compact title="Aucun résultat" description="Modifiez la recherche ou le filtre." />
       ) : (
         <>
-          <Table caption="Enseignants de l’établissement">
+          <Table caption={say("Enseignants de l’établissement")}>
             <THead>
               <tr>
-                <TH>Enseignant</TH>
+                <TH>{say("Enseignant")}</TH>
+                {departments.length ? <TH>Service</TH> : null}
                 <TH>Inscription</TH>
                 <TH align="right">Formations</TH>
                 <TH align="right">Terminées</TH>
@@ -97,6 +117,7 @@ export default async function TeacherDirectoryPage(props: PageProps<"/etablissem
                     </Link>
                     <p className="text-caption text-ink-500">{t.email}</p>
                   </TD>
+                  {departments.length ? <TD>{departmentName.get(departmentOf.get(t.user_id) ?? "") ?? "—"}</TD> : null}
                   <TD>
                     <p>{formatDate(t.joined_at)}</p>
                     <p className="text-caption text-ink-500">{MEMBERSHIP_SOURCES[t.source]}</p>
@@ -141,7 +162,7 @@ export default async function TeacherDirectoryPage(props: PageProps<"/etablissem
             page={page}
             pageSize={PAGE_SIZE}
             total={filtered.length}
-            hrefFor={(p) => withParams(`${base}/enseignants`, { q, statut, page: p > 1 ? p : undefined })}
+            hrefFor={(p) => withParams(`${base}/enseignants`, { q, statut, service: service || undefined, page: p > 1 ? p : undefined })}
           />
         </>
       )}

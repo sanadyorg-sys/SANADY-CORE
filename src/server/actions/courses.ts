@@ -641,6 +641,35 @@ export async function reorderQuestions(quizId: string, courseId: string, ids: st
 
 /* ─── Authorization ────────────────────────────────────────────────────── */
 
+/** Ownership and visibility (SANADY Enterprise, brief V3 §11). */
+export async function setCourseOwnership(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireSanadyAdmin();
+  const parsed = parseInput(
+    z.object({
+      course_id: uuidSchema,
+      ownership: z.enum(["sanady", "company", "joint", "licensed"], "Choisissez une propriété."),
+      owner_institution_id: z.union([uuidSchema, z.literal("")]).optional(),
+      tenant_private: checkboxSchema,
+    }),
+    formData,
+  );
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  const d = parsed.data;
+  if (d.ownership === "company" && !d.owner_institution_id) return { ok: false, fieldErrors: { owner_institution_id: "Choisissez l’espace de l’entreprise propriétaire." } };
+  if (d.ownership === "sanady" && d.owner_institution_id) return { ok: false, fieldErrors: { owner_institution_id: "Une formation SANADY n’a pas d’entreprise propriétaire." } };
+  if (d.tenant_private && !d.owner_institution_id) return { ok: false, fieldErrors: { tenant_private: "Une formation réservée doit avoir une entreprise propriétaire." } };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_course_ownership", {
+    p_course: d.course_id,
+    p_ownership: d.ownership,
+    p_owner: d.owner_institution_id || null,
+    p_private: d.tenant_private,
+  });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidateCourse(d.course_id);
+  return { ok: true, message: "Propriété et visibilité enregistrées." };
+}
+
 export async function grantCourseToInstitution(courseId: string, institutionId: string): Promise<ActionState> {
   await requireSanadyAdmin();
   const supabase = await createClient();

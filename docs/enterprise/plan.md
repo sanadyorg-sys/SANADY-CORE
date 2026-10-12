@@ -5,9 +5,13 @@ its Phase 0 (« audit the existing project, identify reusable LMS components,
 assess multi-tenant security risks, and present a phased integration plan
 before making major code or database changes »).
 
-**Build status (12/10/2026):** phases **E1 and E2 are built** (migrations
-`20261018000100_enterprise.sql`, `20261018000200_staff_profiles.sql`), with the
-public page hidden and worded as a proposal. E3 onwards waits for G1–G5.
+**Build status (12/10/2026):** phases **E1, E2 and E3 are built** (migrations
+`20261018000100_enterprise.sql`, `20261018000200_staff_profiles.sql`,
+`20261019000100_enterprise_tenants.sql`), with the public page hidden and
+worded as a proposal. E3 was built ahead of G1–G5 at the owner's request: the
+safeguard is in the database instead — a company workspace can only be
+requested for a client whose contract an approver signed, and only exists
+after an approver authorises it. Nothing is billed. See §8.
 Team guide: [guide.md](guide.md).
 
 ## 1. Status of the proposal (read first)
@@ -94,7 +98,7 @@ invitations are reused as they are.
 |---|---|---|
 | **E1 — Public portal & requests** | `/partenariats/entreprises` (hidden, worded as proposals): the four kinds of relationship (solidaire, sur mesure, plateforme, hybride), service workflow, FAQ, 6-step request form, reference `ENT-…`, inbox | Nothing — validates demand before investing |
 | **E2 — Enterprise CRM** | Enterprise pipeline (Lead → … → Renouvellement) on the organisation record, proposals with configurable line items (no fixed prices), approval by an approver, tasks | E1 |
-| E3 — Multi-tenant LMS | Enterprise tenants on institutions, provisioning checklist (10 steps), company admin dashboard, employees (CSV), departments, private courses, cross-tenant tests | G1–G5 + a signed pilot contract |
+| **E3 — Multi-tenant LMS** ✅ | Enterprise tenants on institutions, provisioning checklist (10 steps), company admin dashboard, employees (CSV), departments, private courses, offboarding, cross-tenant tests | Built 12/10/2026; first real use needs G1–G5 + a signed pilot contract |
 | E4 — Training studio | Training projects, curriculum brief, production tasks, client review, versioned publication on the existing authoring and review workflow | E3 |
 | E5 — Contracts & operations | Contracts (Draft → … → Closed), service plans, usage tracking, renewals, offboarding | E3 |
 | E6 — Finance & impact | Contracted / invoiced / received / outstanding (no billing), costs, margin estimates (labelled as estimates), link to partnership impact | E5 + accountant |
@@ -123,3 +127,21 @@ watched (usage line item) before activation.
    « Services en projet » until G1–G5?
 3. **People**: who would be enterprise manager and production manager?
 4. **Pilot**: is there a first company interested (to size E3)?
+
+## 8. Phase E3 as built (12/10/2026)
+
+| Brief | Implementation |
+|---|---|
+| §8 tenant model | `institutions.kind = 'enterprise'` + `enterprise_tenants` (one open workspace per client). Courses, assignments, progress, quizzes, certificates, reports and invitations are the existing ones. Address `/entreprise/<slug>` (the slug only selects; access = verified membership). |
+| §8 isolation | Existing institution RLS (verified membership) + new guards: a company-private course (`courses.tenant_private`) is never granted to another institution or person and never listed publicly; `institutions.kind` never changes; a workspace's status only changes through `set_tenant_status`. Cross-tenant tests in `tests/db/enterprise-tenants.test.ts`. |
+| §8 separation from teachers | Employees who belong only to company workspaces are excluded from `admin_report` / `platform_overview` and from the teachers' library (RLS + page guard); company-owned courses are excluded from SANADY statistics. |
+| §9 provisioning | 10 steps computed from the data by `tenant_checklist` (only the security check is a person's statement, by a SANADY administrator). Request (enterprise manager, contract signed) → authorisation (approver) → workspace generated → company administrator invited → limits and dates → catalogue (≥ 1 published course) → storage allowance → security checks → welcome invitation sent or accepted → activation (refused until all steps are met). |
+| §10 employees | Single and bulk (pasted list or CSV, 200 lines) invitations; seat limit enforced by the database (active employees + open invitations); no employee before activation; departments (« Services ») chosen at invitation or later; directory and reports filter by service. |
+| §11 courses | Ownership `sanady / company / joint / licensed`, owner workspace, « reserved to this company » flag — set on the course's « Autorisations » page by a SANADY administrator. |
+| §12 assessments | Per-quiz pass mark and attempts already exist (50–100 %, 1–10); SANADY teacher courses keep 70 % / 3. |
+| §14 company dashboard | The institution area, worded for companies (« collaborateurs », « entreprise »), without the teachers' library; « Services » page. |
+| §15 SANADY view | « Espaces de formation »: list, checklist, configuration, usage counts (never employee names). |
+| §20 offboarding | End of contract recorded (note required) → open invitations and codes withdrawn → export authorised by an approver → deletion date set (future) → closure: access revoked, records kept until the date. Nothing is deleted immediately; the deletion itself is a manual, audited operation for now. |
+| Certificates | Workspace setting « Attestation de formation » or « Certificat »; the PDF title and footer follow it for company-owned courses. |
+
+Not in E3: storage and video **measurement** per workspace (allowances are recorded, usage is not yet metered), company logo, automatic deletion job, e-mail reminders. Fix shipped alongside: `20261019000200` lets the server read document paths so the retention purge also deletes the stored PDFs (decision 36).

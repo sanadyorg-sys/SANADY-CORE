@@ -13,12 +13,14 @@ import { createClient } from "@/lib/supabase/server";
 import { unassignCourse } from "@/server/actions/institution";
 import { requireInstitutionViewer } from "@/server/auth";
 import { getAssignments, getAuthorizedCourses, getTeacherSummaries } from "@/server/queries/institution";
+import { wording } from "@/lib/enterprise";
 
 export const metadata: Metadata = { title: "Affectations" };
 
 export default async function CourseAssignmentPage(props: PageProps<"/etablissement/[institutionId]/formations/[courseId]">) {
   const { institutionId, courseId } = await props.params;
-  const { canManage } = await requireInstitutionViewer(institutionId);
+  const { canManage, institution: scope } = await requireInstitutionViewer(institutionId);
+  const say = wording(scope.kind);
   const supabase = await createClient();
 
   const [courses, teachers, assignments] = await Promise.all([
@@ -61,16 +63,16 @@ export default async function CourseAssignmentPage(props: PageProps<"/etablissem
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
         <Card>
           <CardHeader
-            title="Enseignants inscrits"
+            title={say("Enseignants inscrits")}
             description={`${assignments.length} affectation${assignments.length > 1 ? "s" : ""} en cours`}
           />
           {assignments.length === 0 ? (
-            <EmptyState compact title="Aucun enseignant inscrit" description="Utilisez le formulaire pour affecter cette formation." />
+            <EmptyState compact title={say("Aucun enseignant inscrit")} description="Utilisez le formulaire pour affecter cette formation." />
           ) : (
-            <Table caption="Enseignants inscrits à la formation">
+            <Table caption={say("Enseignants inscrits à la formation")}>
               <THead>
                 <tr>
-                  <TH>Enseignant</TH>
+                  <TH>{say("Enseignant")}</TH>
                   <TH>Affectée le</TH>
                   <TH>Statut</TH>
                   <TH>Dernière activité</TH>
@@ -87,7 +89,7 @@ export default async function CourseAssignmentPage(props: PageProps<"/etablissem
                     <TR key={a.id}>
                       <TD>
                         <Link href={`${base}/suivi/${a.user_id}`} className="font-medium text-ink-900 hover:underline">
-                          {t?.full_name || t?.email || "Enseignant"}
+                          {t?.full_name || t?.email || say("Enseignant")}
                         </Link>
                         {a.due_on ? <p className="text-caption text-ink-500">Échéance : {formatDate(a.due_on)}</p> : null}
                       </TD>
@@ -110,7 +112,7 @@ export default async function CourseAssignmentPage(props: PageProps<"/etablissem
                           confirm={{
                             title: "Retirer cette affectation ?",
                             description:
-                              "L’enseignant n’aura plus accès à la formation via l’établissement. Sa progression est conservée et réapparaîtra si la formation lui est de nouveau affectée.",
+                              say("L’enseignant n’aura plus accès à la formation via l’établissement. Sa progression est conservée et réapparaîtra si la formation lui est de nouveau affectée."),
                             confirmLabel: "Retirer l’affectation",
                           }}
                         >

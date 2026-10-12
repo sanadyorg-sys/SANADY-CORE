@@ -87,7 +87,7 @@ export default async function InstitutionsPage(props: PageProps<"/admin/etabliss
                       {i.city ? ` · ${i.city}` : ""}
                     </p>
                   </TD>
-                  <TD>{INSTITUTION_TYPES[i.type]}</TD>
+                  <TD>{i.kind === "enterprise" ? "Espace entreprise" : INSTITUTION_TYPES[i.type]}</TD>
                   <TD align="right">{i.teachers}</TD>
                   <TD align="right">{i.authorized_courses}</TD>
                   <TD>{i.status === "active" ? <Badge tone="success">Actif</Badge> : <Badge tone="warning">Suspendu</Badge>}</TD>

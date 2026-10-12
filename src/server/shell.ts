@@ -33,12 +33,18 @@ export function contextsFor(viewer: Viewer): ShellContext[] {
     contexts.push({
       key: `inst:${inst.id}`,
       label: inst.name,
-      description: inst.role === "supervisor" ? "Supervision (lecture seule)" : "Espace établissement",
+      description: inst.role === "supervisor" ? "Supervision (lecture seule)" : inst.kind === "enterprise" ? "Espace entreprise" : "Espace établissement",
       href: `/etablissement/${inst.id}`,
       kind: "institution",
     });
   }
-  contexts.push({ key: "teacher", label: "Espace enseignant", description: "Mes formations", href: "/espace", kind: "teacher" });
+  contexts.push({
+    key: "teacher",
+    label: viewer.isEmployeeOnly ? "Mon espace de formation" : "Espace enseignant",
+    description: "Mes formations",
+    href: "/espace",
+    kind: "teacher",
+  });
   return contexts;
 }
 

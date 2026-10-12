@@ -5,14 +5,16 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { ENTERPRISE_PIPELINE, ENTERPRISE_SERVICES, PROPOSAL_STATUS, REQUEST_STATUS, type EnterpriseStage, type ProposalStatus, type RequestStatus } from "@/lib/enterprise";
-import { enterpriseRequestSchema, lineSchema, proposalSchema } from "@/lib/enterprise-schema";
+import { enterpriseRequestSchema, lineSchema, proposalSchema, tenantSchema } from "@/lib/enterprise-schema";
 import { errorMessage, messageFor } from "@/lib/errors";
 import { ORG_TYPES } from "@/lib/partnerships";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types";
-import { checkboxSchema, optionalText, parseInput, uuidSchema } from "@/lib/validation";
+import { createInvitationToken } from "@/lib/tokens";
+import { checkboxSchema, emailSchema, optionalText, parseInput, uuidSchema } from "@/lib/validation";
 import { requireEnterpriseStaff } from "@/server/auth";
+import { deliverInvitation } from "@/server/invitation-delivery";
 import { sendEmail } from "@/server/email";
 import { signedPdfUpload, verifyPdfUploads } from "@/server/pdf-upload";
 import { clientIp, rateLimit } from "@/server/rate-limit";
@@ -248,4 +250,100 @@ export async function saveEnterpriseContact(_prev: ActionState, formData: FormDa
   if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
   const { organization_id, ...p } = parsed.data;
   return call("save_partner_contact", { p_id: null, p_org: organization_id, p }, [`${BASE}/clients/${organization_id}`], "Contact enregistré.");
+}
+
+/* ─── Phase E3: company learning spaces ────────────────────────────────── */
+
+const SPACES = `${BASE}/espaces`;
+const spacePaths = (id: string, organizationId?: string) =>
+  [SPACES, `${SPACES}/${id}`, ...(organizationId ? [`${BASE}/clients/${organizationId}`] : [])];
+
+/** Request a workspace (contract signed) or update its configuration. */
+export async function saveTenant(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireEnterpriseStaff();
+  const id = String(formData.get("id") ?? "");
+  const organizationId = uuidSchema.safeParse(formData.get("organization_id"));
+  if (!organizationId.success) return { ok: false, message: messageFor("not_found") };
+  const parsed = parseInput(tenantSchema, formData);
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors, message: "Certaines informations sont à compléter." };
+  const { data, error } = await (await createClient()).rpc("save_enterprise_tenant", {
+    p_id: id || null,
+    p_org: organizationId.data,
+    p: parsed.data,
+  });
+  if (error) return { ok: false, message: errorMessage(error) };
+  for (const path of spacePaths(data as string, organizationId.data)) revalidatePath(path);
+  if (!id) redirect(`${SPACES}/${data as string}`);
+  return { ok: true, message: "Configuration enregistrée." };
+}
+
+export async function authorizeTenant(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = parseInput(z.object({ id: uuidSchema, decision: z.enum(["authorize", "refuse"]), note: optionalText(1000) }), formData);
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  const { id, decision, note } = parsed.data;
+  return call(
+    "authorize_enterprise_tenant",
+    { p_tenant: id, p_authorize: decision === "authorize", p_note: note ?? null },
+    spacePaths(id),
+    decision === "authorize" ? "Création de l’espace autorisée." : "Demande d’espace refusée.",
+  );
+}
+
+export async function generateWorkspace(tenantId: string): Promise<ActionState> {
+  if (!uuidSchema.safeParse(tenantId).success) return { ok: false, message: messageFor("not_found") };
+  return call("generate_enterprise_workspace", { p_tenant: tenantId }, spacePaths(tenantId), "Espace généré : invitez maintenant l’administrateur de l’entreprise.");
+}
+
+export async function confirmTenantSecurity(tenantId: string): Promise<ActionState> {
+  if (!uuidSchema.safeParse(tenantId).success) return { ok: false, message: messageFor("not_found") };
+  return call("confirm_tenant_security", { p_tenant: tenantId }, spacePaths(tenantId), "Contrôles de sécurité enregistrés.");
+}
+
+export async function authorizeTenantExport(tenantId: string): Promise<ActionState> {
+  if (!uuidSchema.safeParse(tenantId).success) return { ok: false, message: messageFor("not_found") };
+  return call("authorize_tenant_export", { p_tenant: tenantId }, spacePaths(tenantId), "Export des données autorisé.");
+}
+
+export async function scheduleTenantDeletion(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = parseInput(z.object({ id: uuidSchema, deletion_due_on: z.iso.date("Date invalide.") }), formData);
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  return call("schedule_tenant_deletion", { p_tenant: parsed.data.id, p_date: parsed.data.deletion_due_on }, spacePaths(parsed.data.id), "Date de suppression enregistrée.");
+}
+
+const TENANT_ACTIONS = { active: "Espace activé.", suspended: "Espace suspendu.", offboarding: "Fin de contrat enregistrée.", closed: "Espace fermé." } as const;
+
+export async function setTenantStatus(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = parseInput(
+    z.object({ id: uuidSchema, status: z.enum(["active", "suspended", "offboarding", "closed"], "Choisissez une action."), note: optionalText(2000) }),
+    formData,
+  );
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  const { id, status, note } = parsed.data;
+  if (status === "offboarding" && !note) return { ok: false, fieldErrors: { note: "Indiquez la date et le motif de la fin du contrat." } };
+  return call("set_tenant_status", { p_tenant: id, p_status: status, p: { note: note ?? "" } }, spacePaths(id), TENANT_ACTIONS[status]);
+}
+
+/** Step 4: invites the company administrator (the e-mail, or a link to pass on). */
+export async function inviteTenantAdmin(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireEnterpriseStaff();
+  const parsed = parseInput(z.object({ id: uuidSchema, email: emailSchema }), formData);
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  const supabase = await createClient();
+  const { data: tenant } = await supabase.from("enterprise_tenants").select("institution_id, display_name").eq("id", parsed.data.id).maybeSingle();
+  const t = tenant as { institution_id: string | null; display_name: string } | null;
+  const { token, hash } = createInvitationToken();
+  const { data: invitationId, error } = await supabase.rpc("invite_tenant_admin", { p_tenant: parsed.data.id, p_email: parsed.data.email, p_token_hash: hash });
+  if (error) return { ok: false, message: errorMessage(error) };
+  const { data: settings } = await supabase.from("platform_settings").select("invitation_validity_days").maybeSingle();
+  const days = (settings as { invitation_validity_days: number } | null)?.invitation_validity_days ?? 14;
+  const result = await deliverInvitation({
+    invitationId: invitationId as string,
+    kind: "institution_admin",
+    email: parsed.data.email,
+    token,
+    institutionId: t?.institution_id ?? null,
+    known: { institutionName: t?.display_name ?? "votre entreprise", expiresAt: new Date(Date.now() + days * 86400000).toISOString() },
+  });
+  for (const path of spacePaths(parsed.data.id)) revalidatePath(path);
+  return result;
 }

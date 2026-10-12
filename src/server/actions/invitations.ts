@@ -138,6 +138,7 @@ export async function createInvitation(_prev: ActionState, formData: FormData): 
       kind: z.enum(["platform_admin", "teacher", "institution_admin", "institution_teacher", "institution_supervisor"]),
       email: emailSchema,
       institution_id: z.union([uuidSchema, z.literal("")]).optional(),
+      department_id: z.union([uuidSchema, z.literal("")]).optional(),
     }),
     formData,
   );
@@ -160,6 +161,10 @@ export async function createInvitation(_prev: ActionState, formData: FormData): 
     p_token_hash: hash,
   });
   if (error) return { ok: false, message: errorMessage(error) };
+  // Company workspaces: the service the employee will join.
+  if (parsed.data.department_id && kind === "institution_teacher") {
+    await supabase.rpc("set_invitation_department", { p_invitation: invitationId, p_department: parsed.data.department_id });
+  }
 
   const result = await deliverInvitation({ invitationId: invitationId as string, kind, email, token, institutionId });
   revalidatePath("/admin/invitations");

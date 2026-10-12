@@ -215,3 +215,25 @@ export async function buildTeacherReport(
     courses,
   };
 }
+
+/* ─── Company workspaces (SANADY Enterprise, phase E3) ──────────────────── */
+
+export async function getDepartments(institutionId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("enterprise_departments").select("id, name").eq("institution_id", institutionId).order("name");
+  return (data ?? []) as Array<{ id: string; name: string }>;
+}
+
+/** Active employees with their service (company administrators only, through RLS). */
+export async function getMembersWithDepartments(institutionId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("institution_memberships")
+    .select("user_id, department_id, profile:profiles!institution_memberships_user_id_fkey(full_name, email)")
+    .eq("institution_id", institutionId)
+    .eq("role", "teacher")
+    .eq("status", "active");
+  return ((data ?? []) as unknown as Array<{ user_id: string; department_id: string | null; profile: { full_name: string | null; email: string } | null }>).sort((a, b) =>
+    (a.profile?.full_name || a.profile?.email || "").localeCompare(b.profile?.full_name || b.profile?.email || "", "fr"),
+  );
+}

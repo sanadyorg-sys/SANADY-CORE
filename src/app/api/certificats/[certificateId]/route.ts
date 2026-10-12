@@ -20,10 +20,13 @@ export async function GET(_request: Request, ctx: RouteContext<"/api/certificats
   if (!viewer) return new NextResponse("Authentification requise", { status: 401 });
 
   const supabase = await createClient();
-  const [{ data: cert }, { data: settings }] = await Promise.all([
+  const [{ data: cert }, { data: settings }, { data: style }] = await Promise.all([
     supabase.from("certificates").select("*").eq("id", certificateId).maybeSingle(),
     supabase.from("platform_settings").select("*").maybeSingle(),
+    // Courses owned by a company workspace follow its document wording.
+    supabase.rpc("certificate_style", { p_certificate: certificateId }),
   ]);
+  const company = style as { kind: "certificat" | "attestation"; organization: string } | null;
   const certificate = cert as Certificate | null;
   if (!certificate) return new NextResponse("Introuvable", { status: 404 });
   if (certificate.revoked_at) return new NextResponse("Ce certificat a été révoqué.", { status: 410 });
@@ -40,12 +43,14 @@ export async function GET(_request: Request, ctx: RouteContext<"/api/certificats
     signatoryName: s?.certificate_signatory_name,
     signatoryTitle: s?.certificate_signatory_title,
     verificationUrl: `${publicEnv.appUrl}/verifier/${certificate.verification_code}`,
+    kind: company?.kind ?? "certificat",
+    organization: company?.organization ?? null,
   });
 
   return new NextResponse(Buffer.from(bytes), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="certificat-${certificate.certificate_number}.pdf"`,
+      "Content-Disposition": `attachment; filename="${company?.kind === "attestation" ? "attestation" : "certificat"}-${certificate.certificate_number}.pdf"`,
       "Cache-Control": "private, no-store",
     },
   });

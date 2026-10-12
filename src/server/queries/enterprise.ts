@@ -1,7 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { EnterpriseService, EnterpriseStage, LineCategory, ProposalStatus, RequestStatus } from "@/lib/enterprise";
+import type { EnterpriseService, EnterpriseStage, LineCategory, ProposalStatus, RequestStatus, TenantChecklist, TenantStatus } from "@/lib/enterprise";
 import type { OrgType, PipelineStatus } from "@/lib/partnerships";
 import type { Viewer } from "@/server/auth";
 import type { Contact, HistoryEntry, Note, Task } from "@/server/queries/partnerships";
@@ -267,4 +267,120 @@ export async function purgeExpiredRequests() {
   if (paths.length) await admin.storage.from("enterprise").remove(paths);
   const { data: n } = await admin.rpc("purge_enterprise_requests", { p_ids: ids });
   return (n as number) ?? 0;
+}
+
+/* ─── Phase E3: company learning spaces ────────────────────────────────── */
+
+export interface TenantRow {
+  id: string;
+  organization_id: string;
+  institution_id: string | null;
+  slug: string;
+  display_name: string;
+  service_plan: Exclude<EnterpriseService, "partenariat">;
+  max_learners: number;
+  status: TenantStatus;
+  contract_start_on: string | null;
+  contract_end_on: string | null;
+  updated_at: string;
+  organization: { name: string } | null;
+}
+
+const TENANT_ROW = "id, organization_id, institution_id, slug, display_name, service_plan, max_learners, status, contract_start_on, contract_end_on, updated_at, organization:partner_organizations(name)";
+
+export async function listTenants(filter: { status?: string } = {}) {
+  const supabase = await createClient();
+  let q = supabase.from("enterprise_tenants").select(TENANT_ROW).order("updated_at", { ascending: false }).limit(200);
+  if (filter.status) q = q.eq("status", filter.status);
+  const { data } = await q;
+  return (data ?? []) as unknown as TenantRow[];
+}
+
+export interface TenantDetail extends TenantRow {
+  proposal_id: string | null;
+  storage_allowance_gb: string | null;
+  video_minutes_allowance: number | null;
+  support_level: string | null;
+  support_email: string | null;
+  primary_contact_id: string | null;
+  certificate_kind: "attestation" | "certificat";
+  authorized_at: string | null;
+  security_checked_at: string | null;
+  activated_at: string | null;
+  offboarding_started_at: string | null;
+  termination_note: string | null;
+  export_authorized_at: string | null;
+  deletion_due_on: string | null;
+  closed_at: string | null;
+  created_at: string;
+  authorizer: Person;
+  checker: Person;
+  exporter: Person;
+}
+
+export interface TenantUsage {
+  employees: number;
+  invited: number;
+  admins: number;
+  admin_invitations: Array<{ id: string; email: string; sent: boolean; accepted: boolean; expires_at: string }>;
+  courses: number;
+  private_courses: number;
+  active_30d: number;
+  completions: number;
+  certificates: number;
+}
+
+export async function getTenant(id: string) {
+  const supabase = await createClient();
+  const { data: t } = await supabase
+    .from("enterprise_tenants")
+    .select(
+      `*, organization:partner_organizations(name), authorizer:profiles!enterprise_tenants_authorized_by_fkey(full_name, email),
+       checker:profiles!enterprise_tenants_security_checked_by_fkey(full_name, email), exporter:profiles!enterprise_tenants_export_authorized_by_fkey(full_name, email)`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (!t) return null;
+  const tenant = t as unknown as TenantDetail;
+  const [{ data: checklist }, { data: usage }, { data: history }, { data: contacts }, { data: proposals }] = await Promise.all([
+    supabase.rpc("tenant_checklist", { p_tenant: id }),
+    supabase.rpc("tenant_usage", { p_tenant: id }),
+    supabase.from("enterprise_history").select(HISTORY_SELECT).eq("tenant_id", id).order("created_at", { ascending: false }),
+    supabase.from("partner_contacts").select("id, full_name, email").eq("organization_id", tenant.organization_id).order("full_name"),
+    supabase.from("enterprise_proposals").select("id, reference, title").eq("organization_id", tenant.organization_id).eq("status", "accepted"),
+  ]);
+  return {
+    tenant,
+    checklist: (checklist ?? {}) as TenantChecklist,
+    usage: (usage ?? null) as TenantUsage | null,
+    history: (history ?? []) as unknown as HistoryEntry[],
+    contacts: (contacts ?? []) as Array<{ id: string; full_name: string; email: string | null }>,
+    proposals: (proposals ?? []) as Array<{ id: string; reference: string; title: string }>,
+  };
+}
+
+/** The open workspace of a client, if any (client page). */
+export async function tenantForOrganization(organizationId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("enterprise_tenants")
+    .select(TENANT_ROW)
+    .eq("organization_id", organizationId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return (data ?? null) as unknown as TenantRow | null;
+}
+
+/** Accepted proposals and contacts of a client (new workspace form). */
+export async function tenantFormOptions(organizationId: string) {
+  const supabase = await createClient();
+  const [{ data: contacts }, { data: proposals }] = await Promise.all([
+    supabase.from("partner_contacts").select("id, full_name, email").eq("organization_id", organizationId).order("full_name"),
+    supabase.from("enterprise_proposals").select("id, reference, title").eq("organization_id", organizationId).eq("status", "accepted"),
+  ]);
+  return {
+    contacts: (contacts ?? []) as Array<{ id: string; full_name: string; email: string | null }>,
+    proposals: (proposals ?? []) as Array<{ id: string; reference: string; title: string }>,
+  };
 }

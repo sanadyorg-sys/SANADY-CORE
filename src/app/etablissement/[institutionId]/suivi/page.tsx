@@ -7,13 +7,14 @@ import { Badge, Card, PageHeader } from "@/components/ui/surface";
 import { formatRelative } from "@/lib/format";
 import { requireInstitutionViewer } from "@/server/auth";
 import { getTeacherSummaries } from "@/server/queries/institution";
+import { wording } from "@/lib/enterprise";
 
 export const metadata: Metadata = { title: "Suivi individuel" };
 
 export default async function TrackingIndexPage(props: PageProps<"/etablissement/[institutionId]/suivi">) {
   const { institutionId } = await props.params;
   const sp = await props.searchParams;
-  await requireInstitutionViewer(institutionId);
+  const say = wording((await requireInstitutionViewer(institutionId)).institution.kind);
   const q = typeof sp.q === "string" ? sp.q.trim().toLowerCase() : "";
   const teachers = (await getTeacherSummaries(institutionId)).filter(
     (t) => !q || `${t.full_name} ${t.email}`.toLowerCase().includes(q),
@@ -24,14 +25,14 @@ export default async function TrackingIndexPage(props: PageProps<"/etablissement
     <>
       <PageHeader
         title="Suivi individuel"
-        description="Sélectionnez un enseignant pour consulter sa progression dans les formations affectées par l’établissement."
+        description={say("Sélectionnez un enseignant pour consulter sa progression dans les formations affectées par l’établissement.")}
       />
       <Card>
         <div className="border-b border-line px-5 py-4">
-          <SearchForm action={base} defaultValue={q} placeholder="Rechercher un enseignant" />
+          <SearchForm action={base} defaultValue={q} placeholder={say("Rechercher un enseignant")} />
         </div>
         {teachers.length === 0 ? (
-          <EmptyState compact icon={ClipboardList} title="Aucun enseignant" description="Aucun enseignant ne correspond à votre recherche." />
+          <EmptyState compact icon={ClipboardList} title={say("Aucun enseignant")} description={say("Aucun enseignant ne correspond à votre recherche.")} />
         ) : (
           <ul className="divide-y divide-line">
             {teachers.map((t) => (

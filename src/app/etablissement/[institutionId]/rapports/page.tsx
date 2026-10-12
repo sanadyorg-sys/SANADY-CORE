@@ -7,7 +7,8 @@ import { Alert, Badge, Card, PageHeader } from "@/components/ui/surface";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { formatRelative } from "@/lib/format";
 import { requireInstitutionViewer } from "@/server/auth";
-import { getTeacherSummaries } from "@/server/queries/institution";
+import { getDepartments, getMembersWithDepartments, getTeacherSummaries } from "@/server/queries/institution";
+import { wording } from "@/lib/enterprise";
 
 export const metadata: Metadata = { title: "Rapports" };
 
@@ -21,45 +22,60 @@ const FILTERS: Record<string, { label: string; test: (t: Awaited<ReturnType<type
 export default async function ReportsPage(props: PageProps<"/etablissement/[institutionId]/rapports">) {
   const { institutionId } = await props.params;
   const sp = await props.searchParams;
-  await requireInstitutionViewer(institutionId);
+  const kind = (await requireInstitutionViewer(institutionId)).institution.kind;
+  const say = wording(kind);
+  const service = typeof sp.service === "string" ? sp.service : "";
+  const [departments, members] = kind === "enterprise" ? await Promise.all([getDepartments(institutionId), getMembersWithDepartments(institutionId)]) : [[], []];
+  const departmentOf = new Map(members.map((m) => [m.user_id, m.department_id]));
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
   const filtre = typeof sp.filtre === "string" && sp.filtre in FILTERS ? sp.filtre : "";
 
   const teachers = (await getTeacherSummaries(institutionId)).filter(
-    (t) => FILTERS[filtre]!.test(t) && (!q || `${t.full_name} ${t.email}`.toLowerCase().includes(q.toLowerCase())),
+    (t) =>
+      FILTERS[filtre]!.test(t) &&
+      (!service || departmentOf.get(t.user_id) === service) &&
+      (!q || `${t.full_name} ${t.email}`.toLowerCase().includes(q.toLowerCase())),
   );
 
   return (
     <>
       <PageHeader
         title="Rapports individuels"
-        description="Générez, pour chaque enseignant, un rapport PDF de progression dans les formations affectées par l’établissement."
+        description={say("Générez, pour chaque enseignant, un rapport PDF de progression dans les formations affectées par l’établissement.")}
       />
       <Alert tone="info" className="mb-6">
-        Les rapports ne contiennent que les formations affectées par votre établissement. Ils sont confidentiels et destinés à
-        l’accompagnement des enseignants.
+        {say("Les rapports ne contiennent que les formations affectées par votre établissement. Ils sont confidentiels et destinés à")}
+        {say("l’accompagnement des enseignants.")}
       </Alert>
       <Card>
         <div className="border-b border-line px-5 py-4">
-          <SearchForm action={`/etablissement/${institutionId}/rapports`} defaultValue={q} placeholder="Rechercher un enseignant">
+          <SearchForm action={`/etablissement/${institutionId}/rapports`} defaultValue={q} placeholder={say("Rechercher un enseignant")}>
             <FilterSelect
               name="filtre"
-              label="Filtrer les enseignants"
+              label={say("Filtrer les enseignants")}
               defaultValue={filtre}
-              options={Object.entries(FILTERS).map(([value, f]) => ({ value, label: f.label }))}
+              options={Object.entries(FILTERS).map(([value, f]) => ({ value, label: say(f.label) }))}
             />
+            {departments.length ? (
+              <FilterSelect
+                name="service"
+                label="Service"
+                defaultValue={service}
+                options={[{ value: "", label: "Tous les services" }, ...departments.map((d) => ({ value: d.id, label: d.name }))]}
+              />
+            ) : null}
           </SearchForm>
         </div>
         {teachers.length === 0 ? (
-          <EmptyState compact icon={FileText} title="Aucun enseignant" description="Aucun enseignant ne correspond à ces critères." />
+          <EmptyState compact icon={FileText} title={say("Aucun enseignant")} description={say("Aucun enseignant ne correspond à ces critères.")} />
         ) : (
           <Table caption="Rapports individuels">
             <THead>
               <tr>
-                <TH>Enseignant</TH>
+                <TH>{say("Enseignant")}</TH>
                 <TH align="right">Formations</TH>
                 <TH align="right">Terminées</TH>
-                <TH align="right">Certificats</TH>
+                <TH align="right">{kind === "enterprise" ? "Attestations" : "Certificats"}</TH>
                 <TH>Dernière activité</TH>
                 <TH align="right">
                   <span className="sr-only">Rapport</span>

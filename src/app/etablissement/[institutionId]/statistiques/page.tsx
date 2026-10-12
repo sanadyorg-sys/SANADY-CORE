@@ -10,6 +10,7 @@ import { formatDate, formatNumber, formatPercent } from "@/lib/format";
 import { parsePeriod } from "@/lib/period";
 import { requireInstitutionViewer } from "@/server/auth";
 import { getInstitutionReport } from "@/server/queries/reports";
+import { wording } from "@/lib/enterprise";
 
 export const metadata: Metadata = { title: "Statistiques" };
 
@@ -18,7 +19,7 @@ const rate = (v: number | null) => (v === null ? "—" : formatPercent(Number(v)
 
 export default async function InstitutionStatsPage(props: PageProps<"/etablissement/[institutionId]/statistiques">) {
   const { institutionId } = await props.params;
-  await requireInstitutionViewer(institutionId);
+  const say = wording((await requireInstitutionViewer(institutionId)).institution.kind);
   const period = parsePeriod(await props.searchParams);
   const report = await getInstitutionReport(institutionId, period.from, period.to);
   const k = report.kpis;
@@ -34,18 +35,18 @@ export default async function InstitutionStatsPage(props: PageProps<"/etablissem
     <>
       <PageHeader
         title="Statistiques"
-        description={`Formations affectées par votre établissement, du ${formatDate(period.from)} au ${formatDate(period.to)}.`}
+        description={say(`Formations affectées par votre établissement, du ${formatDate(period.from)} au ${formatDate(period.to)}.`)}
         actions={exportLink("enseignants")}
       />
       <Alert tone="info" className="mb-6">
-        Seules les formations que votre établissement a affectées sont prises en compte. Les formations personnelles des enseignants
+        {say("Seules les formations que votre établissement a affectées sont prises en compte. Les formations personnelles des enseignants")}
         ne sont jamais comptées.
       </Alert>
       <PeriodFilter action={base} period={period} />
 
       <section aria-label="Indicateurs clés" className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
-        <StatTile label="Enseignants" value={formatNumber(k.teachers)} detail={`${formatNumber(k.assignments)} formations affectées`} icon={Users} />
-        <StatTile label="Enseignants actifs" value={formatNumber(k.active_teachers)} detail="Sur la période" icon={UserCheck} />
+        <StatTile label={say("Enseignants")} value={formatNumber(k.teachers)} detail={`${formatNumber(k.assignments)} formations affectées`} icon={Users} />
+        <StatTile label={say("Enseignants actifs")} value={formatNumber(k.active_teachers)} detail="Sur la période" icon={UserCheck} />
         <StatTile label="Formations terminées" value={formatNumber(k.completed)} detail={`Achèvement : ${rate(k.completion_rate)} · ${formatNumber(k.completions)} sur la période`} icon={CheckCircle2} />
         <StatTile label="Évaluations passées" value={formatNumber(k.attempts)} detail={`Réussite : ${rate(k.pass_rate)} des tentatives`} icon={ClipboardCheck} />
         <StatTile label="Score moyen" value={score(k.average_score)} detail="Sur la période" icon={ClipboardCheck} />
@@ -54,8 +55,8 @@ export default async function InstitutionStatsPage(props: PageProps<"/etablissem
 
       <section aria-label="Évolution hebdomadaire" className="mb-6 grid gap-4 xl:grid-cols-2">
         <WeeklyChart
-          title="Enseignants actifs par semaine"
-          unit="enseignants actifs"
+          title={say("Enseignants actifs par semaine")}
+          unit={say("enseignants actifs")}
           points={report.weekly.map((w) => ({ week: w.week, value: Number(w.active_teachers) }))}
         />
         <WeeklyChart
@@ -101,7 +102,7 @@ export default async function InstitutionStatsPage(props: PageProps<"/etablissem
             </TBody>
           </Table>
         ) : (
-          <EmptyState compact title="Aucune formation affectée" description="Affectez une formation à vos enseignants pour suivre ces indicateurs." />
+          <EmptyState compact title="Aucune formation affectée" description={say("Affectez une formation à vos enseignants pour suivre ces indicateurs.")} />
         )}
       </Card>
     </>

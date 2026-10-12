@@ -36,6 +36,7 @@ export function AppShell({
   area,
   institutionId,
   navRole,
+  enterprise = false,
   currentContextKey,
   contexts,
   user,
@@ -46,6 +47,8 @@ export function AppShell({
   institutionId?: string;
   /** Role inside the area (filters the menu). */
   navRole?: NavRole;
+  /** Company workspace or employee of companies only (SANADY Enterprise): no teachers' library. */
+  enterprise?: boolean;
   currentContextKey: string;
   contexts: ShellContext[];
   user: ShellUser;
@@ -66,7 +69,7 @@ export function AppShell({
         <ContextSwitcher contexts={contexts} current={current} fallbackLabel={areaTitle[area]} />
       </div>
       <div className="flex-1 overflow-y-auto px-3 pb-6">
-        <SidebarNav area={area} institutionId={institutionId} role={navRole} onNavigate={onNavigate} />
+        <SidebarNav area={area} institutionId={institutionId} role={navRole} enterprise={enterprise} onNavigate={onNavigate} />
       </div>
       <div className="border-t border-line px-5 py-3 text-caption text-ink-500">
         <Link href="/confidentialite" className="hover:text-ink-800 hover:underline" onClick={onNavigate}>

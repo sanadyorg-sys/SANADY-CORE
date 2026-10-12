@@ -14,14 +14,18 @@ export async function deliverInvitation(params: {
   email: string;
   token: string;
   institutionId: string | null;
+  /** For inviters who cannot read the invitation or the institution (SANADY Enterprise). */
+  known?: { institutionName: string; expiresAt: string };
 }): Promise<ActionState> {
   const supabase = await createClient();
-  const [{ data: inv }, { data: inst }] = await Promise.all([
-    supabase.from("invitations").select("expires_at").eq("id", params.invitationId).single(),
-    params.institutionId
-      ? supabase.from("institutions").select("name").eq("id", params.institutionId).single()
-      : Promise.resolve({ data: null }),
-  ]);
+  const [{ data: inv }, { data: inst }] = params.known
+    ? [{ data: { expires_at: params.known.expiresAt } }, { data: { name: params.known.institutionName } }]
+    : await Promise.all([
+        supabase.from("invitations").select("expires_at").eq("id", params.invitationId).single(),
+        params.institutionId
+          ? supabase.from("institutions").select("name").eq("id", params.institutionId).single()
+          : Promise.resolve({ data: null }),
+      ]);
 
   const mail = invitationEmail({
     kind: params.kind,

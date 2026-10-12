@@ -39,6 +39,24 @@ Les rôles se gèrent dans **Administration → Équipe SANADY**. Tout le monde 
 
 Chaque changement est inscrit dans l’historique avec le nom de la personne.
 
-## 5. Données personnelles
+## 5. Espaces de formation des entreprises
+
+Un **espace de formation** est l’espace sécurisé d’un client : ses collaborateurs, les formations ouvertes pour lui, ses rapports. Une entreprise ne voit jamais les données d’une autre, ni les enseignants de SANADY.
+
+**Mise en place (10 étapes, vérifiées automatiquement)** — menu **Espaces de formation** :
+
+1. Le contrat du client est signé (étape « Contrat signé », par un approbateur).
+2. Sur la fiche client, **Préparer l’espace de formation** : nom, adresse (`/entreprise/…`), formule, nombre de collaborateurs autorisés, stockage, dates du contrat, document de fin (attestation ou certificat).
+3. Un **approbateur** autorise la création (ou la refuse).
+4. **Générer l’espace**, puis inviter l’**administrateur de l’entreprise** (si l’envoi d’e-mails n’est pas configuré, un lien s’affiche : transmettez-le de façon sûre).
+5. L’équipe pédagogique **ouvre au moins une formation** à l’espace (Formations → Autorisations). Une formation propre à l’entreprise peut y être marquée « réservée à l’espace de cette entreprise ».
+6. Un **administrateur SANADY** confirme les contrôles de sécurité.
+7. **Activer l’espace** : refusé tant qu’une étape manque.
+
+**Ensuite**, l’administrateur de l’entreprise invite ses collaborateurs (un par un ou par liste/CSV), crée des **services**, affecte les formations et suit la progression. La limite de collaborateurs du contrat est appliquée automatiquement (invitations en attente comprises).
+
+**Fin de contrat** : « Enregistrer la fin du contrat » (motif obligatoire) → plus aucune nouvelle invitation → un approbateur **autorise l’export** → fixez la **date de suppression** des données → **Fermer l’espace** (accès retirés). Rien n’est supprimé immédiatement.
+
+## 6. Données personnelles
 
 Les demandes qui n’aboutissent pas sont supprimées au plus tard 24 mois après leur clôture (politique de confidentialité, §9). Les documents sont stockés dans un espace privé et vérifiés à l’arrivée (un faux PDF est refusé).

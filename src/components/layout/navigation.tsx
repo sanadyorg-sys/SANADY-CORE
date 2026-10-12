@@ -55,9 +55,10 @@ const ENTERPRISE_ITEMS: NavItem[] = [
   { href: "/admin/partenariats/entreprises", label: "Demandes entreprises", icon: Inbox, exact: true },
   { href: "/admin/partenariats/entreprises/clients", label: "Clients et prospects", icon: Briefcase },
   { href: "/admin/partenariats/entreprises/propositions", label: "Propositions", icon: FileText },
+  { href: "/admin/partenariats/entreprises/espaces", label: "Espaces de formation", icon: Building2 },
 ];
 
-export function navigationFor(area: Area, institutionId?: string, role: NavRole = "admin"): NavSection[] {
+export function navigationFor(area: Area, institutionId?: string, role: NavRole = "admin", enterprise = false): NavSection[] {
   if (area === "admin" && role === "enterprise") {
     return [{ title: "SANADY Enterprise", items: ENTERPRISE_ITEMS }];
   }
@@ -122,12 +123,13 @@ export function navigationFor(area: Area, institutionId?: string, role: NavRole 
       {
         items: [
           { href: base, label: "Tableau de bord", icon: LayoutDashboard, exact: true },
-          { href: `${base}/enseignants`, label: "Nos enseignants", icon: Users },
+          { href: `${base}/enseignants`, label: enterprise ? "Nos collaborateurs" : "Nos enseignants", icon: Users },
+          ...(enterprise && role === "admin" ? [{ href: `${base}/services`, label: "Services", icon: Building }] : []),
           { href: `${base}/formations`, label: "Formations autorisées", icon: Library },
           { href: `${base}/suivi`, label: "Suivi individuel", icon: ClipboardList },
           { href: `${base}/statistiques`, label: "Statistiques", icon: ChartNoAxesCombined },
           { href: `${base}/rapports`, label: "Rapports", icon: FileText },
-          { href: "/espace/bibliotheque", label: "Bibliothèque", icon: BookMarked },
+          ...(enterprise ? [] : [{ href: "/espace/bibliotheque", label: "Bibliothèque", icon: BookMarked }]),
         ],
       },
     ];
@@ -138,8 +140,8 @@ export function navigationFor(area: Area, institutionId?: string, role: NavRole 
         { href: "/espace", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
         { href: "/espace/formations", label: "Mes formations", icon: BookOpen },
         { href: "/espace/evaluations", label: "Mes évaluations", icon: ClipboardCheck },
-        { href: "/espace/certificats", label: "Mes certificats", icon: Award },
-        { href: "/espace/bibliotheque", label: "Bibliothèque", icon: BookMarked },
+        { href: "/espace/certificats", label: enterprise ? "Mes attestations" : "Mes certificats", icon: Award },
+        ...(enterprise ? [] : [{ href: "/espace/bibliotheque", label: "Bibliothèque", icon: BookMarked }]),
         { href: "/espace/profil", label: "Mon profil", icon: UserRound },
       ],
     },
@@ -150,15 +152,17 @@ export function SidebarNav({
   area,
   institutionId,
   role,
+  enterprise,
   onNavigate,
 }: {
   area: Area;
   institutionId?: string;
   role?: NavRole;
+  enterprise?: boolean;
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
-  const sections = navigationFor(area, institutionId, role);
+  const sections = navigationFor(area, institutionId, role, enterprise);
 
   return (
     <nav aria-label="Navigation principale" className="space-y-6">

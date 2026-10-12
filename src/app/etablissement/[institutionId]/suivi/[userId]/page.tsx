@@ -9,12 +9,13 @@ import { formatDate } from "@/lib/format";
 import { requireInstitutionViewer } from "@/server/auth";
 import { getAssignments, getTeacherSummaries } from "@/server/queries/institution";
 import { getLearnerDetails } from "@/server/queries/tracking";
+import { wording } from "@/lib/enterprise";
 
 export const metadata: Metadata = { title: "Suivi d’un enseignant" };
 
 export default async function TeacherTrackingPage(props: PageProps<"/etablissement/[institutionId]/suivi/[userId]">) {
   const { institutionId, userId } = await props.params;
-  await requireInstitutionViewer(institutionId);
+  const say = wording((await requireInstitutionViewer(institutionId)).institution.kind);
   const base = `/etablissement/${institutionId}`;
 
   const [teachers, assignments] = await Promise.all([getTeacherSummaries(institutionId), getAssignments(institutionId, { userId })]);
@@ -59,7 +60,7 @@ export default async function TeacherTrackingPage(props: PageProps<"/etablisseme
         courses={courses}
         activity={activity}
         attemptHref={(attemptId) => `${base}/suivi/${userId}/tentatives/${attemptId}`}
-        emptyMessage="Aucune formation n’est affectée à cet enseignant par l’établissement."
+        emptyMessage={say("Aucune formation n’est affectée à cet enseignant par l’établissement.")}
       />
     </>
   );

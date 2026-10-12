@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarClock, Handshake, Mail, Pencil, Phone, Plus, Star } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
+import { TenantForm } from "@/components/enterprise/tenant-forms";
 import { ClientForm, EnterpriseContactForm, EnterpriseNoteForm, EnterpriseStatusForm, EnterpriseTaskForm, ProposalForm } from "@/components/enterprise/admin-forms";
 import { HistoryList, NotesList } from "@/components/partnerships/timeline";
 import { Button } from "@/components/ui/button";
@@ -19,13 +20,15 @@ import {
   REQUEST_STATUS,
   enterpriseNextSteps,
   enterpriseStageTone,
+  SERVICE_PLANS,
+  TENANT_STATUS,
   lineTotal,
 } from "@/lib/enterprise";
 import { ORG_TYPES, formatAmount } from "@/lib/partnerships";
 import { uuidSchema } from "@/lib/validation";
 import { setEnterpriseTaskDone } from "@/server/actions/enterprise";
 import { requireEnterpriseStaff } from "@/server/auth";
-import { enterpriseActor, enterpriseTeam, getClient } from "@/server/queries/enterprise";
+import { enterpriseActor, enterpriseTeam, getClient, tenantForOrganization } from "@/server/queries/enterprise";
 
 export const metadata: Metadata = { title: "Client — Enterprise" };
 const MAIN = ENTERPRISE_ORDER.slice(0, 11);
@@ -34,7 +37,7 @@ export default async function ClientPage(props: PageProps<"/admin/partenariats/e
   const viewer = await requireEnterpriseStaff();
   const { organizationId } = await props.params;
   if (!uuidSchema.safeParse(organizationId).success) notFound();
-  const [detail, actor, team] = await Promise.all([getClient(organizationId), enterpriseActor(viewer), enterpriseTeam()]);
+  const [detail, actor, team, tenant] = await Promise.all([getClient(organizationId), enterpriseActor(viewer), enterpriseTeam(), tenantForOrganization(organizationId)]);
   if (!detail) notFound();
   const { client: c, contacts, notes, history, tasks, requests, proposals } = detail;
   const stageIndex = MAIN.indexOf(c.enterprise_status);
@@ -216,6 +219,44 @@ export default async function ClientPage(props: PageProps<"/admin/partenariats/e
                 submitLabel="Changer d’étape"
                 help={!actor.signatory ? "« Contrat signé » est réservé aux approbateurs habilités, après la validation institutionnelle." : undefined}
               />
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader title="Espace de formation" description="Espace sécurisé des collaborateurs du client (formule plateforme ou complète)." />
+            <CardBody className="space-y-3">
+              {tenant && !["closed", "cancelled"].includes(tenant.status) ? (
+                <>
+                  <p className="flex flex-wrap items-center gap-2 text-body text-ink-800">
+                    <Badge tone={TENANT_STATUS[tenant.status].tone}>{TENANT_STATUS[tenant.status].label}</Badge>
+                    {SERVICE_PLANS[tenant.service_plan]} · {tenant.max_learners} collaborateurs
+                  </p>
+                  <Link href={`/admin/partenariats/entreprises/espaces/${tenant.id}`} className="text-label font-medium text-accent-700 hover:underline">
+                    Ouvrir l’espace /entreprise/{tenant.slug}
+                  </Link>
+                </>
+              ) : ["contract_signed", "onboarding", "active_service", "renewal"].includes(c.enterprise_status) ? (
+                actor.manager ? (
+                  <Drawer
+                    title="Préparer l’espace de formation"
+                    description="La création sera ensuite autorisée par un approbateur habilité."
+                    width="max-w-2xl"
+                    trigger={<Button variant="accent">Préparer l’espace de formation</Button>}
+                  >
+                    <div className="p-5">
+                      <TenantForm
+                        organizationId={c.id}
+                        organizationName={c.name}
+                        contacts={contacts.map((x) => ({ id: x.id, label: x.email ? `${x.full_name} — ${x.email}` : x.full_name }))}
+                        proposals={proposals.filter((p) => p.status === "accepted").map((p) => ({ id: p.id, label: `${p.reference} — ${p.title}` }))}
+                      />
+                    </div>
+                  </Drawer>
+                ) : (
+                  <p className="text-body text-ink-600">Le responsable entreprises peut préparer l’espace.</p>
+                )
+              ) : (
+                <p className="text-body text-ink-600">Disponible après la signature du contrat (étape « Contrat signé »).</p>
+              )}
             </CardBody>
           </Card>
           <Card>

@@ -10,12 +10,14 @@ import { createClient } from "@/lib/supabase/server";
 import type { LearningEventType } from "@/lib/types";
 import { requireInstitutionViewer } from "@/server/auth";
 import { getAssignments, getInstitutionOverview, getTeacherSummaries } from "@/server/queries/institution";
+import { wording } from "@/lib/enterprise";
 
 export const metadata: Metadata = { title: "Tableau de bord" };
 
 export default async function InstitutionDashboardPage(props: PageProps<"/etablissement/[institutionId]">) {
   const { institutionId } = await props.params;
   const { institution, canManage } = await requireInstitutionViewer(institutionId);
+  const say = wording(institution.kind);
   const base = `/etablissement/${institutionId}`;
   const supabase = await createClient();
 
@@ -54,12 +56,12 @@ export default async function InstitutionDashboardPage(props: PageProps<"/etabli
     <>
       <PageHeader
         title="Tableau de bord"
-        description={`Suivi des formations affectées aux enseignants de ${institution.name}.`}
+        description={say(`Suivi des formations affectées aux enseignants de ${institution.name}.`)}
         actions={
           canManage ? (
           <>
             <Link href={`${base}/enseignants/invitations`} className={buttonClasses({ variant: "secondary" })}>
-              <Mail aria-hidden /> Inviter des enseignants
+              <Mail aria-hidden /> {say("Inviter des enseignants")}
             </Link>
             <Link href={`${base}/formations`} className={buttonClasses()}>
               <BookOpen aria-hidden /> Affecter une formation
@@ -70,9 +72,9 @@ export default async function InstitutionDashboardPage(props: PageProps<"/etabli
       />
 
       <section aria-label="Indicateurs" className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        <StatTile label="Enseignants inscrits" value={overview.registered_teachers} icon={Users} detail={`${overview.pending_invitations} invitation(s) en attente`} />
+        <StatTile label={say("Enseignants inscrits")} value={overview.registered_teachers} icon={Users} detail={`${overview.pending_invitations} invitation(s) en attente`} />
         <StatTile
-          label="Enseignants actifs"
+          label={say("Enseignants actifs")}
           value={overview.active_teachers}
           icon={UserCheck}
           detail={`Activité sur les ${overview.inactivity_threshold_days} derniers jours`}
@@ -117,11 +119,11 @@ export default async function InstitutionDashboardPage(props: PageProps<"/etabli
 
           <Card>
             <CardHeader
-              title="Enseignants à accompagner"
+              title={say("Enseignants à accompagner")}
               description="Inactivité prolongée ou tentatives d’évaluation épuisées. Ces indicateurs ne constituent pas une évaluation des compétences."
             />
             {needSupport.length === 0 ? (
-              <EmptyState compact icon={LifeBuoy} title="Aucun signalement" description="Aucun enseignant ne présente d’indicateur d’accompagnement." />
+              <EmptyState compact icon={LifeBuoy} title="Aucun signalement" description={say("Aucun enseignant ne présente d’indicateur d’accompagnement.")} />
             ) : (
               <ul className="divide-y divide-line">
                 {needSupport.slice(0, 8).map((t) => (

@@ -231,4 +231,11 @@ test.describe("SANADY Enterprise portal (proposal, hidden)", () => {
     const doc = await page.request.get("/api/entreprises/documents/00000000-0000-0000-0000-000000000000");
     expect(doc.status()).toBe(401);
   });
+
+  test("company workspaces and their addresses require signing in", async ({ page }) => {
+    await page.goto("/admin/partenariats/entreprises/espaces");
+    await expect(page).toHaveURL(/\/connexion/);
+    await page.goto("/entreprise/societe-exemple");
+    await expect(page).toHaveURL(/\/connexion\?suite=%2Fentreprise%2Fsociete-exemple/);
+  });
 });

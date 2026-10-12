@@ -9,6 +9,8 @@ export interface ViewerInstitution {
   name: string;
   identifier: string;
   role: "admin" | "teacher" | "supervisor";
+  /** « enterprise »: a company workspace (SANADY Enterprise). */
+  kind: "school" | "enterprise";
 }
 
 export type PlatformRole =
@@ -39,6 +41,8 @@ export interface Viewer {
   adminInstitutions: ViewerInstitution[];
   /** Institutions the viewer administers or supervises (read-only). */
   supervisedInstitutions: ViewerInstitution[];
+  /** Member of company workspaces only, with no school and no staff role (SANADY Enterprise). */
+  isEmployeeOnly: boolean;
   /** Assurance level of the current session (from the verified JWT). */
   aal: "aal1" | "aal2";
   /** True when a second factor (TOTP) is enrolled and verified. */
@@ -62,7 +66,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
     supabase.from("platform_roles").select("role").eq("user_id", userId).maybeSingle(),
     supabase
       .from("institution_memberships")
-      .select("role, institution:institutions(id, name, identifier, status)")
+      .select("role, institution:institutions(id, name, identifier, status, kind)")
       .eq("user_id", userId)
       .eq("status", "active"),
     supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
@@ -71,12 +75,12 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
   const profile = profileRes.data as Profile | null;
   if (!profile) return null;
 
-  type Row = { role: ViewerInstitution["role"]; institution: Pick<Institution, "id" | "name" | "identifier" | "status"> | null };
+  type Row = { role: ViewerInstitution["role"]; institution: (Pick<Institution, "id" | "name" | "identifier" | "status"> & { kind: ViewerInstitution["kind"] }) | null };
   const active = profile.status === "active";
   const platformRole = active ? ((roleRes.data as { role: PlatformRole } | null)?.role ?? null) : null;
   const institutions = ((membershipRes.data ?? []) as unknown as Row[])
     .filter((m) => m.institution && m.institution.status === "active")
-    .map((m) => ({ id: m.institution!.id, name: m.institution!.name, identifier: m.institution!.identifier, role: m.role }))
+    .map((m) => ({ id: m.institution!.id, name: m.institution!.name, identifier: m.institution!.identifier, role: m.role, kind: m.institution!.kind ?? "school" }))
     .sort((a, b) => a.name.localeCompare(b.name, "fr"));
 
   return {
@@ -91,6 +95,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
     institutions,
     adminInstitutions: institutions.filter((i) => i.role === "admin"),
     supervisedInstitutions: institutions.filter((i) => i.role === "admin" || i.role === "supervisor"),
+    isEmployeeOnly: !platformRole && institutions.length > 0 && institutions.every((i) => i.kind === "enterprise"),
     aal,
     mfaEnrolled: aalRes.data?.nextLevel === "aal2",
   };

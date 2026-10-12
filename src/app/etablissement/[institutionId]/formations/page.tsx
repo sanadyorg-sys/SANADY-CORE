@@ -9,12 +9,13 @@ import { formatDuration } from "@/lib/format";
 import { COURSE_LEVELS } from "@/lib/labels";
 import { requireInstitutionViewer } from "@/server/auth";
 import { getAuthorizedCourses } from "@/server/queries/institution";
+import { wording } from "@/lib/enterprise";
 
 export const metadata: Metadata = { title: "Formations autorisées" };
 
 export default async function AuthorizedCoursesPage(props: PageProps<"/etablissement/[institutionId]/formations">) {
   const { institutionId } = await props.params;
-  await requireInstitutionViewer(institutionId);
+  const say = wording((await requireInstitutionViewer(institutionId)).institution.kind);
   const courses = await getAuthorizedCourses(institutionId);
   const base = `/etablissement/${institutionId}/formations`;
 
@@ -22,14 +23,14 @@ export default async function AuthorizedCoursesPage(props: PageProps<"/etablisse
     <>
       <PageHeader
         title="Formations autorisées"
-        description="Formations que SANADY a autorisées pour votre établissement. Affectez-les aux enseignants concernés."
+        description={say("Formations que SANADY a autorisées pour votre établissement. Affectez-les aux enseignants concernés.")}
       />
       {courses.length === 0 ? (
         <Card>
           <EmptyState
             icon={Library}
             title="Aucune formation autorisée pour le moment"
-            description="Les formations sont autorisées par l’équipe SANADY. Contactez-la pour connaître le catalogue disponible pour votre établissement."
+            description={say("Les formations sont autorisées par l’équipe SANADY. Contactez-la pour connaître le catalogue disponible pour votre établissement.")}
           />
         </Card>
       ) : (
@@ -50,11 +51,11 @@ export default async function AuthorizedCoursesPage(props: PageProps<"/etablisse
                 <div className="mt-auto pt-5">
                   <div className="mb-1.5 flex justify-between text-caption text-ink-600">
                     <span>
-                      {c.assigned_count} enseignant{c.assigned_count > 1 ? "s" : ""} inscrit{c.assigned_count > 1 ? "s" : ""}
+                      {c.assigned_count} {say("enseignant")}{c.assigned_count > 1 ? "s" : ""} inscrit{c.assigned_count > 1 ? "s" : ""}
                     </span>
                     <span>{c.completed_count} terminé{c.completed_count > 1 ? "s" : ""}</span>
                   </div>
-                  <ProgressBar value={c.assigned_count ? c.completed_count / c.assigned_count : 0} label="Part des enseignants ayant terminé" size="sm" tone="success" />
+                  <ProgressBar value={c.assigned_count ? c.completed_count / c.assigned_count : 0} label={say("Part des enseignants ayant terminé")} size="sm" tone="success" />
                   <Link href={`${base}/${c.id}`} className={buttonClasses({ variant: "secondary", size: "sm", className: "mt-4 w-full" })}>
                     Gérer les affectations
                   </Link>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { enterpriseNextSteps, lineTotal, proposalNextSteps } from "@/lib/enterprise";
-import { enterpriseRequestSchema, lineSchema } from "@/lib/enterprise-schema";
+import { enterpriseNextSteps, lineTotal, proposalNextSteps, slugify, tenantNextSteps, wording } from "@/lib/enterprise";
+import { enterpriseRequestSchema, lineSchema, tenantSchema } from "@/lib/enterprise-schema";
 
 const manager = { manager: true, signatory: false };
 const approver = { manager: false, signatory: true };
@@ -58,5 +58,33 @@ describe("enterprise request schema", () => {
   it("rejects unknown services and sizes", () => {
     expect(enterpriseRequestSchema.safeParse({ ...valid, service: "publicite" }).success).toBe(false);
     expect(enterpriseRequestSchema.safeParse({ ...valid, employee_count: "beaucoup" }).success).toBe(false);
+  });
+});
+
+describe("company workspaces (E3)", () => {
+  it("speak of employees and of the company, schools keep their words", () => {
+    const say = wording("enterprise");
+    expect(say("Inviter un enseignant de cet établissement")).toBe("Inviter un collaborateur de cette entreprise");
+    expect(say("Enseignants de l’établissement")).toBe("Collaborateurs de l’entreprise");
+    expect(wording("school")("Nos enseignants")).toBe("Nos enseignants");
+  });
+  it("derive a safe address from the company name", () => {
+    expect(slugify("Société Générale — Maroc")).toBe("societe-generale-maroc");
+    expect(slugify("  OCP  ")).toBe("ocp");
+  });
+  it("follow the database transitions", () => {
+    const manager = { manager: true };
+    expect(tenantNextSteps("provisioning", manager)).toEqual(["active"]);
+    expect(tenantNextSteps("active", manager)).toEqual(["suspended", "offboarding"]);
+    expect(tenantNextSteps("offboarding", manager)).toEqual(["closed"]);
+    expect(tenantNextSteps("requested", manager)).toEqual([]);
+    expect(tenantNextSteps("active", { manager: false })).toEqual([]);
+  });
+  it("validate the contract limits", () => {
+    const base = { display_name: "Industrie", slug: "industrie", service_plan: "plateforme", max_learners: "1 200" };
+    expect(tenantSchema.safeParse(base).data?.max_learners).toBe("1200");
+    expect(tenantSchema.safeParse({ ...base, slug: "Bad Slug" }).success).toBe(false);
+    expect(tenantSchema.safeParse({ ...base, max_learners: "0" }).success).toBe(false);
+    expect(tenantSchema.safeParse({ ...base, contract_start_on: "2027-01-01", contract_end_on: "2026-01-01" }).success).toBe(false);
   });
 });
