@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { BrandDots } from "@/components/brand/brand-decor";
+import { FOUNDATION, SANADY_SITE } from "@/lib/institution";
 
 const COLUMNS = [
   {
@@ -71,6 +72,23 @@ export function SiteFooter({ supportEmail }: { supportEmail?: string | null }) {
                 </a>
               </li>
             ) : null}
+            <li>
+              <a href={FOUNDATION.contactUrl} className="text-body text-brand-200 transition-colors hover:text-accent-400">
+                Contacter la Fondation
+              </a>
+            </li>
+            <li>
+              <a href={SANADY_SITE} className="text-body text-brand-200 transition-colors hover:text-accent-400">
+                Site de la Fondation (sanady.org)
+              </a>
+            </li>
+            <li className="flex flex-wrap gap-x-3 gap-y-1 pt-1">
+              {FOUNDATION.social.map((s) => (
+                <a key={s.href} href={s.href} className="text-label text-brand-300 transition-colors hover:text-accent-400">
+                  {s.label}
+                </a>
+              ))}
+            </li>
           </ul>
         </div>
       </div>

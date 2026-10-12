@@ -62,11 +62,11 @@ export default async function PublicCoursePage({ params }: PageProps<"/formation
 
   const includes = [
     videos ? { icon: PlayCircle, text: `${plural(videos, "vidéo explicative")}` } : null,
-    documents ? { icon: FileText, text: `${plural(documents, "document & fiche")} à télécharger` } : null,
+    documents ? { icon: FileText, text: `${plural(documents, "document")} à télécharger` } : null,
     quizzes ? { icon: ClipboardCheck, text: `${plural(quizzes, "évaluation")} de module (seuil 70%)` } : null,
-    { icon: Award, text: "Certificat officiel avec QR code sécurisé" },
+    { icon: Award, text: "Certificat vérifiable par QR code" },
     { icon: MonitorSmartphone, text: "Accessible sur ordinateur, tablette et mobile" },
-    { icon: InfinityIcon, text: "Accès libre et permanent à votre rythme" },
+    { icon: InfinityIcon, text: "À suivre à votre rythme" },
   ].filter((x): x is { icon: typeof PlayCircle; text: string } => Boolean(x));
 
   const enrollBox = (
@@ -75,24 +75,24 @@ export default async function PublicCoursePage({ params }: PageProps<"/formation
       <div className="p-6 sm:p-7">
         <div className="flex items-center justify-between">
           <span className="rounded-full bg-accent-50 px-3 py-1 text-caption font-bold text-accent-800">
-            100% Gratuit
+            Sur invitation
           </span>
           <span className="flex items-center gap-1 text-caption font-semibold text-success-700">
             <Sparkles className="size-3.5" aria-hidden /> Fondation Sanady
           </span>
         </div>
 
-        <p className="mt-4 text-[2rem] font-extrabold leading-none tracking-tight text-ink-900">Accès Libre</p>
-        <p className="mt-1 text-label text-ink-500">Financement intégral par la Fondation Sanady pour les enseignants</p>
+        <p className="mt-4 text-[2rem] font-extrabold leading-none tracking-tight text-ink-900">Gratuit</p>
+        <p className="mt-1 text-label text-ink-500">Formation offerte aux enseignants par la Fondation Sanady</p>
 
         <div className="mt-6 flex flex-col gap-2.5">
           {viewer ? (
-            <Link href={learnHref} className={buttonClasses({ variant: "accent", size: "xl", className: "rounded-xl font-bold shadow-xs" })}>
+            <Link href={learnHref} className={buttonClasses({ variant: "accent", size: "lg", className: "h-12 rounded-xl font-bold shadow-xs" })}>
               Accéder à la formation <ArrowRight aria-hidden />
             </Link>
           ) : (
             <>
-              <Link href={`/demande-acces?formation=${course.id}`} className={buttonClasses({ variant: "accent", size: "xl", className: "rounded-xl font-bold shadow-xs" })}>
+              <Link href={`/demande-acces?formation=${course.id}`} className={buttonClasses({ variant: "accent", size: "lg", className: "h-12 rounded-xl font-bold shadow-xs" })}>
                 Demander un accès enseignant <ArrowRight aria-hidden />
               </Link>
               <Link href={`/connexion?suite=${encodeURIComponent(learnHref)}`} className={buttonClasses({ variant: "secondary", size: "lg", className: "rounded-xl" })}>
@@ -113,7 +113,7 @@ export default async function PublicCoursePage({ params }: PageProps<"/formation
         </ul>
 
         <div className="mt-6 border-t border-line/80 pt-5 text-center text-caption text-ink-500">
-          Reconnu dans le cadre du développement professionnel continu
+          Certificat délivré par la Fondation Sanady
         </div>
       </div>
     </div>
@@ -122,9 +122,11 @@ export default async function PublicCoursePage({ params }: PageProps<"/formation
   return (
     <>
       {/* ─── Header band (Pluralsight style dark high contrast + Edraak trust) */}
-      <section className="relative overflow-hidden bg-brand-800 text-white">
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-dots-light opacity-12" />
-        <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-[28rem] rounded-full bg-accent-500/10 blur-3xl" />
+      <section className="relative bg-brand-800 text-white">
+        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-dots-light opacity-12" />
+          <div className="absolute -right-24 -top-24 size-[28rem] rounded-full bg-accent-500/10 blur-3xl" />
+        </div>
 
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:px-8 lg:py-16">
           <div className="lg:pr-6">
@@ -142,7 +144,7 @@ export default async function PublicCoursePage({ params }: PageProps<"/formation
 
             <div className="mt-4 flex flex-wrap items-center gap-2.5">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-caption font-semibold text-brand-100 backdrop-blur-xs">
-                <BrandDots /> Programme Officiel SANADY
+                <BrandDots /> Formation Fondation Sanady
               </span>
               <span className="rounded-full bg-accent-500/20 px-3 py-1 text-caption font-semibold text-accent-300">
                 Certificat vérifiable
@@ -181,10 +183,6 @@ export default async function PublicCoursePage({ params }: PageProps<"/formation
           </div>
 
           <div className="lg:hidden">{enrollBox}</div>
-          {/* Desktop: the box starts in the band and overflows into the right column below. */}
-          <div className="relative hidden lg:block">
-            <div className="absolute inset-x-0 top-0 z-10">{enrollBox}</div>
-          </div>
         </div>
       </section>
 
@@ -370,7 +368,7 @@ export default async function PublicCoursePage({ params }: PageProps<"/formation
               <h2 className="mt-4 text-section font-bold text-ink-900">Certification vérifiable</h2>
               <p className="mt-2 text-body leading-relaxed text-ink-600">
                 Validez chaque module avec au moins {firstQuiz?.pass_threshold ?? 70}&nbsp;% de réussite ({firstQuiz?.max_attempts ?? 3}{" "}
-                tentatives). Votre certificat officiel est délivré avec un identifiant unique et un QR code{" "}
+                tentatives). Votre certificat est délivré avec un identifiant unique et un QR code{" "}
                 <Link href="/verifier" className="font-semibold text-accent-700 underline hover:text-accent-800">
                   vérifiable en ligne
                 </Link>
@@ -380,7 +378,10 @@ export default async function PublicCoursePage({ params }: PageProps<"/formation
           </section>
         </div>
 
-        <div aria-hidden className="hidden min-h-[30rem] lg:block" />
+        {/* Desktop: the box rises into the band, then stays in view while reading. */}
+        <aside aria-label="Inscription" className="relative z-10 hidden lg:block">
+          <div className="sticky top-24 -mt-72">{enrollBox}</div>
+        </aside>
       </div>
 
       {/* ─── Related ──────────────────────────────────────────────────────── */}

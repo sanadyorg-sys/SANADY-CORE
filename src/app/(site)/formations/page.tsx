@@ -88,7 +88,7 @@ export default async function CatalogPage({ searchParams }: PageProps<"/formatio
           <p className="mt-2 max-w-2xl text-reading text-ink-600">
             Des parcours courts et concrets pour enrichir vos pratiques, validés par des évaluations formatives et un certificat vérifiable.
           </p>
-          <form action="/formations" role="search" className="mt-6 flex max-w-2xl flex-col gap-2.5 sm:flex-row">
+          <form id="recherche" action="/formations" role="search" className="scroll-mt-24 mt-6 flex max-w-2xl flex-col gap-2.5 sm:flex-row">
             {theme ? <input type="hidden" name="theme" value={theme} /> : null}
             {level ? <input type="hidden" name="niveau" value={level} /> : null}
             <label className="relative flex-1">

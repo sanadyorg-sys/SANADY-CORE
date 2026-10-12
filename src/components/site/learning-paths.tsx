@@ -272,20 +272,20 @@ export function LearningPathsSection() {
           <div className="max-w-2xl">
             <p className="inline-flex items-center gap-2 text-label font-bold uppercase tracking-wider text-accent-700">
               <Compass className="size-4" aria-hidden />
-              <span>Inspiration Edraak & Pluralsight · Parcours Structurés</span>
+              <span>Parcours structurés · en préparation</span>
             </p>
             <h2 className="mt-2 text-[1.875rem] font-extrabold leading-tight tracking-tight text-ink-900 sm:text-[2.25rem]">
               Des parcours d’apprentissage cohérents et progressifs
             </h2>
             <p className="mt-3 text-reading leading-relaxed text-ink-600">
               Ne cherchez plus au hasard : suivez des trajectoires conçues par étape pour développer une compétence
-              pédagogique complète et obtenir votre certificat de spécialisation.
+              pédagogique complète. Les parcours ci-dessous sont en préparation avec l’équipe pédagogique de la Fondation Sanady.
             </p>
           </div>
 
           <div className="flex items-center gap-2 rounded-2xl border border-line bg-surface/90 px-4 py-2 text-label font-medium text-ink-700 shadow-xs backdrop-blur-xs">
             <Sparkles className="size-4 text-accent-600" aria-hidden />
-            <span>4 filières de perfectionnement</span>
+            <span>4 parcours en préparation</span>
           </div>
         </div>
 
@@ -298,6 +298,7 @@ export function LearningPathsSection() {
                 key={path.id}
                 type="button"
                 onClick={() => setActivePathId(path.id)}
+                aria-pressed={isActive}
                 className={`group relative flex min-w-[240px] flex-col rounded-2xl border p-4 text-left transition duration-200 sm:min-w-0 ${
                   isActive
                     ? "border-accent-600 bg-surface shadow-md ring-2 ring-accent-500/20"
@@ -317,7 +318,7 @@ export function LearningPathsSection() {
                   ) : null}
                 </div>
                 <h3
-                  className={`mt-3 line-clamp-1 text-card font-bold transition-colors ${
+                  className={`mt-3 line-clamp-2 text-card font-bold leading-snug transition-colors ${
                     isActive ? "text-ink-900" : "text-ink-700 group-hover:text-ink-900"
                   }`}
                 >
@@ -345,7 +346,7 @@ export function LearningPathsSection() {
                 <span className="rounded-full bg-accent-50 px-3 py-1 text-caption font-bold text-accent-800">
                   {activePath.badge}
                 </span>
-                <h3 className="mt-2 text-[1.5rem] font-extrabold tracking-tight text-ink-900 sm:text-[1.75rem]">
+                <h3 className="mt-3 text-[1.5rem] font-extrabold leading-tight tracking-tight text-ink-900 sm:text-[1.75rem]">
                   {activePath.title}
                 </h3>
                 <p className="mt-1 text-body text-ink-600">{activePath.subtitle}</p>
@@ -473,7 +474,7 @@ export function LearningPathsSection() {
                     className: "btn-sheen w-full justify-center rounded-xl font-bold shadow-xs",
                   })}
                 >
-                  Démarrer ce parcours <ArrowRight aria-hidden />
+                  Voir les formations disponibles <ArrowRight aria-hidden />
                 </Link>
                 <Link
                   href="/demande-acces"

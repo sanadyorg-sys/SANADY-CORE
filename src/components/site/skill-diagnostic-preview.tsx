@@ -139,7 +139,7 @@ export function SkillDiagnosticPreview() {
           <div>
             <p className="inline-flex items-center gap-2 text-label font-bold uppercase tracking-wider text-accent-400">
               <Sparkles className="size-4" aria-hidden />
-              <span>Inspiration Pluralsight · Diagnostic Formatif</span>
+              <span>Diagnostic formatif</span>
             </p>
             <h2 className="mt-3 text-[1.875rem] font-extrabold leading-tight tracking-tight sm:text-[2.25rem]">
               Mesurez vos réflexes pédagogiques en situation réelle

@@ -13,7 +13,7 @@ export function SiteHeader({ signedIn }: { signedIn: boolean }) {
           <BrandLogo className="h-9 lg:h-10" priority />
         </Link>
         <SiteNavLinks />
-        <form action="/formations" role="search" className="ml-auto hidden max-w-xs flex-1 md:block xl:max-w-sm">
+        <form action="/formations" role="search" className="ml-auto hidden max-w-xs flex-1 md:block lg:hidden 2xl:block">
           <label className="relative block">
             <span className="sr-only">Rechercher une formation</span>
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-400" aria-hidden />
@@ -25,6 +25,14 @@ export function SiteHeader({ signedIn }: { signedIn: boolean }) {
             />
           </label>
         </form>
+        {/* Between lg and 2xl the five links leave no room for a readable field: show a search icon instead. */}
+        <Link
+          href="/formations#recherche"
+          aria-label="Rechercher une formation"
+          className={buttonClasses({ variant: "ghost", size: "icon", className: "ml-auto hidden rounded-full lg:inline-flex 2xl:hidden" })}
+        >
+          <Search aria-hidden />
+        </Link>
         <div className="ml-auto flex items-center gap-2 md:ml-0">
           {signedIn ? (
             <Link href="/mon-espace" className={buttonClasses({ variant: "accent", className: "max-sm:hidden" })}>

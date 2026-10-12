@@ -8,7 +8,7 @@ export type ButtonSize = "sm" | "md" | "lg" | "xl" | "icon" | "icon-sm";
 
 const base =
   "inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium " +
-  "transition-colors duration-150 disabled:pointer-events-none disabled:opacity-55 " +
+  "transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:translate-y-px motion-reduce:active:translate-y-0 disabled:pointer-events-none disabled:opacity-55 " +
   "[&_svg]:shrink-0 [&_svg]:pointer-events-none";
 
 const variants: Record<ButtonVariant, string> = {

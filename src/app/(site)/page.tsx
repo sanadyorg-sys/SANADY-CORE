@@ -53,6 +53,19 @@ export const metadata: Metadata = {
 
 const CATEGORY_ICONS: LucideIcon[] = [GraduationCap, Users, Laptop, BookOpen, BarChart3, ClipboardCheck];
 
+/**
+ * Key figures. Live platform counters (courses, certificates…) stay small during
+ * the pilot and read as weakness, so the band shows stable facts instead:
+ * 2009 and the program rules are verified; « 500 » is the figure chosen on
+ * 11/10/2026, to be confirmed in writing (docs/institution/reference-sanady.md).
+ */
+const FIGURES: Array<{ value: number; suffix?: string; animate: boolean; label: string }> = [
+  { value: 2009, animate: false, label: "au service de l’école publique" },
+  { value: 500, animate: true, label: "enseignants formés par la Fondation" },
+  { value: 100, suffix: " %", animate: true, label: "gratuit pour les enseignants" },
+  { value: 70, suffix: " %", animate: true, label: "de réussite pour valider un module" },
+];
+
 const STEPS = [
   { icon: Mail, title: "Recevez une invitation", text: "De la Fondation Sanady ou de votre établissement — ou demandez un accès en ligne." },
   { icon: PlayCircle, title: "Apprenez à votre rythme", text: "Vidéos et documents courts, sur ordinateur, tablette ou téléphone. Reprenez là où vous vous êtes arrêté." },
@@ -72,13 +85,7 @@ const FEATURES = [
 export default async function HomePage() {
   const [catalog, viewer] = await Promise.all([getCatalog(), getViewer()]);
   const featured = catalog.courses.slice(0, 6);
-  const hours = Math.round(catalog.stats.minutes / 60);
-  const stats = [
-    { value: catalog.stats.courses, label: catalog.stats.courses > 1 ? "formations disponibles" : "formation disponible" },
-    { value: hours, label: hours > 1 ? "heures de formation" : "heure de formation" },
-    { value: catalog.stats.certificates, label: catalog.stats.certificates > 1 ? "certificats délivrés" : "certificat délivré" },
-    { value: catalog.stats.institutions, label: catalog.stats.institutions > 1 ? "établissements partenaires" : "établissement partenaire" },
-  ].filter((s) => s.value > 0);
+
 
   return (
     <>
@@ -95,7 +102,7 @@ export default async function HomePage() {
               <BrandDots />
               <span>Fondation Sanady · Formation continue des enseignants</span>
             </p>
-            <h1 className="mt-5 text-[2.375rem] font-extrabold leading-[1.08] tracking-[-0.03em] text-ink-900 sm:text-[3rem] lg:text-[3.5rem]">
+            <h1 className="mt-5 text-[2.375rem] font-extrabold leading-[1.12] tracking-[-0.03em] text-ink-900 sm:text-[3rem] lg:text-[3.5rem]">
               Développez vos pratiques,{" "}
               <SmileUnderline className="text-accent-700">
                 faites grandir
@@ -163,7 +170,7 @@ export default async function HomePage() {
               </span>
               <div>
                 <span className="block text-label font-bold text-ink-900">Certificat vérifiable</span>
-                <span className="block text-caption text-ink-500">par QR code officiel</span>
+                <span className="block text-caption text-ink-500">en ligne, par QR code</span>
               </div>
             </div>
             <div className="animate-float-slow absolute -top-6 right-4 hidden w-64 rounded-2xl border border-line bg-surface/95 p-3.5 shadow-xl backdrop-blur-sm sm:block lg:-right-6">
@@ -183,30 +190,24 @@ export default async function HomePage() {
       </section>
 
       {/* ─── Figures ──────────────────────────────────────────────────────── */}
-      {stats.length ? (
-        <Reveal as="section" aria-label="Chiffres clés" className="relative border-y border-line bg-surface">
-          <div aria-hidden className="pointer-events-none absolute inset-0 bg-dots opacity-20" />
-          <dl className="relative mx-auto grid max-w-7xl grid-cols-2 divide-y divide-line sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x lg:divide-line">
-            {stats.map((s) => (
-              <div key={s.label} className="px-4 py-8 text-center sm:px-6">
-                <dt className="sr-only">{s.label}</dt>
-                <dd>
-                  <span className="block text-[2.25rem] font-extrabold tabular tracking-tight text-ink-900 sm:text-[2.75rem]">
-                    <CountUp value={s.value} />
-                  </span>
-                  <span className="mt-1 block text-body font-medium text-ink-600">{s.label}</span>
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </Reveal>
-      ) : null}
+      <Reveal as="section" aria-label="Chiffres clés" className="relative border-y border-line bg-surface">
+        <dl className="mx-auto grid max-w-7xl grid-cols-2 gap-px bg-line lg:grid-cols-4">
+          {FIGURES.map((f) => (
+            <div key={f.label} className="flex flex-col-reverse items-center bg-surface px-4 py-7 text-center sm:py-9">
+              <dt className="mt-1.5 max-w-[16rem] text-label font-medium text-ink-600 sm:text-body">{f.label}</dt>
+              <dd className="text-[2rem] font-extrabold leading-none tabular tracking-tight text-ink-900 sm:text-[2.75rem]">
+                {f.animate ? <CountUp value={f.value} suffix={f.suffix} /> : f.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </Reveal>
 
       {/* ─── Institutional Trust & Partners (Edraak style) ────────────────── */}
       {SHOW_PARTNERS ? <PartnerTrustBanner /> : null}
 
       {/* ─── Featured courses ─────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+      <section className="mx-auto max-w-7xl px-4 pb-4 pt-16 sm:px-6 lg:px-8 lg:pt-20">
         <Reveal className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="inline-flex items-center gap-2 text-label font-bold uppercase tracking-wider text-accent-700">
@@ -226,6 +227,28 @@ export default async function HomePage() {
                 <CatalogCard course={c} />
               </Reveal>
             ))}
+            {featured.length % 3 !== 0 ? (
+              <Reveal delay={featured.length * 80} className={featured.length % 2 === 0 ? "sm:max-lg:hidden" : undefined}>
+                <Link
+                  href="/formations"
+                  className="group flex h-full min-h-64 flex-col justify-center gap-6 rounded-2xl border border-dashed border-accent-600/40 bg-accent-50/50 p-7 transition hover:border-accent-600 hover:bg-accent-50"
+                >
+                  <span className="flex size-12 items-center justify-center rounded-xl bg-surface text-accent-700 shadow-xs">
+                    <BookOpen className="size-6" aria-hidden />
+                  </span>
+                  <span>
+                    <span className="block text-section font-bold text-ink-900">D’autres formations en préparation</span>
+                    <span className="mt-2 block text-body leading-relaxed text-ink-600">
+                      Le catalogue s’enrichit progressivement avec l’équipe pédagogique de la Fondation Sanady.
+                    </span>
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-body font-bold text-accent-700">
+                      Explorer le catalogue
+                      <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+                    </span>
+                  </span>
+                </Link>
+              </Reveal>
+            ) : null}
           </div>
         ) : (
           <p className="mt-10 rounded-2xl border border-dashed border-line-strong bg-ink-25 p-10 text-center text-body text-ink-600">
@@ -277,6 +300,23 @@ export default async function HomePage() {
                   </Reveal>
                 );
               })}
+              {catalog.categories.length % 3 !== 0 ? (
+                <Reveal as="li" delay={catalog.categories.length * 60} className={catalog.categories.length % 2 === 0 ? "sm:max-lg:hidden" : undefined}>
+                  <Link
+                    href="/formations"
+                    className="group flex h-full items-center gap-4 rounded-2xl border border-dashed border-line-strong bg-surface/60 p-5 transition duration-300 hover:border-accent-600 hover:bg-surface"
+                  >
+                    <span className="flex size-13 shrink-0 items-center justify-center rounded-xl bg-ink-100 text-ink-700 transition-colors group-hover:bg-accent-50 group-hover:text-accent-700">
+                      <BookOpen className="size-6" aria-hidden />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-card font-bold text-ink-900">Tout le catalogue</span>
+                      <span className="mt-0.5 block text-label text-ink-500">Toutes les formations, tous les thèmes</span>
+                    </span>
+                    <ArrowRight className="size-4 text-ink-400 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-accent-700" aria-hidden />
+                  </Link>
+                </Reveal>
+              ) : null}
             </ul>
           </div>
         </section>
@@ -339,7 +379,7 @@ export default async function HomePage() {
                 src={profPhoto}
                 alt="Session de formation des enseignants de la Fondation Sanady"
                 fill
-                unoptimized
+                sizes="448px"
                 className="object-cover object-center"
               />
               <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-900/80 via-transparent to-transparent" />
