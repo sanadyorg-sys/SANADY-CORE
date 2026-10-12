@@ -97,6 +97,18 @@ export default async function ApplicationPage(props: PageProps<"/admin/partenari
             <CardBody className="space-y-4">
               <DescriptionList
                 items={[
+                  ...(a.opportunity
+                    ? [
+                        {
+                          term: "Projet concerné",
+                          value: (
+                            <Link href={`/admin/partenariats/opportunites/${a.opportunity.id}`} className="text-accent-700 hover:underline">
+                              {a.opportunity.reference} — {a.opportunity.title}
+                            </Link>
+                          ),
+                        },
+                      ]
+                    : []),
                   { term: "Domaine", value: INTERVENTION_FIELDS[a.intervention_field]?.name ?? a.intervention_field },
                   { term: "Type de contribution", value: CONTRIBUTION_TYPES[a.contribution_type] },
                   { term: "Calendrier souhaité", value: a.timeline ?? "—" },

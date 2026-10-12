@@ -27,4 +27,7 @@
 | 23 | 12/10/2026 | Fields of intervention in a table (`intervention_fields`), public texts from verified code constants; **anon still reads no table** | Configurable fields; existing invariant kept | Public pages need no database read |
 | 24 | 12/10/2026 | Refused applications kept **24 months** after closure; purged when the team opens the inbox (files first, then rows) | Data minimisation; storage files cannot be deleted from SQL | Stated in the privacy notice (§8) |
 | 25 | 12/10/2026 | Forms keep what was typed after a refused submission (`SubmitButton` restores values; the multi-step form submits by hand) | React 19 clears forms after every submission, even refused ones | Passwords are never restored |
+| 26 | 12/10/2026 | **Needs and projects are separate records**: a need (internal) can only lead to a project draft; publishing requires an approver’s approval; approved content is frozen | Brief V2 §8: a need must never become a public fundraising request automatically | Editing an approved project sends it back to draft |
+| 27 | 12/10/2026 | Visitors read projects through one function returning only public fields; funding targets shown only on approved projects | Anon reads no table; no internal data leaks | Closed projects stay listed 12 months as « Clôturé » |
+| 28 | 12/10/2026 | An application tied to a project takes the **project’s field**, whatever the visitor selected | Consistent reporting per field | Closed or past-deadline projects refuse applications |
 

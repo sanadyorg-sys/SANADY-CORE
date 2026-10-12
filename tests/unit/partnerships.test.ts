@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { applicationSchema } from "@/lib/partnerships-schema";
-import { allowedNextSteps, isPdf, safeFileName } from "@/lib/partnerships";
+import { allowedNextSteps, formatAmount, isPdf, needNextSteps, opportunityNextSteps, safeFileName } from "@/lib/partnerships";
 
 const bytes = (...b: number[]) => new Uint8Array([...b, 0, 0, 0, 0, 0, 0, 0, 0]);
 
@@ -64,5 +64,29 @@ describe("applicationSchema", () => {
   it("rejects an unknown field of intervention and short texts", () => {
     expect(applicationSchema.safeParse({ ...valid, intervention_field: "marketing" }).success).toBe(false);
     expect(applicationSchema.safeParse({ ...valid, cooperation: "Trop court" }).success).toBe(false);
+  });
+});
+
+describe("needs and projects (mirror the database)", () => {
+  const coordinator = { staff: true, manager: false, signatory: false };
+  const approver = { staff: false, manager: false, signatory: true };
+
+  it("lets only an approver decide on a need under review", () => {
+    expect(needNextSteps("internal_review", coordinator)).toEqual(["identified", "closed"]);
+    expect(needNextSteps("internal_review", approver)).toEqual(["approved", "rejected"]);
+    expect(needNextSteps("approved", coordinator)).toEqual(["closed"]);
+  });
+
+  it("lets only an approver approve a project, and anyone on the team publish it afterwards", () => {
+    expect(opportunityNextSteps("internal_review", coordinator)).toEqual(["draft"]);
+    expect(opportunityNextSteps("internal_review", approver)).toEqual(["approved"]);
+    expect(opportunityNextSteps("approved", coordinator)).toEqual(["published", "draft"]);
+    expect(opportunityNextSteps("published", coordinator)).toEqual(["closed"]);
+    expect(opportunityNextSteps("closed", approver)).toEqual(["published"]);
+  });
+
+  it("formats amounts the French way", () => {
+    expect(formatAmount("45000.00", "MAD")?.replace(/\s/g, " ")).toBe("45 000 MAD");
+    expect(formatAmount(null)).toBeNull();
   });
 });

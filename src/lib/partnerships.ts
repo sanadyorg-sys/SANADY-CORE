@@ -196,3 +196,84 @@ export function fieldProgram(slug: InterventionField) {
   const name = INTERVENTION_FIELDS[slug].name;
   return PROGRAM_GROUPS.flatMap((g) => g.programs).find((p) => p.name === name) ?? null;
 }
+
+/* ─── Phase 3: educational needs and projects seeking partners ─────────── */
+
+export const NEED_PRIORITY = {
+  low: { label: "Basse", tone: "neutral" },
+  medium: { label: "Moyenne", tone: "brand" },
+  high: { label: "Haute", tone: "warning" },
+} as const;
+export type NeedPriority = keyof typeof NEED_PRIORITY;
+
+export const NEED_STATUS = {
+  identified: { label: "Besoin identifié", tone: "neutral" },
+  internal_review: { label: "Revue interne", tone: "brand" },
+  approved: { label: "Validé par la Fondation", tone: "success" },
+  rejected: { label: "Non retenu", tone: "neutral" },
+  closed: { label: "Clos", tone: "neutral" },
+} as const;
+export type NeedStatus = keyof typeof NEED_STATUS;
+
+export const OPPORTUNITY_STATUS = {
+  draft: { label: "Brouillon", tone: "neutral" },
+  internal_review: { label: "Revue interne", tone: "brand" },
+  approved: { label: "Approuvé — à publier", tone: "warning" },
+  published: { label: "Publié", tone: "success" },
+  closed: { label: "Clôturé", tone: "neutral" },
+  archived: { label: "Archivé", tone: "neutral" },
+} as const;
+export type OpportunityStatus = keyof typeof OPPORTUNITY_STATUS;
+
+export const CURRENCIES = { MAD: "MAD", EUR: "EUR", USD: "USD" } as const;
+
+/** Next statuses of a need for the current person (mirrors public.set_need_status). */
+export function needNextSteps(from: NeedStatus, a: PipelineActor): NeedStatus[] {
+  const out: NeedStatus[] = [];
+  if (a.staff && from === "identified") out.push("internal_review");
+  if (a.staff && from === "internal_review") out.push("identified");
+  if (a.signatory && from === "internal_review") out.push("approved", "rejected");
+  if (a.staff && (from === "identified" || from === "internal_review" || from === "approved")) out.push("closed");
+  return out;
+}
+
+/** Next statuses of a project for the current person (mirrors public.set_opportunity_status). */
+export function opportunityNextSteps(from: OpportunityStatus, a: PipelineActor): OpportunityStatus[] {
+  const out: OpportunityStatus[] = [];
+  if (a.staff && from === "draft") out.push("internal_review");
+  if (a.staff && from === "internal_review") out.push("draft");
+  if (a.signatory && from === "internal_review") out.push("approved");
+  if ((a.staff || a.signatory) && from === "approved") out.push("published");
+  if (a.staff && from === "approved") out.push("draft");
+  if (a.staff && from === "published") out.push("closed");
+  if (a.signatory && from === "closed") out.push("published");
+  if (a.staff && from === "closed") out.push("archived");
+  return out;
+}
+
+/** Public view of a published project (public.public_partnership_opportunities). */
+export interface PublicOpportunity {
+  reference: string;
+  title: string;
+  intervention_field: InterventionField;
+  summary: string;
+  description: string;
+  objectives: string;
+  beneficiaries: string;
+  geographic_scope: string | null;
+  contribution_types: ContributionType[];
+  expected_contribution: string;
+  required_resources: string | null;
+  funding_target: number | null;
+  currency: string;
+  timeline: string | null;
+  department: string | null;
+  deadline: string | null;
+  published_at: string;
+  open: boolean;
+}
+
+export function formatAmount(amount: number | string | null, currency = "MAD") {
+  if (amount == null || amount === "") return null;
+  return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Number(amount))} ${currency}`;
+}

@@ -39,7 +39,16 @@ const formatSize = (b: number) => (b < 1024 * 1024 ? `${Math.max(1, Math.round(b
  * the whole application again on the server. The draft (never the
  * documents) is kept in this browser only, until it is sent.
  */
-export function PartnershipApplicationForm({ defaultField }: { defaultField?: InterventionField }) {
+export function PartnershipApplicationForm({
+  defaultField,
+  projects = [],
+  defaultProject,
+}: {
+  defaultField?: InterventionField;
+  /** Open projects published by the Foundation (optional link). */
+  projects?: Array<{ reference: string; title: string }>;
+  defaultProject?: string;
+}) {
   const [state, action, pending] = useActionState(submitPartnershipApplication, INITIAL_ACTION_STATE);
   const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState(0);
@@ -283,6 +292,18 @@ export function PartnershipApplicationForm({ defaultField }: { defaultField?: In
       {/* Step 3 — Partnership interest */}
       <fieldset hidden={step !== 2} className="space-y-4">
         <legend className="sr-only">Votre proposition</legend>
+        {projects.length ? (
+          <Field label="Projet concerné" optional hint="Si vous répondez à un projet publié, son domaine d’intervention est retenu." error={errors.opportunity}>
+            <Select {...field("opportunity")} defaultValue={defaultProject ?? ""}>
+              <option value="">Proposition libre (aucun projet précis)</option>
+              {projects.map((p) => (
+                <option key={p.reference} value={p.reference}>
+                  {p.reference} — {p.title}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        ) : null}
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Domaine d’intervention de la Fondation" error={errors.intervention_field}>
             <Select {...field("intervention_field")} defaultValue={defaultField ?? ""}>
@@ -379,6 +400,7 @@ export function PartnershipApplicationForm({ defaultField }: { defaultField?: In
             ["Organisation", `${values.org_name ?? ""} — ${ORG_TYPES[values.org_type as keyof typeof ORG_TYPES] ?? ""}`],
             ["Pays / ville", [values.country, values.city].filter(Boolean).join(", ")],
             ["Contact", `${values.contact_name ?? ""}, ${values.contact_title ?? ""} — ${values.contact_email ?? ""}`],
+            ...(values.opportunity ? [["Projet", projects.find((p) => p.reference === values.opportunity)?.title ?? values.opportunity]] : []),
             ["Domaine", INTERVENTION_FIELDS[values.intervention_field as InterventionField]?.name ?? ""],
             ["Contribution", CONTRIBUTION_TYPES[values.contribution_type as keyof typeof CONTRIBUTION_TYPES] ?? ""],
             ["Contribution proposée", values.contribution ?? ""],

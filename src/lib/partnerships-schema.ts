@@ -55,9 +55,60 @@ export const proposalStep = z.object({
   cooperation: required("la coopération envisagée", 30, 4000),
   timeline: optionalText(150),
   extra: optionalText(2000),
+  /** Reference of a published project (OPP-2026-0001), optional. */
+  opportunity: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => (v ? v : undefined))
+    .refine((v) => !v || /^OPP-\d{4}-\d{4,}$/.test(v), "Projet inconnu."),
 });
 
 export const applicationSchema = organizationStep.merge(contactStep).merge(proposalStep);
 export type ApplicationInput = z.output<typeof applicationSchema>;
 
 export const STEP_SCHEMAS = [organizationStep, contactStep, proposalStep] as const;
+
+/* ─── Phase 3 (team forms) ───────────────────────────────────────────────── */
+
+const amount = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v) => (v ? v.replace(/\s/g, "").replace(",", ".") : undefined))
+  .refine((v) => !v || (/^\d{1,10}(\.\d{1,2})?$/.test(v) && Number(v) > 0), "Montant invalide (chiffres uniquement).");
+
+export const needSchema = z.object({
+  title: required("le titre", 5, 200),
+  intervention_field: z.enum(Object.keys(INTERVENTION_FIELDS) as [keyof typeof INTERVENTION_FIELDS], "Choisissez un domaine."),
+  institution_id: z.union([z.uuid(), z.literal("")]).optional(),
+  project_label: optionalText(200),
+  description: required("la description du besoin", 20, 4000),
+  justification: required("la justification éducative", 20, 4000),
+  priority: z.enum(["low", "medium", "high"], "Choisissez une priorité."),
+  required_resources: optionalText(2000),
+  estimated_cost: amount,
+  currency: z.enum(["MAD", "EUR", "USD"]).default("MAD"),
+  timeline: optionalText(200),
+  responsible_id: z.union([z.uuid(), z.literal("")]).optional(),
+});
+
+export const opportunitySchema = z.object({
+  title: required("le titre", 5, 200),
+  intervention_field: z.enum(Object.keys(INTERVENTION_FIELDS) as [keyof typeof INTERVENTION_FIELDS], "Choisissez un domaine."),
+  summary: required("un résumé", 20, 300),
+  description: required("la description", 50, 6000),
+  objectives: required("les objectifs éducatifs", 20, 3000),
+  beneficiaries: required("les bénéficiaires", 5, 1000),
+  geographic_scope: optionalText(200),
+  expected_contribution: required("la contribution attendue", 10, 2000),
+  required_resources: optionalText(2000),
+  funding_target: amount,
+  currency: z.enum(["MAD", "EUR", "USD"]).default("MAD"),
+  timeline: optionalText(200),
+  department: optionalText(150),
+  deadline: z
+    .union([z.iso.date("Date invalide."), z.literal("")])
+    .optional()
+    .refine((v) => !v || v >= new Date().toISOString().slice(0, 10), "La date limite ne peut pas être passée."),
+});

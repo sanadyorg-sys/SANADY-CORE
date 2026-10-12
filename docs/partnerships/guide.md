@@ -41,13 +41,28 @@ Les 11 étapes : Prospect identifié → Premier contact → Intérêt confirmé
 
 Chaque changement est enregistré (qui, quand, commentaire) dans l’historique de la fiche et dans le journal d’activité.
 
-## 5. Données et confidentialité
+## 5. Besoins éducatifs et projets publiés
+
+**Besoins éducatifs** (Partenariats → Besoins éducatifs) : registre **interne** des besoins identifiés sur le terrain (titre, domaine, établissement ou projet, description, justification éducative, priorité, ressources, coût estimé, calendrier, responsable).
+
+1. Enregistrez le besoin, puis **Soumettre à la revue interne**.
+2. Un **approbateur habilité** le **valide** ou ne le retient pas. Un besoin validé n’est plus modifiable.
+3. Un besoin n’est **jamais publié** de lui-même.
+
+**Projets publiés** (Partenariats → Projets publiés) : ce que voient les organisations sur la page « Projets à la recherche de partenaires ».
+
+1. Depuis un besoin validé : **Préparer un projet** (ou « Nouveau projet »). Le brouillon n’est pas public : complétez le résumé, les objectifs, les bénéficiaires, la zone, les contributions recherchées, l’objectif de financement éventuel et la date limite.
+2. **Soumettre à la revue interne**, puis l’**approbateur** approuve la publication. Le contenu est alors figé (pour le changer : renvoyer en brouillon, puis nouvelle approbation).
+3. **Publier sur le site** : le projet apparaît dans l’annuaire public, sur la page de son domaine et sur la page Partenariats.
+4. Les candidatures reçues pour ce projet apparaissent sur sa fiche. **Clôturer** quand un partenaire est trouvé ou que la date limite est passée ; **Archiver** ensuite.
+
+## 6. Données et confidentialité
 
 - Seule l’équipe partenariats voit les candidatures, contacts et documents.
 - Les documents sont des **PDF vérifiés** à la réception (un fichier qui n’est pas un vrai PDF est refusé), stockés de façon privée.
 - Une candidature qui n’aboutit pas (non retenue, retirée, indésirable) est **supprimée 24 mois** après sa clôture, avec ses documents.
 - Aucun nom de partenaire n’est publié sans **accord écrit** de l’organisation.
 
-## 6. Avant d’ouvrir la page au public
+## 7. Avant d’ouvrir la page au public
 
 La page `/partenariats` est en ligne mais **non référencée et absente des menus**. Pour l’ouvrir, la Fondation doit valider : les textes de la page, les personnes (chargé·e, responsable, approbateur), le délai de réponse annoncé, et l’envoi d’e-mails (Resend). L’équipe technique ajoute alors le lien dans le menu et retire le `noindex`.

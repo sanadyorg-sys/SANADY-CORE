@@ -6,6 +6,8 @@ import { BrandDots } from "@/components/brand/brand-decor";
 import { buttonClasses } from "@/components/ui/button";
 import { FIELD_SLUGS, INTERVENTION_FIELDS, THEMES, fieldProgram, type InterventionField } from "@/lib/partnerships";
 import { FIELD_ICONS } from "@/components/partnerships/field-icons";
+import { OpportunityCard } from "@/components/partnerships/opportunity-card";
+import { publicOpportunities } from "@/server/queries/partnerships";
 
 /** One page per field of intervention (brief V2 §4). Hidden like /partenariats. */
 export function generateStaticParams() {
@@ -25,6 +27,7 @@ export default async function FieldPage(props: PageProps<"/partenariats/domaines
   const field = INTERVENTION_FIELDS[key];
   const program = fieldProgram(key);
   const Icon = FIELD_ICONS[key];
+  const projects = (await publicOpportunities()).filter((o) => o.intervention_field === key && o.open);
 
   return (
     <>
@@ -68,10 +71,20 @@ export default async function FieldPage(props: PageProps<"/partenariats/domaines
         </div>
         <div>
           <h2 className="text-[1.625rem] font-extrabold tracking-tight text-ink-900">Projets à la recherche de partenaires</h2>
-          <div className="mt-6 rounded-2xl border border-dashed border-line-strong bg-ink-25 p-8 text-center">
-            <p className="text-body text-ink-700">Aucun projet n’est publié dans ce domaine pour le moment.</p>
-            <p className="mt-1 text-caption text-ink-500">Les projets sont publiés après validation par la Fondation Sanady.</p>
-          </div>
+          {projects.length ? (
+            <ul className="mt-6 space-y-4">
+              {projects.map((o) => (
+                <li key={o.reference}>
+                  <OpportunityCard opportunity={o} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="mt-6 rounded-2xl border border-dashed border-line-strong bg-ink-25 p-8 text-center">
+              <p className="text-body text-ink-700">Aucun projet n’est publié dans ce domaine pour le moment.</p>
+              <p className="mt-1 text-caption text-ink-500">Les projets sont publiés après validation par la Fondation Sanady.</p>
+            </div>
+          )}
           <Link
             href={`/partenariats?domaine=${key}#candidature`}
             className={buttonClasses({ variant: "accent", size: "lg", className: "mt-6 rounded-xl" })}

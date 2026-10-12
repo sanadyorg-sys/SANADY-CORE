@@ -1,7 +1,18 @@
 import "server-only";
+import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { ApplicationStatus, ContributionType, InterventionField, OrgType, PipelineStatus } from "@/lib/partnerships";
+import type {
+  ApplicationStatus,
+  ContributionType,
+  InterventionField,
+  NeedPriority,
+  NeedStatus,
+  OpportunityStatus,
+  OrgType,
+  PipelineStatus,
+  PublicOpportunity,
+} from "@/lib/partnerships";
 import type { Viewer } from "@/server/auth";
 
 /** Reads go through RLS: only partnership staff (2FA) see these rows. */
@@ -47,6 +58,7 @@ export async function applicationCounts() {
 }
 
 export interface ApplicationDetail extends ApplicationRow {
+  opportunity: { id: string; reference: string; title: string } | null;
   city: string | null;
   website: string | null;
   sector: string | null;
@@ -65,7 +77,7 @@ export interface ApplicationDetail extends ApplicationRow {
 export async function getApplication(id: string) {
   const supabase = await createClient();
   const [{ data: app }, { data: docs }, { data: notes }, { data: history }] = await Promise.all([
-    supabase.from("partnership_applications").select("*").eq("id", id).maybeSingle(),
+    supabase.from("partnership_applications").select("*, opportunity:partnership_opportunities(id, reference, title)").eq("id", id).maybeSingle(),
     supabase.from("partnership_documents").select("id, file_name, file_size, created_at").eq("application_id", id).order("created_at"),
     supabase
       .from("partnership_notes")
@@ -264,3 +276,162 @@ export async function purgeExpiredApplications() {
   const { data: n } = await admin.rpc("purge_partnership_applications", { p_ids: ids });
   return (n as number) ?? 0;
 }
+
+/* ─── Phase 3: needs and projects ──────────────────────────────────────── */
+
+export interface NeedRow {
+  id: string;
+  reference: string;
+  title: string;
+  intervention_field: InterventionField;
+  priority: NeedPriority;
+  status: NeedStatus;
+  estimated_cost: string | null;
+  currency: string;
+  updated_at: string;
+  institution: { name: string } | null;
+  responsible: { full_name: string | null; email: string } | null;
+}
+
+export async function listNeeds(filter: { status?: string; field?: string }) {
+  const supabase = await createClient();
+  let query = supabase
+    .from("educational_needs")
+    .select(
+      "id, reference, title, intervention_field, priority, status, estimated_cost, currency, updated_at, institution:institutions(name), responsible:profiles!educational_needs_responsible_id_fkey(full_name, email)",
+    )
+    .order("updated_at", { ascending: false })
+    .limit(300);
+  if (filter.status) query = query.eq("status", filter.status);
+  if (filter.field) query = query.eq("intervention_field", filter.field);
+  const { data } = await query;
+  return (data ?? []) as unknown as NeedRow[];
+}
+
+export interface NeedDetail extends NeedRow {
+  institution_id: string | null;
+  project_label: string | null;
+  description: string;
+  justification: string;
+  required_resources: string | null;
+  timeline: string | null;
+  responsible_id: string | null;
+  decided_at: string | null;
+  created_at: string;
+  decider: { full_name: string | null; email: string } | null;
+}
+
+export async function getNeed(id: string) {
+  const supabase = await createClient();
+  const [{ data: need }, { data: notes }, { data: history }, { data: opportunities }] = await Promise.all([
+    supabase
+      .from("educational_needs")
+      .select(
+        "*, institution:institutions(name), responsible:profiles!educational_needs_responsible_id_fkey(full_name, email), decider:profiles!educational_needs_decided_by_fkey(full_name, email)",
+      )
+      .eq("id", id)
+      .maybeSingle(),
+    supabase.from("partnership_notes").select("id, body, created_at, author:profiles!partnership_notes_author_id_fkey(full_name, email)").eq("need_id", id).order("created_at", { ascending: false }),
+    supabase
+      .from("partnership_status_history")
+      .select("id, from_status, to_status, note, created_at, by:profiles!partnership_status_history_changed_by_fkey(full_name, email)")
+      .eq("need_id", id)
+      .order("created_at", { ascending: false }),
+    supabase.from("partnership_opportunities").select("id, reference, title, status").eq("need_id", id).order("created_at"),
+  ]);
+  if (!need) return null;
+  return {
+    need: need as unknown as NeedDetail,
+    notes: (notes ?? []) as unknown as Note[],
+    history: (history ?? []) as unknown as HistoryEntry[],
+    opportunities: (opportunities ?? []) as Array<{ id: string; reference: string; title: string; status: OpportunityStatus }>,
+  };
+}
+
+export interface OpportunityRow {
+  id: string;
+  reference: string;
+  title: string;
+  intervention_field: InterventionField;
+  status: OpportunityStatus;
+  deadline: string | null;
+  published_at: string | null;
+  updated_at: string;
+  contribution_types: ContributionType[];
+}
+
+export async function listOpportunities(filter: { status?: string; field?: string }) {
+  const supabase = await createClient();
+  let query = supabase
+    .from("partnership_opportunities")
+    .select("id, reference, title, intervention_field, status, deadline, published_at, updated_at, contribution_types")
+    .order("updated_at", { ascending: false })
+    .limit(300);
+  if (filter.status) query = query.eq("status", filter.status);
+  if (filter.field) query = query.eq("intervention_field", filter.field);
+  const { data } = await query;
+  return (data ?? []) as OpportunityRow[];
+}
+
+export interface OpportunityDetail extends OpportunityRow {
+  need_id: string | null;
+  summary: string;
+  description: string;
+  objectives: string;
+  beneficiaries: string;
+  geographic_scope: string | null;
+  expected_contribution: string;
+  required_resources: string | null;
+  funding_target: string | null;
+  currency: string;
+  timeline: string | null;
+  department: string | null;
+  approved_at: string | null;
+  closed_at: string | null;
+  created_at: string;
+  approver: { full_name: string | null; email: string } | null;
+  need: { reference: string; title: string } | null;
+}
+
+export async function getOpportunity(id: string) {
+  const supabase = await createClient();
+  const [{ data: opp }, { data: notes }, { data: history }, { data: applications }] = await Promise.all([
+    supabase
+      .from("partnership_opportunities")
+      .select("*, approver:profiles!partnership_opportunities_approved_by_fkey(full_name, email), need:educational_needs(reference, title)")
+      .eq("id", id)
+      .maybeSingle(),
+    supabase.from("partnership_notes").select("id, body, created_at, author:profiles!partnership_notes_author_id_fkey(full_name, email)").eq("opportunity_id", id).order("created_at", { ascending: false }),
+    supabase
+      .from("partnership_status_history")
+      .select("id, from_status, to_status, note, created_at, by:profiles!partnership_status_history_changed_by_fkey(full_name, email)")
+      .eq("opportunity_id", id)
+      .order("created_at", { ascending: false }),
+    supabase.from("partnership_applications").select("id, reference, org_name, status, created_at").eq("opportunity_id", id).order("created_at", { ascending: false }),
+  ]);
+  if (!opp) return null;
+  return {
+    opportunity: opp as unknown as OpportunityDetail,
+    notes: (notes ?? []) as unknown as Note[],
+    history: (history ?? []) as unknown as HistoryEntry[],
+    applications: (applications ?? []) as Array<{ id: string; reference: string; org_name: string; status: ApplicationStatus; created_at: string }>,
+  };
+}
+
+/** Active institutions (a need may concern one school). */
+export async function institutionsForNeeds() {
+  const supabase = await createClient();
+  const { data } = await supabase.from("institutions").select("id, name").eq("status", "active").order("name");
+  return (data ?? []) as Array<{ id: string; name: string }>;
+}
+
+/** Published projects for the public pages (no internal data; anon allowed). */
+export const publicOpportunities = cache(async (): Promise<PublicOpportunity[]> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("public_partnership_opportunities");
+  if (error) {
+    console.error("[partnerships] public opportunities", error.message);
+    return [];
+  }
+  return (data ?? []) as PublicOpportunity[];
+});

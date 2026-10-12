@@ -12,11 +12,15 @@ import {
   isPdf,
   MAX_DOCUMENT_BYTES,
   MAX_DOCUMENTS,
+  NEED_STATUS,
+  OPPORTUNITY_STATUS,
   ORG_TYPES,
   PIPELINE,
   safeFileName,
+  type NeedStatus,
+  type OpportunityStatus,
 } from "@/lib/partnerships";
-import { applicationSchema } from "@/lib/partnerships-schema";
+import { applicationSchema, needSchema, opportunitySchema } from "@/lib/partnerships-schema";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types";
@@ -310,4 +314,87 @@ export async function saveTask(_prev: ActionState, formData: FormData): Promise<
 
 export async function setTaskDone(taskId: string, done: boolean, organizationId: string): Promise<ActionState> {
   return call("set_partnership_task_done", { p_id: taskId, p_done: done }, [`/admin/partenariats/organisations/${organizationId}`, "/admin/partenariats"], done ? "Tâche terminée." : "Tâche rouverte.");
+}
+
+/* ─── Phase 3: educational needs and projects seeking partners ─────────── */
+
+export async function saveNeed(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requirePartnershipStaff();
+  const id = String(formData.get("id") ?? "");
+  const parsed = parseInput(needSchema, formData);
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors, message: "Certaines informations sont à compléter." };
+  const { data, error } = await (await createClient()).rpc("save_educational_need", { p_id: id || null, p: parsed.data });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidatePath("/admin/partenariats/besoins");
+  if (!id) redirect(`/admin/partenariats/besoins/${data as string}`);
+  revalidatePath(`/admin/partenariats/besoins/${id}`);
+  return { ok: true, message: "Besoin enregistré." };
+}
+
+export async function setNeedStatus(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = parseInput(
+    z.object({ id: uuidSchema, status: z.enum(Object.keys(NEED_STATUS) as [NeedStatus], "Choisissez un statut."), note: optionalText(1000) }),
+    formData,
+  );
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  const { id, status, note } = parsed.data;
+  return call("set_need_status", { p_need: id, p_status: status, p_note: note ?? null }, ["/admin/partenariats/besoins", `/admin/partenariats/besoins/${id}`], `Statut « ${NEED_STATUS[status].label} » enregistré.`);
+}
+
+export async function createOpportunityFromNeed(needId: string): Promise<ActionState> {
+  await requirePartnershipStaff();
+  if (!uuidSchema.safeParse(needId).success) return { ok: false, message: messageFor("not_found") };
+  const { data, error } = await (await createClient()).rpc("create_opportunity_from_need", { p_need: needId });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidatePath("/admin/partenariats/opportunites");
+  redirect(`/admin/partenariats/opportunites/${data as string}`);
+}
+
+export async function saveOpportunity(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requirePartnershipStaff();
+  const id = String(formData.get("id") ?? "");
+  const parsed = parseInput(opportunitySchema, formData);
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors, message: "Certaines informations sont à compléter." };
+  const contribution_types = list(formData, "contribution_types").filter((c) => c in CONTRIBUTION_TYPES);
+  if (!contribution_types.length) return { ok: false, fieldErrors: { contribution_types: "Choisissez au moins un type de contribution." } };
+  const { data, error } = await (await createClient()).rpc("save_partnership_opportunity", {
+    p_id: id || null,
+    p: { ...parsed.data, contribution_types },
+  });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidatePath("/admin/partenariats/opportunites");
+  if (!id) redirect(`/admin/partenariats/opportunites/${data as string}`);
+  revalidatePath(`/admin/partenariats/opportunites/${id}`);
+  return { ok: true, message: "Projet enregistré." };
+}
+
+export async function setOpportunityStatus(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = parseInput(
+    z.object({ id: uuidSchema, status: z.enum(Object.keys(OPPORTUNITY_STATUS) as [OpportunityStatus], "Choisissez un statut."), note: optionalText(1000) }),
+    formData,
+  );
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  const { id, status, note } = parsed.data;
+  const result = await call(
+    "set_opportunity_status",
+    { p_opportunity: id, p_status: status, p_note: note ?? null },
+    ["/admin/partenariats/opportunites", `/admin/partenariats/opportunites/${id}`, "/partenariats", "/partenariats/opportunites"],
+    `Statut « ${OPPORTUNITY_STATUS[status].label} » enregistré.`,
+  );
+  return result;
+}
+
+export async function addTargetNote(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = parseInput(
+    z.object({
+      need_id: z.union([uuidSchema, z.literal("")]).optional(),
+      opportunity_id: z.union([uuidSchema, z.literal("")]).optional(),
+      body: z.string().trim().min(1, "Écrivez la note.").max(4000, "4000 caractères maximum."),
+    }),
+    formData,
+  );
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  const { need_id, opportunity_id, body } = parsed.data;
+  const path = need_id ? `/admin/partenariats/besoins/${need_id}` : `/admin/partenariats/opportunites/${opportunity_id}`;
+  return call("add_partnership_target_note", { p_need: need_id || null, p_opportunity: opportunity_id || null, p_body: body }, [path], "Note ajoutée.");
 }

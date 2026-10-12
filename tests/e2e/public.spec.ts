@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const PUBLIC_PAGES = ["/", "/formations", "/a-propos", "/ressources", "/demande-acces", "/connexion", "/aide", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide", "/partenariats", "/partenariats/domaines/rehabilitation"];
+const PUBLIC_PAGES = ["/", "/formations", "/a-propos", "/ressources", "/demande-acces", "/connexion", "/aide", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide", "/partenariats", "/partenariats/domaines/rehabilitation", "/partenariats/opportunites"];
 
 async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -195,6 +195,15 @@ test.describe("partnerships portal (hidden until approved)", () => {
     await page.getByRole("link", { name: "Proposer un partenariat dans ce domaine" }).click();
     await expect(page).toHaveURL(/domaine=formation-continue/);
     const res = await page.goto("/partenariats/domaines/marketing");
+    expect(res?.status()).toBe(404);
+  });
+
+  test("lists published projects with filters, and 404 for unknown ones", async ({ page }) => {
+    await page.goto("/partenariats/opportunites");
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Projets à la recherche de partenaires");
+    await expect(page.getByRole("search", { name: "Filtrer les projets" })).toBeVisible();
+    const res = await page.goto("/partenariats/opportunites/OPP-0000-0000");
     expect(res?.status()).toBe(404);
   });
 

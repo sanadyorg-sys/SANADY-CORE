@@ -33,7 +33,7 @@ stays **hidden until the Foundation approves** (no menu link, `noindex`).
 | 0 — Audit & validation | This document |
 | 1 — Public portal (landing, six fields, form, confirmation, storage, inbox) | Built now |
 | 2 — CRM (organisations, contacts, pipeline, tasks, status, permissions) | Built now |
-| 3 — Needs registry, opportunities directory, approval of opportunities | Next — needs the Foundation’s first validated needs |
+| 3 — Needs registry, opportunities directory, approval of opportunities | **Built** (migration `20261017000100`) — waiting for the Foundation’s first validated needs |
 | 4 — Agreements, contributions, milestones, renewals | Later |
 | 5 — Impact dashboard, verified PDF partner reports | Later |
 | 6 — Partner portal, advanced relationship management | Later, only with SANADY authorisation |

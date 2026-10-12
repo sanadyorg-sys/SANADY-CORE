@@ -19,6 +19,7 @@ import {
   LayoutDashboard,
   Library,
   Mail,
+  Megaphone,
   Settings,
   ShieldCheck,
   UserRound,
@@ -45,6 +46,8 @@ interface NavSection {
 const PARTNERSHIP_ITEMS: NavItem[] = [
   { href: "/admin/partenariats", label: "Candidatures", icon: Handshake, exact: true },
   { href: "/admin/partenariats/organisations", label: "Organisations partenaires", icon: Building },
+  { href: "/admin/partenariats/besoins", label: "Besoins éducatifs", icon: ClipboardList },
+  { href: "/admin/partenariats/opportunites", label: "Projets publiés", icon: Megaphone },
 ];
 
 export function navigationFor(area: Area, institutionId?: string, role: NavRole = "admin"): NavSection[] {

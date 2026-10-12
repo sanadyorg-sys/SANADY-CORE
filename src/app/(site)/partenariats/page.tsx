@@ -14,9 +14,11 @@ import {
 import { BrandDots, SmileUnderline } from "@/components/brand/brand-decor";
 import { FIELD_ICONS } from "@/components/partnerships/field-icons";
 import { PartnershipApplicationForm } from "@/components/partnerships/application-form";
+import { OpportunityCard } from "@/components/partnerships/opportunity-card";
 import { buttonClasses } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/motion";
 import { FOUNDATION } from "@/lib/institution";
+import { publicOpportunities } from "@/server/queries/partnerships";
 import { CONTRIBUTION_TYPES, FIELD_SLUGS, INTERVENTION_FIELDS, THEMES, fieldProgram, type InterventionField } from "@/lib/partnerships";
 
 /**
@@ -81,6 +83,11 @@ const FAQ = [
 export default async function PartnershipsPage(props: PageProps<"/partenariats">) {
   const sp = await props.searchParams;
   const domaine = typeof sp.domaine === "string" && sp.domaine in INTERVENTION_FIELDS ? (sp.domaine as InterventionField) : undefined;
+  const projects = await publicOpportunities();
+  const open = projects.filter((o) => o.open);
+  const projet = typeof sp.projet === "string" && open.some((o) => o.reference === sp.projet) ? sp.projet : undefined;
+  const openByField = new Map<string, number>();
+  for (const o of open) openByField.set(o.intervention_field, (openByField.get(o.intervention_field) ?? 0) + 1);
 
   return (
     <>
@@ -176,6 +183,11 @@ export default async function PartnershipsPage(props: PageProps<"/partenariats">
                     </span>
                     <span className="mt-4 block text-section font-bold text-ink-900 group-hover:text-accent-800">{f.name}</span>
                     {program ? <span className="mt-2 line-clamp-3 block text-body leading-relaxed text-ink-600">{program.description}</span> : null}
+                    {openByField.get(slug) ? (
+                      <span className="mt-3 inline-flex w-fit rounded-full bg-success-50 px-2.5 py-0.5 text-caption font-semibold text-success-700">
+                        {openByField.get(slug)} projet{openByField.get(slug)! > 1 ? "s" : ""} ouvert{openByField.get(slug)! > 1 ? "s" : ""} aux partenaires
+                      </span>
+                    ) : null}
                     <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-label font-bold text-accent-700">
                       Découvrir ce domaine <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
                     </span>
@@ -187,15 +199,34 @@ export default async function PartnershipsPage(props: PageProps<"/partenariats">
         </div>
       </section>
 
-      {/* ─── Opportunities (phase 3) ──────────────────────────────────────── */}
+      {/* ─── Projects seeking partners (published by the Foundation) ─────── */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <Reveal className="rounded-3xl border border-dashed border-line-strong bg-surface p-8 text-center sm:p-10">
-          <h2 className="text-section font-bold text-ink-900">Projets à la recherche de partenaires</h2>
-          <p className="mx-auto mt-2 max-w-2xl text-body text-ink-600">
-            Les projets éducatifs validés par la Fondation Sanady seront présentés ici. Aucun projet n’est publié pour le moment : vous pouvez dès
-            maintenant proposer une coopération dans l’un des six domaines.
-          </p>
+        <Reveal className="flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-2xl">
+            <p className="inline-flex items-center gap-2 text-label font-bold uppercase tracking-wider text-accent-700">
+              <BrandDots /> Besoins validés par la Fondation
+            </p>
+            <h2 className="mt-2 text-[1.875rem] font-extrabold leading-tight tracking-tight text-ink-900">Projets à la recherche de partenaires</h2>
+          </div>
+          {open.length ? (
+            <Link href="/partenariats/opportunites" className={buttonClasses({ variant: "secondary", className: "rounded-xl" })}>
+              Tous les projets <ArrowRight aria-hidden />
+            </Link>
+          ) : null}
         </Reveal>
+        {open.length ? (
+          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {open.slice(0, 3).map((o) => (
+              <li key={o.reference}>
+                <OpportunityCard opportunity={o} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-6 rounded-3xl border border-dashed border-line-strong bg-surface p-8 text-center text-body text-ink-600">
+            Aucun projet n’est publié pour le moment : vous pouvez dès maintenant proposer une coopération dans l’un des six domaines.
+          </p>
+        )}
       </section>
 
       {/* ─── Ways to contribute ───────────────────────────────────────────── */}
@@ -240,7 +271,7 @@ export default async function PartnershipsPage(props: PageProps<"/partenariats">
             </p>
           </div>
           <div className="rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8">
-            <PartnershipApplicationForm defaultField={domaine} />
+            <PartnershipApplicationForm defaultField={domaine} projects={open.map((o) => ({ reference: o.reference, title: o.title }))} defaultProject={projet} />
           </div>
         </div>
       </section>
