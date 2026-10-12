@@ -20,7 +20,7 @@ export default async function CourseEditorLayout(props: LayoutProps<"/admin/form
   const { courseId } = await props.params;
   const viewer = await requireStaff();
   const supabase = await createClient();
-  const [{ data }, { count }, { data: trainerRow }] = await Promise.all([
+  const [{ data }, { count }, { data: trainerRow }, { data: projectRow }] = await Promise.all([
     supabase
       .from("courses")
       .select("id, title, status, updated_at, published_at, submitted_at, review_comment, reviewed_at")
@@ -30,7 +30,10 @@ export default async function CourseEditorLayout(props: LayoutProps<"/admin/form
     viewer.isTrainer
       ? supabase.from("course_trainers").select("id").eq("course_id", courseId).eq("user_id", viewer.id).maybeSingle()
       : Promise.resolve({ data: { id: "staff" } }),
+    // Custom training for a company (SANADY Enterprise studio).
+    supabase.from("training_projects").select("id, reference, status, organization:partner_organizations(name)").eq("course_id", courseId).maybeSingle(),
   ]);
+  const project = projectRow as unknown as { id: string; reference: string; status: string; organization: { name: string } | null } | null;
   const course = data as CourseHeader | null;
   // A trainer only opens the courses assigned to them (even if enrolled elsewhere as a learner).
   if (!course || !trainerRow) notFound();
@@ -57,6 +60,15 @@ export default async function CourseEditorLayout(props: LayoutProps<"/admin/form
           <CourseStatusActions courseId={courseId} status={course.status} activeLearners={count ?? 0} canPublish={viewer.isCourseStaff} />
         }
       />
+      {project ? (
+        <Alert tone="info" className="mb-6">
+          Formation sur mesure {project.organization ? `pour ${project.organization.name}` : ""} — projet{" "}
+          <Link href={`/admin/studio/${project.id}`} className="font-medium underline">
+            {project.reference}
+          </Link>
+          . Elle ne peut être publiée qu’après la validation institutionnelle du projet, et reste réservée à l’espace du client.
+        </Alert>
+      ) : null}
       {course.status === "draft" && course.review_comment ? (
         <Alert tone="warning" title="Modifications demandées par l’équipe SANADY" className="mb-6">
           <p className="whitespace-pre-line">{course.review_comment}</p>

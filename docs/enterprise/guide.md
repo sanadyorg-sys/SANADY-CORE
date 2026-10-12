@@ -57,6 +57,21 @@ Un **espace de formation** est l’espace sécurisé d’un client : ses collabo
 
 **Fin de contrat** : « Enregistrer la fin du contrat » (motif obligatoire) → plus aucune nouvelle invitation → un approbateur **autorise l’export** → fixez la **date de suppression** des données → **Fermer l’espace** (accès retirés). Rien n’est supprimé immédiatement.
 
-## 6. Données personnelles
+## 6. Studio de production (formations sur mesure)
+
+Menu **Studio de production**. Un projet se crée depuis la fiche du client (**Nouveau projet**).
+
+1. **Besoins** : public, objectifs, contraintes, langue, durée, propriété du contenu, espace du client, revue du client prévue ou non.
+2. **Conception** : ajoutez les modules du **programme**, puis **Créer la formation à partir du programme** (brouillon réservé au client).
+3. **Production** : ajoutez les **formateurs** (ils écrivent la formation dans l’éditeur habituel : vidéos, PDF, évaluations) et les **tâches** (vidéo, PDF, évaluation…). Chacun termine ses tâches depuis le Studio.
+4. **Revue pédagogique** : « Soumettre à la revue pédagogique » (toutes les tâches terminées, formation complète) ; un responsable pédagogique valide ou demande des modifications.
+5. **Revue du client** (si prévue) : l’administrateur de l’entreprise valide le programme dans « Formations sur mesure » de son espace, ou l’équipe enregistre sa réponse.
+6. **Validation institutionnelle** : un approbateur approuve ; une copie de la formation est figée (version).
+7. **Publication** : l’équipe pédagogique publie la formation (« Approuver et publier ») — impossible avant l’approbation.
+8. **Lancement** : « Lancer dans l’espace du client » ; l’administrateur de l’entreprise l’affecte ensuite à ses collaborateurs.
+
+Mise à jour d’une formation lancée : « Préparer une nouvelle version », puis revues et approbation comme la première fois.
+
+## 7. Données personnelles
 
 Les demandes qui n’aboutissent pas sont supprimées au plus tard 24 mois après leur clôture (politique de confidentialité, §9). Les documents sont stockés dans un espace privé et vérifiés à l’arrivée (un faux PDF est refusé).

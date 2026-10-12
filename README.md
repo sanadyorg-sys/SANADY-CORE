@@ -79,7 +79,7 @@ docs/                Architecture, database, security, design system, deployment
 - [Operations](docs/operations.md) — backups, retention, monitoring, incidents, costs
 - [Decision log](docs/decisions.md) — technical decisions and why
 - [Partenariats & Coopération](docs/partnerships/plan.md) — audit, plan and roadmap; [guide de l’équipe](docs/partnerships/guide.md)
-- [SANADY Enterprise](docs/enterprise/plan.md) — proposed activity, phases E1–E3 built; [guide de l’équipe](docs/enterprise/guide.md)
+- [SANADY Enterprise](docs/enterprise/plan.md) — proposed activity, phases E1–E4 built; [guide de l’équipe](docs/enterprise/guide.md)
 - [Audit and roadmap](docs/audit-roadmap.md) — status against the direction brief
 - [Institutional reference](docs/institution/reference-sanady.md) — verified Foundation facts with sources
 

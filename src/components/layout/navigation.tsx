@@ -9,6 +9,7 @@ import {
   Briefcase,
   Building,
   Building2,
+  Clapperboard,
   ChartColumn,
   ChartNoAxesCombined,
   ClipboardCheck,
@@ -56,6 +57,7 @@ const ENTERPRISE_ITEMS: NavItem[] = [
   { href: "/admin/partenariats/entreprises/clients", label: "Clients et prospects", icon: Briefcase },
   { href: "/admin/partenariats/entreprises/propositions", label: "Propositions", icon: FileText },
   { href: "/admin/partenariats/entreprises/espaces", label: "Espaces de formation", icon: Building2 },
+  { href: "/admin/studio", label: "Studio de production", icon: Clapperboard },
 ];
 
 export function navigationFor(area: Area, institutionId?: string, role: NavRole = "admin", enterprise = false): NavSection[] {
@@ -66,7 +68,14 @@ export function navigationFor(area: Area, institutionId?: string, role: NavRole 
     return [{ title: "Partenariats", items: PARTNERSHIP_ITEMS }];
   }
   if (area === "admin" && role === "trainer") {
-    return [{ items: [{ href: "/admin/formations", label: "Mes formations", icon: Library }] }];
+    return [
+      {
+        items: [
+          { href: "/admin/formations", label: "Mes formations", icon: Library },
+          { href: "/admin/studio", label: "Studio : mes tâches", icon: Clapperboard },
+        ],
+      },
+    ];
   }
   if (area === "admin" && role === "manager") {
     return [
@@ -75,6 +84,7 @@ export function navigationFor(area: Area, institutionId?: string, role: NavRole 
         title: "Pédagogie",
         items: [
           { href: "/admin/formations", label: "Formations", icon: Library },
+          { href: "/admin/studio", label: "Studio de production", icon: Clapperboard },
           { href: "/admin/bibliotheque", label: "Bibliothèque", icon: BookMarked },
           { href: "/admin/suivi", label: "Suivi pédagogique", icon: ChartColumn },
           { href: "/admin/rapports", label: "Rapports et statistiques", icon: ChartNoAxesCombined },
@@ -124,7 +134,12 @@ export function navigationFor(area: Area, institutionId?: string, role: NavRole 
         items: [
           { href: base, label: "Tableau de bord", icon: LayoutDashboard, exact: true },
           { href: `${base}/enseignants`, label: enterprise ? "Nos collaborateurs" : "Nos enseignants", icon: Users },
-          ...(enterprise && role === "admin" ? [{ href: `${base}/services`, label: "Services", icon: Building }] : []),
+          ...(enterprise && role === "admin"
+            ? [
+                { href: `${base}/services`, label: "Services", icon: Building },
+                { href: `${base}/projets`, label: "Formations sur mesure", icon: Clapperboard },
+              ]
+            : []),
           { href: `${base}/formations`, label: "Formations autorisées", icon: Library },
           { href: `${base}/suivi`, label: "Suivi individuel", icon: ClipboardList },
           { href: `${base}/statistiques`, label: "Statistiques", icon: ChartNoAxesCombined },

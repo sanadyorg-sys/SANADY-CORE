@@ -27,6 +27,17 @@ const MESSAGES: Record<string, string> = {
   course_private_to_tenant: "Cette formation est réservée à l’espace de son entreprise : elle ne peut pas être partagée ailleurs.",
   department_exists: "Ce service existe déjà.",
 
+  // SANADY Enterprise — training production studio
+  project_locked: "Le projet est en revue ou en validation : renvoyez-le en production pour le modifier.",
+  objectives_required: "Rédigez les objectifs de formation (20 caractères au moins) avant de passer à la conception.",
+  outline_required: "Ajoutez au moins un module au programme avant de créer la formation.",
+  course_required: "Créez d’abord la formation du projet.",
+  tenant_required: "Une formation appartenant à l’entreprise doit être rattachée à son espace de formation.",
+  tasks_open: "Toutes les tâches de production doivent être terminées avant la revue pédagogique.",
+  reviews_required: "La revue pédagogique (et celle du client, si prévue) doit être validée avant l’approbation.",
+  comment_required: "Ajoutez un commentaire (5 caractères au moins).",
+  project_not_approved: "Cette formation sur mesure ne peut être publiée qu’après la validation institutionnelle de son projet.",
+
   // Invitations
   invitation_not_found: "Ce lien d’invitation n’est pas valide.",
   invitation_revoked: "Cette invitation a été annulée. Demandez une nouvelle invitation.",

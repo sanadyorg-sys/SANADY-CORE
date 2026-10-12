@@ -16,7 +16,7 @@ Every rule below is enforced **in the database** (row-level security and checks 
 | **Responsable des partenariats** | `platform_roles.role = partnership_manager` | Granted by an administrator | **Mandatory** |
 | **Approbateur habilité** (partenariats, Enterprise) | `partnership_signatories` (explicit grant, not a role) | Appointed by an administrator — **never by themself**; holder must be an admin or have a partnership role | **Mandatory** to use it |
 | **Responsable entreprises** (Enterprise) | `platform_roles.role = enterprise_manager` | Granted by an administrator | **Mandatory** |
-| **Responsable de production** (Enterprise) | `platform_roles.role = production_manager` | Granted by an administrator; reads only in E1–E3 | **Mandatory** |
+| **Responsable de production** (Enterprise) | `platform_roles.role = production_manager` | Granted by an administrator; reads the CRM, runs training projects in the Studio (E4) | **Mandatory** |
 | **Administrateur d’entreprise** | `institution_memberships.role = admin` in an institution of kind `enterprise` | Invited by the enterprise manager during provisioning | Optional |
 | **Collaborateur** (employee) | `institution_memberships.role = teacher` in a company workspace | Invited by the company administrator (single or bulk), within the learner limit | Optional |
 | **Visiteur** | — | — | — |
@@ -121,6 +121,18 @@ Functions in `supabase/migrations/20261018000100_enterprise.sql`; tests in `test
 | Invite employees (single, bulk), manage services, assign courses, view reports — **own workspace only** | — | — | — | ✅ | — |
 | Follow assigned courses, quizzes, attestations | — | — | — | — | ✅ |
 | See another company's employees, courses, results or reports | — | — | — | ❌ | ❌ |
+
+### Training production studio (E4)
+
+| Action | Resp. entreprises / production | Responsable pédagogique | Formateur | Approbateur | Administrateur d’entreprise |
+|---|---|---|---|---|---|
+| Create a project, write the brief and the programme, create the course, assign trainers and tasks, move to review, launch, new version | ✅ | — | — | — | — |
+| Write the course content (draft) | — | ✅ | ✅ (assigned) | — | — |
+| Close own production tasks | ✅ | ✅ | ✅ | — | — |
+| **Pedagogical review** | — | ✅ | — | — | — |
+| **Client review** of the programme | ✅ (records the client's answer) | — | — | — | ✅ (own workspace) |
+| **Final institutional approval** (frozen version) | — | — | — | ✅ | — |
+| Publish the course (only after the approval) | — | ✅ | — | — | — |
 
 Enterprise staff see workspace counts (`tenant_usage`), never employee names. Employees of companies only do not see the teachers' library and are not counted in SANADY's teacher statistics.
 

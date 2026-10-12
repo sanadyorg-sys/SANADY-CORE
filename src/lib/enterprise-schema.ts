@@ -140,3 +140,27 @@ export const tenantSchema = z
     message: "La fin du contrat doit suivre son début.",
     path: ["contract_end_on"],
   });
+
+/** Training project brief (phase E4) — mirrors public.training_projects. */
+export const trainingProjectSchema = z.object({
+  title: z.string().trim().min(5, "Titre : 5 caractères minimum.").max(200),
+  target_audience: z.string().trim().min(3, "Décrivez le public visé.").max(1000),
+  objectives: optionalText(4000),
+  constraints: optionalText(2000),
+  language: z.enum(["fr", "ar", "en", "multiple"]).default("fr"),
+  target_minutes: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => (v ? v.replace(/\s/g, "") : undefined))
+    .refine((v) => !v || (/^\d{2,6}$/.test(v) && Number(v) >= 10), "Durée en minutes (10 au minimum)."),
+  ownership: z.enum(["company", "joint", "licensed"], "Choisissez la propriété du contenu."),
+  client_review_required: z
+    .union([z.literal("on"), z.literal("true"), z.literal("")])
+    .optional()
+    .transform((v) => v === "on" || v === "true"),
+  due_on: z.union([z.iso.date("Date invalide."), z.literal("")]).optional(),
+  tenant_id: z.union([z.uuid(), z.literal("")]).optional(),
+  proposal_id: z.union([z.uuid(), z.literal("")]).optional(),
+  lead_id: z.union([z.uuid(), z.literal("")]).optional(),
+});

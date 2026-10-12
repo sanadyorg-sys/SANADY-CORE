@@ -5,9 +5,9 @@ its Phase 0 (« audit the existing project, identify reusable LMS components,
 assess multi-tenant security risks, and present a phased integration plan
 before making major code or database changes »).
 
-**Build status (12/10/2026):** phases **E1, E2 and E3 are built** (migrations
+**Build status (12/10/2026):** phases **E1, E2, E3 and E4 are built** (migrations
 `20261018000100_enterprise.sql`, `20261018000200_staff_profiles.sql`,
-`20261019000100_enterprise_tenants.sql`), with the public page hidden and
+`20261019000100_enterprise_tenants.sql`, `20261020000100_training_studio.sql`), with the public page hidden and
 worded as a proposal. E3 was built ahead of G1–G5 at the owner's request: the
 safeguard is in the database instead — a company workspace can only be
 requested for a client whose contract an approver signed, and only exists
@@ -99,7 +99,7 @@ invitations are reused as they are.
 | **E1 — Public portal & requests** | `/partenariats/entreprises` (hidden, worded as proposals): the four kinds of relationship (solidaire, sur mesure, plateforme, hybride), service workflow, FAQ, 6-step request form, reference `ENT-…`, inbox | Nothing — validates demand before investing |
 | **E2 — Enterprise CRM** | Enterprise pipeline (Lead → … → Renouvellement) on the organisation record, proposals with configurable line items (no fixed prices), approval by an approver, tasks | E1 |
 | **E3 — Multi-tenant LMS** ✅ | Enterprise tenants on institutions, provisioning checklist (10 steps), company admin dashboard, employees (CSV), departments, private courses, offboarding, cross-tenant tests | Built 12/10/2026; first real use needs G1–G5 + a signed pilot contract |
-| E4 — Training studio | Training projects, curriculum brief, production tasks, client review, versioned publication on the existing authoring and review workflow | E3 |
+| **E4 — Training studio** ✅ | Training projects, curriculum brief, production tasks, client review, versioned publication on the existing authoring and review workflow | Built 12/10/2026 (§9) |
 | E5 — Contracts & operations | Contracts (Draft → … → Closed), service plans, usage tracking, renewals, offboarding | E3 |
 | E6 — Finance & impact | Contracted / invoiced / received / outstanding (no billing), costs, margin estimates (labelled as estimates), link to partnership impact | E5 + accountant |
 
@@ -145,3 +145,21 @@ watched (usage line item) before activation.
 | Certificates | Workspace setting « Attestation de formation » or « Certificat »; the PDF title and footer follow it for company-owned courses. |
 
 Not in E3: storage and video **measurement** per workspace (allowances are recorded, usage is not yet metered), company logo, automatic deletion job, e-mail reminders. Fix shipped alongside: `20261019000200` lets the server read document paths so the retention purge also deletes the stored PDFs (decision 36).
+
+## 9. Phase E4 as built (12/10/2026) — Studio de production
+
+| Brief §13 | Implementation |
+|---|---|
+| Route | `/admin/studio` (list, « my tasks » for trainers) and `/admin/studio/[projectId]`; projects are created from a client record. |
+| Project brief | `training_projects` (reference `FS-YYYY-NNNN`): audience, objectives, constraints, language, target duration, content ownership, client workspace, proposal, lead, due date, « client review required ». |
+| Curriculum builder / module outline | `training_outline` (ordered modules); « Créer la formation » builds a **draft course** from it — owned by the client and reserved to its workspace. |
+| Lesson editor, media uploads, assessment builder | The **existing course editor** (videos, PDFs, quizzes); the project's trainers author it while in draft (`assign_project_trainer`). No second engine. |
+| Production tasks | `training_tasks` (video, PDF, quiz, activity, review…), assigned to production staff or trainers; the assignee closes their own task. |
+| Review comments | `training_reviews`: internal pedagogical review (training managers) then client review (the company administrator in « Formations sur mesure », or recorded by the team). « Changes requested » sends the project back to production and the course back to draft. |
+| Final institutional approval | Approver only (2FA). A project course **cannot be published before** it (database trigger). |
+| Version history | `training_versions`: frozen copy of the course (modules, lessons, quizzes, questions, answers) at each approval. An update after launch is a new version, reviewed and approved again. |
+| Course published / training launched | Publication by the pedagogical team (existing « Approuver et publier »); launch opens the course to the client's workspace, where its administrator assigns it. |
+| 12 steps | `training_checklist` computes them from the records. |
+
+Roles: enterprise and production managers run projects; training managers do the pedagogical review and publish; trainers write the course; approvers give the final approval; the company administrator reviews the programme. Limitation: the client reviews the programme (objectives and modules), not a preview of the lessons.
+

@@ -239,3 +239,8 @@ test.describe("SANADY Enterprise portal (proposal, hidden)", () => {
     await expect(page).toHaveURL(/\/connexion\?suite=%2Fentreprise%2Fsociete-exemple/);
   });
 });
+
+test("the training studio requires signing in", async ({ page }) => {
+  await page.goto("/admin/studio");
+  await expect(page).toHaveURL(/\/connexion/);
+});

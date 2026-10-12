@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarClock, Handshake, Mail, Pencil, Phone, Plus, Star } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
+import { ProjectForm } from "@/components/enterprise/studio-forms";
 import { TenantForm } from "@/components/enterprise/tenant-forms";
 import { ClientForm, EnterpriseContactForm, EnterpriseNoteForm, EnterpriseStatusForm, EnterpriseTaskForm, ProposalForm } from "@/components/enterprise/admin-forms";
 import { HistoryList, NotesList } from "@/components/partnerships/timeline";
@@ -22,6 +23,7 @@ import {
   enterpriseStageTone,
   SERVICE_PLANS,
   TENANT_STATUS,
+  TRAINING_STATUS,
   lineTotal,
 } from "@/lib/enterprise";
 import { ORG_TYPES, formatAmount } from "@/lib/partnerships";
@@ -29,6 +31,7 @@ import { uuidSchema } from "@/lib/validation";
 import { setEnterpriseTaskDone } from "@/server/actions/enterprise";
 import { requireEnterpriseStaff } from "@/server/auth";
 import { enterpriseActor, enterpriseTeam, getClient, tenantForOrganization } from "@/server/queries/enterprise";
+import { listProjects, productionTeam, projectFormOptions } from "@/server/queries/studio";
 
 export const metadata: Metadata = { title: "Client — Enterprise" };
 const MAIN = ENTERPRISE_ORDER.slice(0, 11);
@@ -37,7 +40,15 @@ export default async function ClientPage(props: PageProps<"/admin/partenariats/e
   const viewer = await requireEnterpriseStaff();
   const { organizationId } = await props.params;
   if (!uuidSchema.safeParse(organizationId).success) notFound();
-  const [detail, actor, team, tenant] = await Promise.all([getClient(organizationId), enterpriseActor(viewer), enterpriseTeam(), tenantForOrganization(organizationId)]);
+  const [detail, actor, team, tenant, projects, projectOptions, studioTeam] = await Promise.all([
+    getClient(organizationId),
+    enterpriseActor(viewer),
+    enterpriseTeam(),
+    tenantForOrganization(organizationId),
+    listProjects({ organization: organizationId }),
+    projectFormOptions(organizationId),
+    productionTeam(),
+  ]);
   if (!detail) notFound();
   const { client: c, contacts, notes, history, tasks, requests, proposals } = detail;
   const stageIndex = MAIN.indexOf(c.enterprise_status);
@@ -258,6 +269,50 @@ export default async function ClientPage(props: PageProps<"/admin/partenariats/e
                 <p className="text-body text-ink-600">Disponible après la signature du contrat (étape « Contrat signé »).</p>
               )}
             </CardBody>
+          </Card>
+          <Card>
+            <CardHeader title="Projets de formation sur mesure" description="Conception et production dans le Studio." />
+            {projects.length ? (
+              <ul className="divide-y divide-line">
+                {projects.map((pr) => (
+                  <li key={pr.id} className="px-5 py-3">
+                    <Link href={`/admin/studio/${pr.id}`} className="font-medium text-ink-900 hover:text-accent-700 hover:underline">
+                      {pr.title}
+                    </Link>
+                    <p className="mt-0.5 flex flex-wrap items-center gap-2 text-caption text-ink-500">
+                      {pr.reference} <Badge tone={TRAINING_STATUS[pr.status].tone}>{TRAINING_STATUS[pr.status].label}</Badge>
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {actor.manager || viewer.platformRole === "production_manager" ? (
+              <CardBody className={projects.length ? "border-t border-line" : undefined}>
+                <Drawer
+                  title="Nouveau projet de formation"
+                  description="Les besoins du client, avant la conception du programme."
+                  width="max-w-2xl"
+                  trigger={
+                    <Button variant="secondary">
+                      <Plus aria-hidden /> Nouveau projet
+                    </Button>
+                  }
+                >
+                  <div className="p-5">
+                    <ProjectForm
+                      organizationId={c.id}
+                      tenants={projectOptions.tenants}
+                      proposals={projectOptions.proposals}
+                      team={studioTeam.filter((m) => m.role !== "trainer").map((m) => ({ id: m.id, label: m.full_name || m.email }))}
+                    />
+                  </div>
+                </Drawer>
+              </CardBody>
+            ) : !projects.length ? (
+              <CardBody>
+                <p className="text-body text-ink-600">Aucun projet.</p>
+              </CardBody>
+            ) : null}
           </Card>
           <Card>
             <CardHeader title="Tâches de suivi" />

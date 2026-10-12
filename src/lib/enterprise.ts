@@ -197,3 +197,65 @@ export function wording(kind: "school" | "enterprise" | null | undefined) {
       .replace(/enseignant/g, "collaborateur")
       .replace(/Enseignant/g, "Collaborateur");
 }
+
+/* ─── Phase E4: custom training production studio (migration 20261020000100) ─ */
+
+export const TRAINING_STATUS = {
+  brief: { label: "Besoins reçus", tone: "neutral" },
+  design: { label: "Conception", tone: "brand" },
+  production: { label: "Production", tone: "brand" },
+  internal_review: { label: "Revue pédagogique", tone: "warning" },
+  client_review: { label: "Revue du client", tone: "warning" },
+  approval: { label: "Validation institutionnelle", tone: "warning" },
+  approved: { label: "Approuvée — à publier", tone: "accent" },
+  published: { label: "Publiée — à lancer", tone: "accent" },
+  launched: { label: "Lancée", tone: "success" },
+  cancelled: { label: "Annulée", tone: "neutral" },
+} as const;
+export type TrainingStatus = keyof typeof TRAINING_STATUS;
+
+/** The 12 production steps of brief V3 §13 (keys of public.training_checklist). */
+export const TRAINING_STEPS = [
+  { key: "brief", label: "Besoins du client reçus" },
+  { key: "objectives", label: "Objectifs de formation définis" },
+  { key: "curriculum", label: "Programme préparé" },
+  { key: "modules", label: "Modules planifiés dans la formation" },
+  { key: "assigned", label: "Contenus attribués à l’équipe de production" },
+  { key: "content", label: "Vidéos et PDF développés" },
+  { key: "quizzes", label: "Évaluations créées (une par module)" },
+  { key: "internal_review", label: "Revue pédagogique interne" },
+  { key: "client_review", label: "Revue du client (si prévue au contrat)" },
+  { key: "approved", label: "Validation institutionnelle (approbateur)" },
+  { key: "published", label: "Formation publiée" },
+  { key: "launched", label: "Formation lancée dans l’espace du client" },
+] as const;
+export type TrainingChecklist = Record<(typeof TRAINING_STEPS)[number]["key"], boolean> & {
+  open_tasks: number;
+  course_issues: number | null;
+  course_status: string | null;
+};
+
+export const TASK_KINDS = {
+  video: "Vidéo",
+  pdf: "Support PDF",
+  quiz: "Évaluation",
+  activity: "Activité",
+  review: "Relecture",
+  other: "Autre",
+} as const;
+export type TaskKind = keyof typeof TASK_KINDS;
+export const TASK_STATUS = { todo: "À faire", in_progress: "En cours", done: "Terminée" } as const;
+export type TaskStatus = keyof typeof TASK_STATUS;
+
+/** Next statuses a person can choose (mirrors public.set_training_status; reviews move the rest). */
+export function trainingNextSteps(from: TrainingStatus, a: { manage: boolean; signatory: boolean }): TrainingStatus[] {
+  const out: TrainingStatus[] = [];
+  if (a.manage && from === "brief") out.push("design");
+  if (a.manage && from === "design") out.push("production");
+  if (a.manage && from === "production") out.push("internal_review");
+  if (a.signatory && from === "approval") out.push("approved", "production");
+  if (a.manage && from === "published") out.push("launched");
+  if (a.manage && from === "launched") out.push("production");
+  if (a.manage && ["brief", "design", "production", "internal_review", "client_review", "approval"].includes(from)) out.push("cancelled");
+  return out;
+}

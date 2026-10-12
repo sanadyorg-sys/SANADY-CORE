@@ -88,3 +88,17 @@ describe("company workspaces (E3)", () => {
     expect(tenantSchema.safeParse({ ...base, contract_start_on: "2027-01-01", contract_end_on: "2026-01-01" }).success).toBe(false);
   });
 });
+
+describe("training production studio (E4)", () => {
+  it("offers each person only their own transitions", async () => {
+    const { trainingNextSteps } = await import("@/lib/enterprise");
+    const manage = { manage: true, signatory: false };
+    const signatory = { manage: false, signatory: true };
+    expect(trainingNextSteps("brief", manage)).toEqual(["design", "cancelled"]);
+    expect(trainingNextSteps("approval", manage)).toEqual(["cancelled"]);
+    expect(trainingNextSteps("approval", signatory)).toEqual(["approved", "production"]);
+    expect(trainingNextSteps("published", manage)).toEqual(["launched"]);
+    expect(trainingNextSteps("launched", manage)).toEqual(["production"]);
+    expect(trainingNextSteps("internal_review", signatory)).toEqual([]);
+  });
+});
