@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -14,7 +13,6 @@ import {
 import { BrandDots, SmileUnderline } from "@/components/brand/brand-decor";
 import { buttonClasses } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/motion";
-import classroomPhoto2 from "../../../../public/brand/sanady-student-classroom-2.jpg";
 
 export const metadata: Metadata = {
   title: "Bibliothèque Pédagogique & Mallette SANADY",
@@ -128,15 +126,8 @@ export default function ResourcesPage() {
     <>
       {/* ─── Header ───────────────────────────────────────────────────────── */}
       <section className="relative isolate overflow-hidden bg-brand-900 text-white">
-        <Image
-          src={classroomPhoto2}
-          alt="Élève attentive dans une classe lumineuse"
-          fill
-          priority
-          placeholder="blur"
-          className="-z-10 object-cover opacity-20"
-          sizes="100vw"
-        />
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-dots-light opacity-15" />
+        <div aria-hidden className="pointer-events-none absolute -right-32 -top-40 -z-10 size-[34rem] rounded-full bg-accent-600/20 blur-3xl" />
         <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgb(15_23_42/0.85)_0%,rgb(15_23_42/0.95)_100%)]" />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-dots-light opacity-15" />
 

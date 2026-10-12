@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Award, ClipboardCheck, PlayCircle } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
-import classroom from "../../../public/brand/sanady-classroom-portrait.jpg";
+import slogan from "../../../public/brand/sanady-phrase.png";
 
 const FEATURES = [
   { icon: PlayCircle, label: "À votre rythme" },
@@ -15,24 +15,22 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
     <div className="min-h-dvh lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
       {/* ─── Brand panel (large screens): full-height photograph ─────────── */}
       <aside className="relative hidden overflow-hidden bg-brand-800 lg:flex lg:min-h-dvh lg:flex-col lg:justify-between lg:p-10 xl:p-12">
-        <Image
-          src={classroom}
-          alt=""
-          fill
-          priority
-          placeholder="blur"
-          className="object-cover object-[50%_28%]"
-          sizes="(min-width: 1024px) 54vw, 0px"
-        />
-        {/* Gradient guarantees readable white text over the photo. */}
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-[linear-gradient(to_top,rgb(12_10_9/0.92)_0%,rgb(12_10_9/0.72)_30%,rgb(12_10_9/0.15)_58%,transparent_75%)]"
-        />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-dots-light opacity-15" />
+        <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 size-[36rem] rounded-full bg-accent-600/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-24 size-[30rem] rounded-full bg-accent-500/10 blur-3xl" />
 
         <Link href="/" className="relative w-fit transition duration-200 hover:opacity-90">
-          <BrandLogo variant="orange" className="h-12 drop-shadow-sm" priority />
+          <BrandLogo variant="light" className="h-12 drop-shadow-sm" priority />
         </Link>
+
+        {/* Foundation slogan (white lettering on transparent background). */}
+        <Image
+          src={slogan}
+          alt="Accompagne ses enfants vers la réussite"
+          priority
+          className="relative mx-auto w-full max-w-[30rem] drop-shadow-lg"
+          sizes="480px"
+        />
 
         <div className="relative max-w-[38rem] text-white">
           <p className="text-label font-semibold uppercase tracking-[0.2em] text-white/85">Formation des enseignants</p>

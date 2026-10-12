@@ -12,7 +12,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import classroomPoster from "../../../public/brand/sanady-student-classroom-1.jpg";
+import filmPoster from "../../../public/brand/sanady-film-poster.jpg";
 
 interface VideoSpotlightProps {
   id?: string;
@@ -71,8 +71,8 @@ export function VideoSpotlight({
             ) : (
               <div className="group relative size-full cursor-pointer" onClick={() => setIsPlaying(true)}>
                 <Image
-                  src={classroomPoster}
-                  alt="Aperçu vidéo Fondation Sanady"
+                  src={filmPoster}
+                  alt="Image extraite du film de la Fondation Sanady"
                   fill
                   priority
                   placeholder="blur"

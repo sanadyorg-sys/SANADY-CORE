@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
+  Play,
   BarChart3,
   CheckCircle2,
   FileText,
@@ -16,12 +17,11 @@ import {
   Users,
 } from "lucide-react";
 import { BrandDots, SmileUnderline } from "@/components/brand/brand-decor";
-import { VideoSpotlight } from "@/components/site/video-spotlight";
 import { buttonClasses } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/motion";
 import { createClient } from "@/lib/supabase/server";
 import { FOUNDATION } from "@/lib/institution";
-import classroomPhoto from "../../../../public/brand/sanady-student-classroom-1.jpg";
+import studentsPhoto from "../../../../public/brand/sanady-students-waving.jpg";
 
 export const metadata: Metadata = {
   title: "À propos — Fondation SANADY",
@@ -45,32 +45,36 @@ export default async function AboutPage() {
     <>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative isolate overflow-hidden bg-brand-900 text-white">
-        <Image
-          src={classroomPhoto}
-          alt="Enseignement dans une classe de la Fondation Sanady"
-          fill
-          priority
-          placeholder="blur"
-          className="-z-10 object-cover opacity-25"
-          sizes="100vw"
-        />
-        <div aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(15_23_42/0.95)_0%,rgb(15_23_42/0.8)_60%,rgb(15_23_42/0.5)_100%)]" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(60rem_30rem_at_85%_0%,rgb(224_78_0/0.18),transparent)]" />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-dots-light opacity-15" />
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-          <p className="inline-flex items-center gap-2 rounded-full border border-accent-500/30 bg-accent-500/10 px-3.5 py-1 text-label font-semibold uppercase tracking-[0.18em] text-accent-400">
-            <BrandDots /> Fondation Sanady
-          </p>
-          <h1 className="mt-5 max-w-3xl text-[2.5rem] font-extrabold leading-[1.08] tracking-tight sm:text-[3.25rem]">
-            Préparons les adultes du{" "}
-            <SmileUnderline className="text-accent-400">
-              Maroc de demain
-            </SmileUnderline>
-            .
-          </h1>
-          <p className="mt-6 max-w-2xl text-[1.125rem] leading-relaxed text-brand-100">
-            Association marocaine reconnue d’utilité publique, active depuis 2009. La Fondation Sanady œuvre contre l’abandon et l’échec
-            scolaires des élèves des établissements publics issus des milieux socio-économiques défavorisés.
-          </p>
+        <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.4fr_1fr] lg:px-8 lg:py-24">
+          <div>
+            <p className="inline-flex items-center gap-2 rounded-full border border-accent-500/30 bg-accent-500/10 px-3.5 py-1 text-label font-semibold uppercase tracking-[0.18em] text-accent-400">
+              <BrandDots /> Fondation Sanady
+            </p>
+            <h1 className="mt-5 max-w-3xl text-[2.5rem] font-extrabold leading-[1.08] tracking-tight sm:text-[3.25rem]">
+              Préparons les adultes du{" "}
+              <SmileUnderline className="text-accent-400">
+                Maroc de demain
+              </SmileUnderline>
+              .
+            </h1>
+            <p className="mt-6 max-w-2xl text-[1.125rem] leading-relaxed text-brand-100">
+              Association marocaine reconnue d’utilité publique, active depuis 2009. La Fondation Sanady œuvre contre l’abandon et l’échec
+              scolaires des élèves des établissements publics issus des milieux socio-économiques défavorisés.
+            </p>
+          </div>
+          {/* Source photo is 400 px wide: shown at (close to) natural size, never stretched. */}
+          <figure className="relative mx-auto w-full max-w-[25rem] rotate-1 overflow-hidden rounded-3xl border-4 border-white/10 shadow-2xl">
+            <Image
+              src={studentsPhoto}
+              alt="Élèves souriants qui saluent devant leur école"
+              priority
+              placeholder="blur"
+              className="h-auto w-full"
+              sizes="400px"
+            />
+          </figure>
         </div>
       </section>
 
@@ -140,8 +144,24 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* ─── Video Spotlight: Film Institutionnel ─────────────────────────── */}
-      <VideoSpotlight id="video-fondation" initialTime={51} />
+      {/* ─── Film: shown once, on the home page (no repeated picture) ────────── */}
+      <div className="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-8">
+        <Link
+          href="/#video-fondation"
+          className="group flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-ink-25 px-6 py-5 transition hover:border-accent-600/50 hover:bg-accent-50/40"
+        >
+          <span className="flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-full bg-accent-700 text-white">
+              <Play className="size-4 translate-x-px fill-white" aria-hidden />
+            </span>
+            <span>
+              <span className="block text-card font-bold text-ink-900">La Fondation Sanady en action</span>
+              <span className="block text-label text-ink-600">Regarder le film de la Fondation (3 min)</span>
+            </span>
+          </span>
+          <ArrowRight className="size-5 text-ink-400 transition-transform group-hover:translate-x-1 group-hover:text-accent-700" aria-hidden />
+        </Link>
+      </div>
 
       {/* ─── Pour les établissements scolaires ────────────────────────────── */}
       <section id="etablissements" className="relative scroll-mt-24 overflow-hidden bg-ink-25 py-16 sm:py-20">
