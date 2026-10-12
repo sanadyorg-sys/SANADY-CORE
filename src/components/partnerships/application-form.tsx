@@ -202,7 +202,7 @@ export function PartnershipApplicationForm({ defaultField }: { defaultField?: In
         {STEPS.map((label, i) => (
           <li key={label} className="min-w-0">
             <span className={cn("block h-1.5 rounded-full transition-colors duration-300", i <= step ? "bg-accent-600" : "bg-ink-100")} aria-hidden />
-            <span className={cn("mt-1.5 block truncate text-caption", i === step ? "font-semibold text-ink-900" : "text-ink-500")}>
+            <span className={cn("mt-1.5 block truncate text-caption", i === step ? "font-semibold text-ink-900 max-sm:overflow-visible max-sm:whitespace-nowrap" : "text-ink-500 max-sm:sr-only")}>
               <span className="sr-only">{i < step ? "Terminé : " : i === step ? "Étape en cours : " : "À venir : "}</span>
               {i + 1}. {label}
             </span>
