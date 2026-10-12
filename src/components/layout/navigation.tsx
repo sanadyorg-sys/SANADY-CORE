@@ -10,6 +10,8 @@ import {
   Building,
   Building2,
   Clapperboard,
+  FilePenLine,
+  HandCoins,
   ChartColumn,
   ChartNoAxesCombined,
   ClipboardCheck,
@@ -50,6 +52,8 @@ const PARTNERSHIP_ITEMS: NavItem[] = [
   { href: "/admin/partenariats/organisations", label: "Organisations partenaires", icon: Building },
   { href: "/admin/partenariats/besoins", label: "Besoins éducatifs", icon: ClipboardList },
   { href: "/admin/partenariats/opportunites", label: "Projets publiés", icon: Megaphone },
+  { href: "/admin/partenariats/conventions", label: "Conventions", icon: FilePenLine },
+  { href: "/admin/partenariats/contributions", label: "Contributions", icon: HandCoins },
 ];
 
 const ENTERPRISE_ITEMS: NavItem[] = [

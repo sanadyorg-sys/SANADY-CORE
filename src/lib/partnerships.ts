@@ -277,3 +277,76 @@ export function formatAmount(amount: number | string | null, currency = "MAD") {
   if (amount == null || amount === "") return null;
   return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Number(amount))} ${currency}`;
 }
+
+/* ─── Phase 4: agreements, contributions, milestones (migration 20261021000100) ─ */
+
+export const AGREEMENT_STATUS = {
+  draft: { label: "Brouillon", tone: "neutral" },
+  internal_review: { label: "Revue interne", tone: "brand" },
+  approved: { label: "Approuvée — à signer", tone: "warning" },
+  signed: { label: "Signée", tone: "accent" },
+  active: { label: "En cours", tone: "success" },
+  completed: { label: "Terminée", tone: "neutral" },
+  archived: { label: "Archivée", tone: "neutral" },
+} as const;
+export type AgreementStatus = keyof typeof AGREEMENT_STATUS;
+
+/** Next statuses for the current person (mirrors public.set_agreement_status). */
+export function agreementNextSteps(from: AgreementStatus, a: PipelineActor): AgreementStatus[] {
+  const out: AgreementStatus[] = [];
+  if (a.staff && from === "draft") out.push("internal_review", "archived");
+  if (a.staff && from === "internal_review") out.push("draft");
+  if (a.signatory && from === "internal_review") out.push("approved");
+  if (a.signatory && from === "approved") out.push("signed");
+  if (a.staff && from === "approved") out.push("draft");
+  if (a.staff && from === "signed") out.push("active");
+  if (a.staff && from === "active") out.push("completed");
+  if (a.staff && from === "completed") out.push("archived");
+  return out;
+}
+
+export const CONTRIBUTION_KINDS = {
+  financial: "Financière",
+  material: "Matérielle",
+  expertise: "Expertise",
+} as const;
+export type ContributionKind = keyof typeof CONTRIBUTION_KINDS;
+
+/** Stages: a pledge is never money received (brief V2 §9). */
+export const CONTRIBUTION_STAGE = {
+  pledged: { label: "Promise", tone: "neutral" },
+  committed: { label: "Engagée", tone: "brand" },
+  delivered: { label: "Reçue / réalisée", tone: "accent" },
+  verified: { label: "Vérifiée", tone: "success" },
+  cancelled: { label: "Annulée", tone: "neutral" },
+} as const;
+export type ContributionStage = keyof typeof CONTRIBUTION_STAGE;
+
+export function contributionNextSteps(from: ContributionStage, a: PipelineActor): ContributionStage[] {
+  const out: ContributionStage[] = [];
+  if (a.staff && from === "pledged") out.push("committed");
+  if (a.staff && from === "committed") out.push("delivered");
+  if (a.signatory && from === "delivered") out.push("verified");
+  if (a.staff && ["pledged", "committed", "delivered"].includes(from)) out.push("cancelled");
+  return out;
+}
+
+export const DOCUMENT_KINDS = {
+  proposal: "Proposition",
+  draft: "Projet de convention",
+  signed: "Exemplaire signé",
+  supporting: "Pièce justificative",
+  evidence: "Preuve de réception",
+} as const;
+export type DocumentKind = keyof typeof DOCUMENT_KINDS;
+
+/** What a contribution amounts to, in its own unit (never mixed). */
+export function contributionAmount(c: { kind: ContributionKind; currency: string; amount_pledged: string | null; amount_received: string | null; quantity: number | null; item: string | null; hours_pledged: string | null; hours_delivered: string | null }) {
+  if (c.kind === "financial") {
+    const pledged = formatAmount(c.amount_pledged, c.currency);
+    const received = formatAmount(c.amount_received, c.currency);
+    return received ? `${received} reçus sur ${pledged} promis` : `${pledged} promis`;
+  }
+  if (c.kind === "material") return [c.quantity ? `${c.quantity} ×` : null, c.item].filter(Boolean).join(" ");
+  return c.hours_delivered ? `${c.hours_delivered} h réalisées sur ${c.hours_pledged ?? "—"} h` : c.hours_pledged ? `${c.hours_pledged} h prévues` : "—";
+}

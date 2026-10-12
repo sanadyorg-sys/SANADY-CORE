@@ -10,6 +10,7 @@ import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { displayName, formatDate, formatDateTime, formatRelative } from "@/lib/format";
 import { APPLICATION_STATUS, CONTRIBUTION_TYPES, FIELD_SLUGS, INTERVENTION_FIELDS, ORG_TYPES, type ApplicationStatus } from "@/lib/partnerships";
 import { requirePartnershipStaff } from "@/server/auth";
+import { partnershipWatchlist } from "@/server/queries/agreements";
 import { applicationCounts, listApplications, openTasks, purgeExpiredApplications } from "@/server/queries/partnerships";
 
 export const metadata: Metadata = { title: "Partenariats — candidatures" };
@@ -30,11 +31,13 @@ export default async function PartnershipInboxPage(props: PageProps<"/admin/part
   const q = typeof sp.q === "string" ? sp.q.trim().slice(0, 80) : "";
 
   await purgeExpiredApplications().catch((e) => console.error("[partnerships] retention", e));
-  const [rows, counts, tasks] = await Promise.all([
+  const [rows, counts, tasks, watch] = await Promise.all([
     listApplications({ status: TABS[tab].status as ApplicationStatus | "open", field: field || undefined, q: q || undefined }),
     applicationCounts(),
     openTasks(),
+    partnershipWatchlist(),
   ]);
+  const watchCount = watch ? watch.renewals.length + watch.milestones.length + watch.contributions.length : 0;
   const open = (counts.received ?? 0) + (counts.under_review ?? 0);
   const today = new Date().toISOString().slice(0, 10);
 
@@ -137,7 +140,46 @@ export default async function PartnershipInboxPage(props: PageProps<"/admin/part
           )}
         </div>
 
-        <Card className="self-start">
+        <div className="space-y-6 self-start">
+        {watch && (watchCount || watch.approvals) ? (
+          <Card>
+            <CardHeader title="À surveiller" description={watch.approvals ? `${watch.approvals} élément(s) en attente d’un approbateur` : "Échéances des conventions et contributions"} />
+            <ul className="divide-y divide-line">
+              {watch.renewals.map((r) => (
+                <li key={`r-${r.id}`} className="px-5 py-3">
+                  <Link href={`/admin/partenariats/conventions/${r.id}`} className="font-medium text-ink-900 hover:text-accent-700 hover:underline">
+                    Renouvellement : {r.title}
+                  </Link>
+                  <span className="block text-caption text-warning-700">
+                    {r.organization} · fin le {formatDate(r.end_on)}
+                  </span>
+                </li>
+              ))}
+              {watch.milestones.map((m) => (
+                <li key={`m-${m.id}`} className="px-5 py-3">
+                  <Link href={`/admin/partenariats/conventions/${m.agreement_id}`} className="font-medium text-ink-900 hover:text-accent-700 hover:underline">
+                    {m.title}
+                  </Link>
+                  <span className={m.due_on < today ? "block text-caption font-semibold text-danger-600" : "block text-caption text-ink-500"}>
+                    {m.reference} · {m.due_on < today ? "en retard — " : ""}
+                    {formatDate(m.due_on)}
+                  </span>
+                </li>
+              ))}
+              {watch.contributions.map((c) => (
+                <li key={`c-${c.id}`} className="px-5 py-3">
+                  <Link href={`/admin/partenariats/contributions/${c.id}`} className="font-medium text-ink-900 hover:text-accent-700 hover:underline">
+                    Contribution attendue : {c.description}
+                  </Link>
+                  <span className="block text-caption font-semibold text-danger-600">
+                    {c.organization} · attendue le {formatDate(c.expected_on)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        ) : null}
+        <Card>
           <CardHeader title="Tâches de suivi" description="Les prochaines échéances" />
           {tasks.length ? (
             <ul className="divide-y divide-line">
@@ -166,6 +208,7 @@ export default async function PartnershipInboxPage(props: PageProps<"/admin/part
             <p className="px-5 pb-5 text-body text-ink-600">Aucune tâche ouverte.</p>
           )}
         </Card>
+        </div>
       </div>
     </>
   );

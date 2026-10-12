@@ -56,13 +56,29 @@ Chaque changement est enregistré (qui, quand, commentaire) dans l’historique 
 3. **Publier sur le site** : le projet apparaît dans l’annuaire public, sur la page de son domaine et sur la page Partenariats.
 4. Les candidatures reçues pour ce projet apparaissent sur sa fiche. **Clôturer** quand un partenaire est trouvé ou que la date limite est passée ; **Archiver** ensuite.
 
-## 6. Données et confidentialité
+## 6. Conventions et contributions
+
+**Conventions** (menu Conventions ; on les prépare depuis la fiche de l’organisation) :
+
+1. **Préparer une convention** : intitulé, domaine, projet concerné, objectifs, responsabilités, contributions prévues, dates, conditions de renouvellement. Joignez le **projet de convention** (PDF).
+2. **Soumettre à la revue interne** ; un **approbateur** approuve (ou renvoie en brouillon). Le contenu est alors figé.
+3. La signature a lieu **hors de la plateforme**. Un approbateur joint l’**exemplaire signé** (PDF) puis choisit « Enregistrer la signature » avec la date. Sans exemplaire signé, c’est refusé.
+4. **Démarrer la mise en œuvre**, suivre les **étapes du projet** (jalons avec échéance), puis **clôturer** et archiver.
+
+**Contributions** (financière, matérielle ou d’expertise) :
+
+- On enregistre d’abord une **promesse** ; puis « engagée » ; puis **reçue / réalisée** avec ce qui a réellement été reçu (montant et date, ou heures réalisées) ; enfin un **approbateur vérifie**, une **preuve de réception** (PDF) à l’appui.
+- Les totaux séparent toujours le **promis**, le **reçu** et le **vérifié** : une promesse n’est jamais comptée comme de l’argent reçu.
+
+**À surveiller** (page Candidatures) : conventions à renouveler (selon le délai de rappel), étapes à échéance dans les 14 jours ou en retard, contributions attendues en retard, éléments en attente d’un approbateur.
+
+## 7. Données et confidentialité
 
 - Seule l’équipe partenariats voit les candidatures, contacts et documents.
 - Les documents sont des **PDF vérifiés** à la réception (un fichier qui n’est pas un vrai PDF est refusé), stockés de façon privée.
 - Une candidature qui n’aboutit pas (non retenue, retirée, indésirable) est **supprimée 24 mois** après sa clôture, avec ses documents.
 - Aucun nom de partenaire n’est publié sans **accord écrit** de l’organisation.
 
-## 7. Avant d’ouvrir la page au public
+## 8. Avant d’ouvrir la page au public
 
 La page `/partenariats` est en ligne mais **non référencée et absente des menus**. Pour l’ouvrir, la Fondation doit valider : les textes de la page, les personnes (chargé·e, responsable, approbateur), le délai de réponse annoncé, et l’envoi d’e-mails (Resend). L’équipe technique ajoute alors le lien dans le menu et retire le `noindex`.

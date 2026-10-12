@@ -112,3 +112,70 @@ export const opportunitySchema = z.object({
     .optional()
     .refine((v) => !v || v >= new Date().toISOString().slice(0, 10), "La date limite ne peut pas être passée."),
 });
+
+/* ─── Phase 4: agreements and contributions ─────────────────────────────── */
+
+const optionalDate = z.union([z.iso.date("Date invalide."), z.literal("")]).optional();
+const optionalUuid = z.union([z.uuid(), z.literal("")]).optional();
+
+export const agreementSchema = z
+  .object({
+    title: required("le titre", 5, 200),
+    intervention_field: z.enum(Object.keys(INTERVENTION_FIELDS) as [keyof typeof INTERVENTION_FIELDS], "Choisissez un domaine."),
+    opportunity_id: optionalUuid,
+    objectives: required("les objectifs", 20, 4000),
+    responsibilities: optionalText(4000),
+    contributions_summary: optionalText(4000),
+    start_on: optionalDate,
+    end_on: optionalDate,
+    renewal_terms: optionalText(2000),
+    renewal_notice_days: z
+      .string()
+      .trim()
+      .optional()
+      .refine((v) => !v || (/^\d{1,3}$/.test(v) && Number(v) <= 365), "Entre 0 et 365 jours."),
+  })
+  .refine((v) => !v.start_on || !v.end_on || v.end_on >= v.start_on, { message: "La fin doit suivre le début.", path: ["end_on"] });
+
+const count = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v) => (v ? v.replace(/\s/g, "") : undefined))
+  .refine((v) => !v || /^\d{1,7}$/.test(v), "Nombre entier attendu.");
+const hours = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v) => (v ? v.replace(/\s/g, "").replace(",", ".") : undefined))
+  .refine((v) => !v || (/^\d{1,6}(\.\d)?$/.test(v) && Number(v) > 0), "Nombre d’heures invalide.");
+
+export const contributionSchema = z
+  .object({
+    kind: z.enum(["financial", "material", "expertise"], "Choisissez le type de contribution."),
+    description: required("la description", 5, 2000),
+    agreement_id: optionalUuid,
+    opportunity_id: optionalUuid,
+    expected_on: optionalDate,
+    currency: z.enum(["MAD", "EUR", "USD"]).default("MAD"),
+    amount_pledged: amount,
+    restricted_purpose: optionalText(1000),
+    item: optionalText(200),
+    quantity: count,
+    estimated_value: amount,
+    recipient: optionalText(200),
+    expertise_category: optionalText(200),
+    hours_pledged: hours,
+    supported_activities: optionalText(2000),
+  })
+  .superRefine((v, ctx) => {
+    if (v.kind === "financial" && !v.amount_pledged) ctx.addIssue({ code: "custom", path: ["amount_pledged"], message: "Indiquez le montant promis." });
+    if (v.kind === "material" && !v.item) ctx.addIssue({ code: "custom", path: ["item"], message: "Indiquez le matériel." });
+    if (v.kind === "expertise" && !v.expertise_category) ctx.addIssue({ code: "custom", path: ["expertise_category"], message: "Indiquez le domaine d’expertise." });
+  });
+
+export const deliverySchema = z.object({
+  amount_received: amount,
+  received_on: optionalDate.refine((v) => !v || v <= new Date().toISOString().slice(0, 10), "La date ne peut pas être future."),
+  hours_delivered: hours,
+});

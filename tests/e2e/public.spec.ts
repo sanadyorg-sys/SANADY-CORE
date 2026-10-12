@@ -244,3 +244,10 @@ test("the training studio requires signing in", async ({ page }) => {
   await page.goto("/admin/studio");
   await expect(page).toHaveURL(/\/connexion/);
 });
+
+test("partnership agreements and contributions require signing in", async ({ page }) => {
+  await page.goto("/admin/partenariats/conventions");
+  await expect(page).toHaveURL(/\/connexion/);
+  await page.goto("/admin/partenariats/contributions");
+  await expect(page).toHaveURL(/\/connexion/);
+});

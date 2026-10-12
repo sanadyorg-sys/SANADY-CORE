@@ -34,7 +34,7 @@ stays **hidden until the Foundation approves** (no menu link, `noindex`).
 | 1 — Public portal (landing, six fields, form, confirmation, storage, inbox) | Built now |
 | 2 — CRM (organisations, contacts, pipeline, tasks, status, permissions) | Built now |
 | 3 — Needs registry, opportunities directory, approval of opportunities | **Built** (migration `20261017000100`) — waiting for the Foundation’s first validated needs |
-| 4 — Agreements, contributions, milestones, renewals | Later |
+| 4 — Agreements, contributions, milestones, renewals | **Built** (migration `20261021000100`): conventions with approval and recorded signature (signed PDF required), contributions pledged → committed → delivered → verified (approver, evidence required), milestones, in-app « À surveiller » reminders |
 | 5 — Impact dashboard, verified PDF partner reports | Later |
 | 6 — Partner portal, advanced relationship management | Later, only with SANADY authorisation |
 

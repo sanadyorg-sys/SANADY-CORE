@@ -99,7 +99,9 @@ export async function verifyPdfUploads(
         state: rejectDocument(doc.path, `« ${doc.name} » n’est pas un document PDF valide : il a été retiré. Vous pouvez envoyer le formulaire sans lui ou joindre un autre PDF.`),
       };
     }
-    const target = `${folder}/${recordId}/${doc.path.split("/").pop()}`;
+    // The upload's own folder id keeps two files with the same name apart.
+    const [, upload, name] = doc.path.split("/");
+    const target = `${folder}/${recordId}/${upload!.slice(-12)}-${name}`;
     const moved = await storage.move(doc.path, target);
     if (moved.error) return { ok: false, state: { ok: false, message: "Les documents n’ont pas pu être enregistrés. Réessayez." } };
     verified.push({ path: target, name: doc.name.slice(0, 200), mime: DOCUMENT_MIME, size: blob.size });

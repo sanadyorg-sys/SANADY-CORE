@@ -38,6 +38,16 @@ const MESSAGES: Record<string, string> = {
   comment_required: "Ajoutez un commentaire (5 caractères au moins).",
   project_not_approved: "Cette formation sur mesure ne peut être publiée qu’après la validation institutionnelle de son projet.",
 
+  // Partenariats, phase 4: agreements and contributions
+  agreement_locked: "La convention n’est plus en brouillon : renvoyez-la en brouillon pour la modifier (nouvelle approbation).",
+  dates_required: "Indiquez les dates de début et de fin de la convention.",
+  signed_date_required: "Indiquez la date de signature (aujourd’hui ou avant).",
+  signed_document_required: "Ajoutez d’abord l’exemplaire signé de la convention (PDF).",
+  contribution_locked: "Cette contribution est vérifiée ou annulée : elle ne peut plus être modifiée.",
+  delivery_details_required: "Indiquez ce qui a réellement été reçu (montant, heures réalisées ou date de réception).",
+  evidence_required: "Ajoutez une preuve de réception (PDF) avant la vérification.",
+  document_locked: "Ce document ne peut pas être supprimé (exemplaire signé ou contribution vérifiée).",
+
   // Invitations
   invitation_not_found: "Ce lien d’invitation n’est pas valide.",
   invitation_revoked: "Cette invitation a été annulée. Demandez une nouvelle invitation.",

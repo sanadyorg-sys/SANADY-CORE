@@ -86,6 +86,10 @@ Functions in `supabase/migrations/20261016000100_partnerships.sql`; tests in `te
 | **Approve a project for publication** (and reopen a closed one) | — | — | — | ✅ | — | — |
 | Publish an approved project, close, archive | ✅ | ✅ | ✅ | ✅ (publish) | — | — |
 | See published projects (`/partenariats/opportunites`) and apply to one | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Prepare an agreement, attach drafts, submit it for review; milestones; implementation and closure | ✅ | ✅ | ✅ | — | — | — |
+| **Approve an agreement**; attach the signed copy and **record the signature** (date) | — | — | — | ✅ | — | — |
+| Record a contribution (pledge), mark it committed and delivered (what was really received), attach evidence | ✅ | ✅ | ✅ | — | — | — |
+| **Verify a contribution** (evidence required) | — | — | — | ✅ | — | — |
 | Grant partnership roles, appoint or revoke approvers | ✅ (never for themself) | — | — | — | — | — |
 
 The administrator role does **not** carry signing authority (brief V2 §10). Needs are internal and never public; a project’s content is frozen once approved (back to draft means a new approval). Visitors read projects only through `public_partnership_opportunities()`, which returns no internal field (no need, no internal cost, no author). Every decision is written to `audit_logs` and to the append-only `partnership_status_history`.

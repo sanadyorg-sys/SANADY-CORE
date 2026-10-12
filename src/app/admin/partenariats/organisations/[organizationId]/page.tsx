@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, CalendarClock, Mail, Pencil, Phone, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, CalendarClock, Mail, Pencil, Phone, Plus, Star, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { ContactForm, NoteForm, OrganizationForm, PartnerStatusForm, TaskForm } from "@/components/partnerships/admin-forms";
+import { AgreementForm, ContributionForm } from "@/components/partnerships/agreement-forms";
 import { HistoryList, NotesList } from "@/components/partnerships/timeline";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/overlay";
@@ -17,12 +18,17 @@ import {
   ORG_TYPES,
   PIPELINE,
   PIPELINE_ORDER,
+  AGREEMENT_STATUS,
+  CONTRIBUTION_KINDS,
+  CONTRIBUTION_STAGE,
   allowedNextSteps,
+  contributionAmount,
   stageTone,
 } from "@/lib/partnerships";
 import { uuidSchema } from "@/lib/validation";
 import { deleteContact, setTaskDone } from "@/server/actions/partnerships";
 import { requirePartnershipStaff } from "@/server/auth";
+import { linkOptions, listAgreements, listContributions } from "@/server/queries/agreements";
 import { getOrganization, partnershipTeam, pipelineActor } from "@/server/queries/partnerships";
 
 export const metadata: Metadata = { title: "Organisation partenaire" };
@@ -38,6 +44,11 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
   // An enterprise-only client has no partnership record yet.
   if (!detail.organization.status) redirect(`/admin/partenariats/entreprises/clients/${organizationId}`);
   const { organization: o, contacts, notes, history, tasks, applications } = detail;
+  const [agreements, contributions, links] = await Promise.all([
+    listAgreements({ organization: o.id }),
+    listContributions({ organization: o.id }),
+    linkOptions(o.id),
+  ]);
   const stageIndex = MAIN_STAGES.indexOf(o.status);
   const today = new Date().toISOString().slice(0, 10);
 
@@ -163,6 +174,74 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
             )}
             <CardBody className="border-t border-line">
               <ContactForm organizationId={o.id} />
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader title="Conventions" />
+            {agreements.length ? (
+              <ul className="divide-y divide-line">
+                {agreements.map((a) => (
+                  <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 px-5 py-3">
+                    <Link href={`/admin/partenariats/conventions/${a.id}`} className="min-w-0 font-medium text-ink-900 hover:text-accent-700 hover:underline">
+                      {a.title}
+                      <span className="block text-caption font-normal text-ink-500">{a.reference}</span>
+                    </Link>
+                    <Badge tone={AGREEMENT_STATUS[a.status].tone}>{AGREEMENT_STATUS[a.status].label}</Badge>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <CardBody className={agreements.length ? "border-t border-line" : undefined}>
+              <Drawer
+                title="Nouvelle convention"
+                description="Créée en brouillon ; elle sera approuvée puis signée hors de la plateforme."
+                width="max-w-2xl"
+                trigger={
+                  <Button variant="secondary">
+                    <Plus aria-hidden /> Préparer une convention
+                  </Button>
+                }
+              >
+                <div className="p-5">
+                  <AgreementForm organizationId={o.id} opportunities={links.opportunities} />
+                </div>
+              </Drawer>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader title="Contributions" description="Promesses, réceptions et vérifications — jamais additionnées entre elles." />
+            {contributions.length ? (
+              <ul className="divide-y divide-line">
+                {contributions.map((c) => (
+                  <li key={c.id} className="px-5 py-3">
+                    <Link href={`/admin/partenariats/contributions/${c.id}`} className="font-medium text-ink-900 hover:text-accent-700 hover:underline">
+                      {c.description}
+                    </Link>
+                    <p className="mt-0.5 flex flex-wrap items-center gap-2 text-caption text-ink-500">
+                      {CONTRIBUTION_KINDS[c.kind]} · {contributionAmount(c)}
+                      <Badge tone={CONTRIBUTION_STAGE[c.stage].tone}>{CONTRIBUTION_STAGE[c.stage].label}</Badge>
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <CardBody className={contributions.length ? "border-t border-line" : undefined}>
+              <Drawer
+                title="Nouvelle contribution"
+                description="Enregistrée comme promesse ; la réception est saisie à part."
+                width="max-w-2xl"
+                trigger={
+                  <Button variant="secondary">
+                    <Plus aria-hidden /> Enregistrer une contribution
+                  </Button>
+                }
+              >
+                <div className="p-5">
+                  <ContributionForm organizationId={o.id} agreements={links.agreements} opportunities={links.opportunities} />
+                </div>
+              </Drawer>
             </CardBody>
           </Card>
 
