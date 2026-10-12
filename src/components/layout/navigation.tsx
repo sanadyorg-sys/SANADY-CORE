@@ -6,6 +6,7 @@ import {
   Award,
   BookMarked,
   BookOpen,
+  Briefcase,
   Building,
   Building2,
   ChartColumn,
@@ -29,8 +30,8 @@ import {
 import { cn } from "@/lib/cn";
 
 export type Area = "teacher" | "institution" | "admin";
-/** admin area: admin | manager | trainer | partners — institution area: admin | supervisor. */
-export type NavRole = "admin" | "manager" | "trainer" | "partners" | "supervisor";
+/** admin area: admin | manager | trainer | partners | enterprise — institution area: admin | supervisor. */
+export type NavRole = "admin" | "manager" | "trainer" | "partners" | "enterprise" | "supervisor";
 
 interface NavItem {
   href: string;
@@ -50,7 +51,16 @@ const PARTNERSHIP_ITEMS: NavItem[] = [
   { href: "/admin/partenariats/opportunites", label: "Projets publiés", icon: Megaphone },
 ];
 
+const ENTERPRISE_ITEMS: NavItem[] = [
+  { href: "/admin/partenariats/entreprises", label: "Demandes entreprises", icon: Inbox, exact: true },
+  { href: "/admin/partenariats/entreprises/clients", label: "Clients et prospects", icon: Briefcase },
+  { href: "/admin/partenariats/entreprises/propositions", label: "Propositions", icon: FileText },
+];
+
 export function navigationFor(area: Area, institutionId?: string, role: NavRole = "admin"): NavSection[] {
+  if (area === "admin" && role === "enterprise") {
+    return [{ title: "SANADY Enterprise", items: ENTERPRISE_ITEMS }];
+  }
   if (area === "admin" && role === "partners") {
     return [{ title: "Partenariats", items: PARTNERSHIP_ITEMS }];
   }
@@ -95,6 +105,7 @@ export function navigationFor(area: Area, institutionId?: string, role: NavRole 
         ],
       },
       { title: "Partenariats", items: PARTNERSHIP_ITEMS },
+      { title: "SANADY Enterprise", items: ENTERPRISE_ITEMS },
       {
         title: "Plateforme",
         items: [

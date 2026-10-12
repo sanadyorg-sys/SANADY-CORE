@@ -14,7 +14,9 @@ Every rule below is enforced **in the database** (row-level security and checks 
 | **Enseignant** | Personal account (+ optional `teacher` memberships) | Invitation, enrolment code, or approved access request | Optional |
 | **Chargé(e) des partenariats** | `platform_roles.role = partnership_coordinator` | Granted by an administrator (Équipe SANADY) | **Mandatory** |
 | **Responsable des partenariats** | `platform_roles.role = partnership_manager` | Granted by an administrator | **Mandatory** |
-| **Approbateur habilité** (partenariats) | `partnership_signatories` (explicit grant, not a role) | Appointed by an administrator — **never by themself**; holder must be an admin or have a partnership role | **Mandatory** to use it |
+| **Approbateur habilité** (partenariats, Enterprise) | `partnership_signatories` (explicit grant, not a role) | Appointed by an administrator — **never by themself**; holder must be an admin or have a partnership role | **Mandatory** to use it |
+| **Responsable entreprises** (Enterprise) | `platform_roles.role = enterprise_manager` | Granted by an administrator | **Mandatory** |
+| **Responsable de production** (Enterprise) | `platform_roles.role = production_manager` | Granted by an administrator; reads only in E1–E2 | **Mandatory** |
 | **Visiteur** | — | — | — |
 
 One account has at most one platform role. An account can be a member of several institutions, with one role in each.
@@ -85,3 +87,23 @@ Functions in `supabase/migrations/20261016000100_partnerships.sql`; tests in `te
 | Grant partnership roles, appoint or revoke approvers | ✅ (never for themself) | — | — | — | — | — |
 
 The administrator role does **not** carry signing authority (brief V2 §10). Needs are internal and never public; a project’s content is frozen once approved (back to draft means a new approval). Visitors read projects only through `public_partnership_opportunities()`, which returns no internal field (no need, no internal cost, no author). Every decision is written to `audit_logs` and to the append-only `partnership_status_history`.
+
+## SANADY Enterprise (phases E1–E2, proposed activity)
+
+Functions in `supabase/migrations/20261018000100_enterprise.sql`; tests in `tests/db/enterprise.test.ts`. All staff actions require a two-factor session. The approvers are the same explicit grants as for partnerships.
+
+| Action | Admin | Responsable entreprises | Responsable de production | Approbateur (grant) | Partnership staff | Visiteur |
+|---|---|---|---|---|---|---|
+| Send an enterprise request (`/partenariats/entreprises`, hidden) | — | — | — | — | — | ✅ |
+| Read requests, clients, proposals, notes, tasks, documents | ✅ | ✅ | ✅ | if also staff | — | — |
+| Qualify / decline a request, create or link the client record | ✅ | ✅ | — | — | — | — |
+| Enterprise pipeline up to **validation institutionnelle**, lost, withdrawn | ✅ | ✅ | — | — | — | — |
+| **Contrat signé** (from validation) | — | — | — | ✅ | — | — |
+| Mise en place → service actif → renouvellement | ✅ | ✅ | — | — | — | — |
+| Draft a proposal and its lines, submit it for internal review | ✅ | ✅ | — | — | — | — |
+| **Approve a proposal** (needs at least one line; lines then locked) | — | — | — | ✅ | — | — |
+| Send an approved proposal, record accepted / declined / expired | ✅ | ✅ | — | — | — | — |
+| Add notes; tasks (assigned to enterprise staff or admins) | ✅ | ✅ | ✅ (notes) | — | — | — |
+| Grant enterprise roles, appoint approvers | ✅ (never for themself) | — | — | — | — | — |
+
+An organisation can be both a partner and an enterprise client (one record, two relationships). Enterprise staff see only the organisations with an enterprise relationship; linking a request to an existing partner uses `find_organizations_for_enterprise` (names only). Partnership and enterprise staff can see the names of other staff accounts (so histories show who decided), never teachers' profiles.

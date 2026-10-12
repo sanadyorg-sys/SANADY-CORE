@@ -124,6 +124,7 @@ export interface OrganizationRow {
   contributions: ContributionType[];
   status: PipelineStatus;
   updated_at: string;
+  enterprise_status?: string | null;
   assignee: { full_name: string | null; email: string } | null;
 }
 
@@ -132,6 +133,8 @@ export async function listOrganizations(filter: { status?: string; field?: strin
   let query = supabase
     .from("partner_organizations")
     .select("id, name, org_type, country, city, fields, contributions, status, updated_at, assignee:profiles!partner_organizations_assigned_to_fkey(full_name, email)")
+    // Enterprise-only clients have no partnership status (SANADY Enterprise).
+    .not("status", "is", null)
     .order("updated_at", { ascending: false })
     .limit(500);
   if (filter.status) query = query.eq("status", filter.status);

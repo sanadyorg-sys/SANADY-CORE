@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const PUBLIC_PAGES = ["/", "/formations", "/a-propos", "/ressources", "/demande-acces", "/connexion", "/aide", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide", "/partenariats", "/partenariats/domaines/rehabilitation", "/partenariats/opportunites"];
+const PUBLIC_PAGES = ["/", "/formations", "/a-propos", "/ressources", "/demande-acces", "/connexion", "/aide", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide", "/partenariats", "/partenariats/domaines/rehabilitation", "/partenariats/opportunites", "/partenariats/entreprises"];
 
 async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -211,6 +211,24 @@ test.describe("partnerships portal (hidden until approved)", () => {
     await page.goto("/admin/partenariats");
     await expect(page).toHaveURL(/\/connexion/);
     const doc = await page.request.get("/api/partenariats/documents/00000000-0000-0000-0000-000000000000");
+    expect(doc.status()).toBe(401);
+  });
+});
+
+test.describe("SANADY Enterprise portal (proposal, hidden)", () => {
+  test("is not indexed, states it is a proposal, and validates each step", async ({ page }) => {
+    await page.goto("/partenariats/entreprises");
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    await expect(page.getByText("Services en projet.")).toBeVisible();
+    await page.locator("#demande").scrollIntoViewIfNeeded();
+    await page.getByRole("button", { name: "Continuer" }).click();
+    await expect(page.getByText("Veuillez renseigner le nom de l’organisation.")).toBeVisible();
+  });
+
+  test("the enterprise team area refuses anonymous visitors", async ({ page }) => {
+    await page.goto("/admin/partenariats/entreprises");
+    await expect(page).toHaveURL(/\/connexion/);
+    const doc = await page.request.get("/api/entreprises/documents/00000000-0000-0000-0000-000000000000");
     expect(doc.status()).toBe(401);
   });
 });

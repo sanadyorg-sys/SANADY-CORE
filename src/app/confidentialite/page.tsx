@@ -165,6 +165,20 @@ export default async function PrivacyPage() {
               <li>Aucune information n’est publiée ni transmise à des tiers sans l’accord écrit de l’organisation.</li>
             </ul>
           </section>
+
+          <section id="entreprises" className="scroll-mt-20">
+            <h2>9. Demandes de formation des organisations (SANADY Enterprise, en projet)</h2>
+            <p>
+              Lorsqu’une organisation décrit un besoin de formation depuis la page « SANADY Enterprise », la Fondation Sanady traite les
+              informations sur l’organisation, le nom, la fonction, l’adresse e-mail et, s’il est indiqué, le téléphone de la personne de contact,
+              la description du besoin et les documents PDF joints.
+            </p>
+            <ul>
+              <li>Finalité : étudier la demande et recontacter l’organisation. Il s’agit d’un service en projet : la demande n’engage aucune des parties.</li>
+              <li>Accès : uniquement l’équipe Enterprise de la Fondation (connexion avec double authentification) ; ces informations ne sont pas partagées avec l’équipe des partenariats solidaires.</li>
+              <li>Conservation : 24 mois au plus après la clôture d’une demande qui n’aboutit pas.</li>
+            </ul>
+          </section>
         </div>
       </main>
     </div>

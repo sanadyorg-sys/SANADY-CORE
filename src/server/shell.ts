@@ -20,6 +20,14 @@ export function contextsFor(viewer: Viewer): ShellContext[] {
       href: "/admin/partenariats",
       kind: "admin",
     });
+  } else if (viewer.platformRole === "enterprise_manager" || viewer.platformRole === "production_manager") {
+    contexts.push({
+      key: "admin",
+      label: "SANADY Enterprise",
+      description: viewer.platformRole === "enterprise_manager" ? "Responsable entreprises" : "Responsable de production",
+      href: "/admin/partenariats/entreprises",
+      kind: "admin",
+    });
   }
   for (const inst of viewer.supervisedInstitutions) {
     contexts.push({

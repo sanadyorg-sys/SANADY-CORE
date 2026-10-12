@@ -21,6 +21,8 @@ export function PlatformRoleForm() {
           <option value="training_manager">Responsable pédagogique — relit, publie, suit les résultats</option>
           <option value="partnership_coordinator">Chargé(e) des partenariats — candidatures, contacts, suivi</option>
           <option value="partnership_manager">Responsable des partenariats — évalue et soumet à validation</option>
+          <option value="enterprise_manager">Responsable entreprises — demandes, clients, propositions (Enterprise)</option>
+          <option value="production_manager">Responsable de production — formations sur mesure (Enterprise)</option>
         </Select>
       </Field>
       <SubmitButton>Attribuer le rôle</SubmitButton>
@@ -35,7 +37,7 @@ export function PartnershipApproverForm() {
   return (
     <form action={action} className="space-y-4" noValidate>
       {!state.ok && state.message ? <FormMessage state={state} /> : null}
-      <Field label="Adresse e-mail du compte" hint="Un administrateur ou une personne ayant un rôle partenariats, autre que vous." error={state.fieldErrors?.email}>
+      <Field label="Adresse e-mail du compte" hint="Un administrateur, une personne ayant un rôle partenariats ou responsable entreprises — autre que vous." error={state.fieldErrors?.email}>
         <Input name="email" type="email" autoComplete="off" required maxLength={254} />
       </Field>
       <SubmitButton variant="secondary">Désigner l’approbateur</SubmitButton>

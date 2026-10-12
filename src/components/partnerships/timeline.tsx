@@ -15,7 +15,7 @@ export function HistoryList({ history, labels }: { history: HistoryEntry[]; labe
           </p>
           <p className="text-caption text-ink-500">
             {formatDateTime(h.created_at)}
-            {h.by ? ` · ${displayName(h.by)}` : " · Formulaire public"}
+            {h.by ? ` · ${displayName(h.by)}` : h.from_status === null && ["received"].includes(h.to_status) ? " · Formulaire public" : ""}
           </p>
           {h.note ? <p className="mt-1 whitespace-pre-line text-label text-ink-700">{h.note}</p> : null}
         </li>

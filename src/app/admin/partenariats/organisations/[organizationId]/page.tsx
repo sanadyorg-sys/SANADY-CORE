@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, CalendarClock, Mail, Pencil, Phone, Star, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { ContactForm, NoteForm, OrganizationForm, PartnerStatusForm, TaskForm } from "@/components/partnerships/admin-forms";
@@ -35,6 +35,8 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
   if (!uuidSchema.safeParse(organizationId).success) notFound();
   const [detail, team, actor] = await Promise.all([getOrganization(organizationId), partnershipTeam(), pipelineActor(viewer)]);
   if (!detail) notFound();
+  // An enterprise-only client has no partnership record yet.
+  if (!detail.organization.status) redirect(`/admin/partenariats/entreprises/clients/${organizationId}`);
   const { organization: o, contacts, notes, history, tasks, applications } = detail;
   const stageIndex = MAIN_STAGES.indexOf(o.status);
   const today = new Date().toISOString().slice(0, 10);

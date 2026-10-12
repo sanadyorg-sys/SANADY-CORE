@@ -7,16 +7,11 @@ import { z } from "zod";
 import { errorMessage, messageFor } from "@/lib/errors";
 import {
   CONTRIBUTION_TYPES,
-  DOCUMENT_MIME,
   INTERVENTION_FIELDS,
-  isPdf,
-  MAX_DOCUMENT_BYTES,
-  MAX_DOCUMENTS,
   NEED_STATUS,
   OPPORTUNITY_STATUS,
   ORG_TYPES,
   PIPELINE,
-  safeFileName,
   type NeedStatus,
   type OpportunityStatus,
 } from "@/lib/partnerships";
@@ -27,58 +22,16 @@ import type { ActionState } from "@/lib/types";
 import { checkboxSchema, emailSchema, optionalText, parseInput, uuidSchema } from "@/lib/validation";
 import { requirePartnershipStaff } from "@/server/auth";
 import { sendEmail } from "@/server/email";
+import { signedPdfUpload, verifyPdfUploads } from "@/server/pdf-upload";
 import { clientIp, rateLimit } from "@/server/rate-limit";
-
-const BUCKET = "partnerships";
-/** incoming/<yyyymmddhh>-<uuid>/<name>.pdf — the hour lets old uploads be cleaned. */
-const INCOMING = /^incoming\/(\d{10})-[0-9a-f-]{36}\/[A-Za-z0-9._-]{1,120}$/;
-
-const hourStamp = (d = new Date()) => d.toISOString().slice(0, 13).replace(/\D/g, "");
 
 /* ─── Public: single-use upload link for a PDF ─────────────────────────── */
 
-export async function preparePartnershipUpload(input: { name: string; size: number; type: string }): Promise<
-  { ok: true; path: string; token: string } | { ok: false; message: string }
-> {
-  const f = z
-    .object({ name: z.string().min(1).max(200), size: z.number().int().min(1), type: z.string().max(100) })
-    .safeParse(input);
-  if (!f.success) return { ok: false, message: "Fichier invalide." };
-  if (f.data.type !== DOCUMENT_MIME || !/\.pdf$/i.test(f.data.name)) return { ok: false, message: "Seuls les documents PDF sont acceptés." };
-  if (f.data.size > MAX_DOCUMENT_BYTES) return { ok: false, message: "Le document dépasse 10 Mo." };
-
-  const ip = await clientIp();
-  if (!(await rateLimit(`partnership-upload:${ip}`, 12, 60 * 60))) return { ok: false, message: messageFor("rate_limited") };
-
-  const storage = createAdminClient().storage.from(BUCKET);
-  await cleanIncoming(storage).catch((e) => console.error("[partnerships] incoming cleanup", e));
-
-  const name = safeFileName(f.data.name).replace(/(\.pdf)?$/i, ".pdf");
-  const path = `incoming/${hourStamp()}-${randomUUID()}/${name}`;
-  const { data, error } = await storage.createSignedUploadUrl(path);
-  if (error || !data) {
-    console.error("[partnerships] signed upload", error?.message);
-    return { ok: false, message: "Le téléversement est indisponible. Réessayez dans quelques minutes." };
-  }
-  return { ok: true, path, token: data.token };
-}
-
-/** Deletes uploads never attached to an application (older than 24 h). */
-async function cleanIncoming(storage: ReturnType<ReturnType<typeof createAdminClient>["storage"]["from"]>) {
-  const limit = hourStamp(new Date(Date.now() - 24 * 3600 * 1000));
-  const { data: folders } = await storage.list("incoming", { limit: 50, sortBy: { column: "name", order: "asc" } });
-  const old = (folders ?? []).filter((f) => f.name.slice(0, 10) < limit).slice(0, 20);
-  for (const folder of old) {
-    const { data: files } = await storage.list(`incoming/${folder.name}`);
-    if (files?.length) await storage.remove(files.map((x) => `incoming/${folder.name}/${x.name}`));
-  }
+export async function preparePartnershipUpload(input: { name: string; size: number; type: string }) {
+  return signedPdfUpload("partnerships", input);
 }
 
 /* ─── Public: submit an application ─────────────────────────────────────── */
-
-const documentsSchema = z
-  .array(z.object({ path: z.string().regex(INCOMING), name: z.string().min(1).max(200) }))
-  .max(MAX_DOCUMENTS, `${MAX_DOCUMENTS} documents maximum.`);
 
 export async function submitPartnershipApplication(_prev: ActionState, formData: FormData): Promise<ActionState> {
   // Bots fill every field, including this invisible one.
@@ -93,16 +46,6 @@ export async function submitPartnershipApplication(_prev: ActionState, formData:
   if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors, message: "Certaines informations sont à compléter." };
   const d = parsed.data;
 
-  let documents: z.infer<typeof documentsSchema>;
-  try {
-    const raw = JSON.parse(String(formData.get("documents") ?? "[]"));
-    const docs = documentsSchema.safeParse(raw);
-    if (!docs.success) return { ok: false, message: "Les documents joints ne sont pas valides. Retirez-les et ajoutez-les à nouveau." };
-    documents = docs.data;
-  } catch {
-    return { ok: false, message: "Les documents joints ne sont pas valides." };
-  }
-
   const ip = await clientIp();
   if (!(await rateLimit(`partnership:${ip}`, 5, 60 * 60)) || !(await rateLimit(`partnership:${d.contact_email}`, 3, 24 * 60 * 60))) {
     return { ok: false, message: messageFor("rate_limited") };
@@ -110,22 +53,10 @@ export async function submitPartnershipApplication(_prev: ActionState, formData:
 
   // Verify each uploaded file (real PDF, size) and move it under the application.
   const id = randomUUID();
+  const uploads = await verifyPdfUploads("partnerships", formData, "applications", id);
+  if (!uploads.ok) return uploads.state;
+  const verified = uploads.documents;
   const admin = createAdminClient();
-  const storage = admin.storage.from(BUCKET);
-  const verified: Array<{ path: string; name: string; mime: string; size: number }> = [];
-  for (const doc of documents) {
-    const { data: blob, error } = await storage.download(doc.path);
-    if (error || !blob) return rejectDocument(doc.path, `Le document « ${doc.name} » est introuvable. Ajoutez-le à nouveau.`);
-    const head = new Uint8Array(await blob.slice(0, 8).arrayBuffer());
-    if (blob.size > MAX_DOCUMENT_BYTES || !isPdf(head)) {
-      await storage.remove([doc.path]);
-      return rejectDocument(doc.path, `« ${doc.name} » n’est pas un document PDF valide : il a été retiré. Vous pouvez envoyer la candidature sans lui ou joindre un autre PDF.`);
-    }
-    const target = `applications/${id}/${doc.path.split("/").pop()}`;
-    const moved = await storage.move(doc.path, target);
-    if (moved.error) return { ok: false, message: "Les documents n’ont pas pu être enregistrés. Réessayez." };
-    verified.push({ path: target, name: doc.name.slice(0, 200), mime: DOCUMENT_MIME, size: blob.size });
-  }
 
   const { data: reference, error } = await admin.rpc("submit_partnership_application", {
     p_id: id,
@@ -140,11 +71,6 @@ export async function submitPartnershipApplication(_prev: ActionState, formData:
   await notify(String(reference), d).catch((e) => console.error("[partnerships] notify", e));
   revalidatePath("/admin/partenariats");
   return { ok: true, data: { reference: String(reference) } };
-}
-
-/** A refused document: the form removes it and goes back to the Documents step. */
-function rejectDocument(path: string, message: string): ActionState {
-  return { ok: false, message, fieldErrors: { documents: message }, data: { rejectedPath: path } };
 }
 
 /** Confirmation to the applicant and alert to the partnership team (when e-mail is configured). */

@@ -11,10 +11,17 @@ export interface ViewerInstitution {
   role: "admin" | "teacher" | "supervisor";
 }
 
-export type PlatformRole = "sanady_admin" | "training_manager" | "trainer" | "partnership_coordinator" | "partnership_manager";
+export type PlatformRole =
+  | "sanady_admin"
+  | "training_manager"
+  | "trainer"
+  | "partnership_coordinator"
+  | "partnership_manager"
+  | "enterprise_manager"
+  | "production_manager";
 /** Staff roles allowed in the « Administration » area, as guard shorthand. */
 /** "partners": partnership coordinators and managers (Partenariats & Coopération). */
-export type StaffRole = "admin" | "manager" | "trainer" | "partners";
+export type StaffRole = "admin" | "manager" | "trainer" | "partners" | "enterprise";
 
 export interface Viewer {
   id: string;
@@ -120,6 +127,7 @@ export function staffRole(viewer: Viewer): StaffRole | null {
   if (viewer.isTrainingManager) return "manager";
   if (viewer.isTrainer) return "trainer";
   if (viewer.platformRole === "partnership_coordinator" || viewer.platformRole === "partnership_manager") return "partners";
+  if (viewer.platformRole === "enterprise_manager" || viewer.platformRole === "production_manager") return "enterprise";
   return null;
 }
 
@@ -147,6 +155,11 @@ export async function requirePartnershipStaff(): Promise<Viewer> {
   return requireStaff(["admin", "partners"]);
 }
 
+/** SANADY Enterprise: administrators and enterprise staff (2FA, enforced by the database too). */
+export async function requireEnterpriseStaff(): Promise<Viewer> {
+  return requireStaff(["admin", "enterprise"]);
+}
+
 /** Institution pages readable by its administrators and supervisors. */
 export async function requireInstitutionViewer(institutionId: string) {
   const viewer = await requireViewer();
@@ -167,6 +180,7 @@ export function homeFor(viewer: Viewer): string {
   if (viewer.isSanadyAdmin || viewer.isTrainingManager) return "/admin";
   if (viewer.isTrainer) return "/admin/formations";
   if (viewer.platformRole === "partnership_coordinator" || viewer.platformRole === "partnership_manager") return "/admin/partenariats";
+  if (viewer.platformRole === "enterprise_manager" || viewer.platformRole === "production_manager") return "/admin/partenariats/entreprises";
   if (viewer.supervisedInstitutions[0]) return `/etablissement/${viewer.supervisedInstitutions[0].id}`;
   return "/espace";
 }

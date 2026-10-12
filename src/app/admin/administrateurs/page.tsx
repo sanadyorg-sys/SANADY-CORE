@@ -16,6 +16,8 @@ const ROLE_LABEL = {
   trainer: "Formateur",
   partnership_coordinator: "Chargé(e) des partenariats",
   partnership_manager: "Responsable des partenariats",
+  enterprise_manager: "Responsable entreprises (Enterprise)",
+  production_manager: "Responsable de production (Enterprise)",
 } as const;
 
 export const metadata: Metadata = { title: "Équipe SANADY" };
@@ -150,8 +152,8 @@ export default async function AdminsPage() {
 
         <Card>
           <CardHeader
-            title="Approbateurs habilités — partenariats"
-            description="Seules ces personnes valident une convention ou rejettent un partenariat soumis à validation institutionnelle (double authentification). Le rôle d’administrateur ne donne pas ce pouvoir."
+            title="Approbateurs habilités"
+            description="Seules ces personnes valident les engagements de la Fondation : conventions de partenariat, besoins et projets publiés, propositions et contrats Enterprise (double authentification). Le rôle d’administrateur ne donne pas ce pouvoir."
           />
           {approvers.length ? (
             <ul className="divide-y divide-line">

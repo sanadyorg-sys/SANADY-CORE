@@ -167,11 +167,13 @@ const ROLE_LABELS = {
   trainer: "Formateur",
   partnership_coordinator: "Chargé(e) des partenariats",
   partnership_manager: "Responsable des partenariats",
+  enterprise_manager: "Responsable entreprises (Enterprise)",
+  production_manager: "Responsable de production (Enterprise)",
 } as const;
 
 export async function setPlatformRole(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireSanadyAdmin();
-  const parsed = parseInput(z.object({ email: emailSchema, role: z.enum(["training_manager", "trainer", "partnership_coordinator", "partnership_manager"], "Choisissez un rôle.") }), formData);
+  const parsed = parseInput(z.object({ email: emailSchema, role: z.enum(["training_manager", "trainer", "partnership_coordinator", "partnership_manager", "enterprise_manager", "production_manager"], "Choisissez un rôle.") }), formData);
   if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
   const supabase = await createClient();
   const { data: profile } = await supabase.from("profiles").select("id").eq("email", parsed.data.email).maybeSingle();

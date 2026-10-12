@@ -30,4 +30,7 @@
 | 26 | 12/10/2026 | **Needs and projects are separate records**: a need (internal) can only lead to a project draft; publishing requires an approver’s approval; approved content is frozen | Brief V2 §8: a need must never become a public fundraising request automatically | Editing an approved project sends it back to draft |
 | 27 | 12/10/2026 | Visitors read projects through one function returning only public fields; funding targets shown only on approved projects | Anon reads no table; no internal data leaks | Closed projects stay listed 12 months as « Clôturé » |
 | 28 | 12/10/2026 | An application tied to a project takes the **project’s field**, whatever the visitor selected | Consistent reporting per field | Closed or past-deadline projects refuse applications |
-
+| 29 | 12/10/2026 | **SANADY Enterprise E1–E2** built as a *proposed* activity: public page hidden and worded « Services en projet » | The Foundation must first validate statutes, tax and governance (G1–G7) | E3 (company workspaces) waits for those approvals |
+| 30 | 12/10/2026 | One organisation record, **two relationships** (partner and/or enterprise client) | No duplicate organisations; each team sees its own side | `status` nullable; a check requires at least one relationship |
+| 31 | 12/10/2026 | Proposals built from **configurable lines**, approved by an approver, lines frozen once approved | Brief V3: no hard-coded prices; commercial offers need institutional sign-off | Editing sends the proposal back to draft |
+| 32 | 12/10/2026 | Partnership and enterprise staff may read **other staff profiles** (names only matter) | Histories and approvals must name who decided | Teachers' profiles stay hidden from them |
