@@ -230,7 +230,7 @@
 }
 
 /* ─── Animated logo ──────────────────────────────────────────────────────────
-   Layers from scripts/brand/split-logo.mjs (694×316). The smile draws in once,
+   Layers from scripts/brand/split-logo.mjs (694×316). The smile draws in once (right to left),
    the eyes blink now and then; on hover the smile widens and the eyes look up.
    Percentages are positions in the source image. */
 .brand-logo-smile {
@@ -253,10 +253,10 @@
 }
 @keyframes brand-smile-draw {
   from {
-    clip-path: inset(0 59% 0 0);
+    clip-path: inset(0 0 0 87%); /* drawn from the right end (x ≈ 87 %) towards the left */
   }
   to {
-    clip-path: inset(0 0 0 0);
+    clip-path: inset(0 0 0 39%); /* smile's left end (x ≈ 41 %): the whole duration is spent drawing */
   }
 }
 @keyframes brand-blink {
