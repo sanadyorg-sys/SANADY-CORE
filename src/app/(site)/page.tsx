@@ -102,7 +102,7 @@ export default async function HomePage() {
               <BrandDots />
               <span>Fondation Sanady · Formation continue des enseignants</span>
             </p>
-            <h1 className="mt-5 text-[2.375rem] font-extrabold leading-[1.12] tracking-[-0.03em] text-ink-900 sm:text-[3rem] lg:text-[3.5rem]">
+            <h1 className="mt-5 text-[2.375rem] font-extrabold leading-[1.15] tracking-[-0.03em] text-ink-900 sm:text-[3rem] lg:text-[3.5rem]">
               Développez vos pratiques,{" "}
               <SmileUnderline className="text-accent-700">
                 faites grandir

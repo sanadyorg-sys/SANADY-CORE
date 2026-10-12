@@ -1,8 +1,8 @@
 import Image from "next/image";
-import logo from "../../../public/brand/sanady-logo.png";
-// Same official logo, processed to the exact brand orange #F95A05 (scripts/brand/build-brand-assets.mjs).
-import logoOrange from "../../../public/brand/sanady-logo.png";
-import logoLight from "../../../public/brand/sanady-logo-light.png";
+import lettersDark from "../../../public/brand/sanady-logo-letters.png";
+import lettersLight from "../../../public/brand/sanady-logo-light-letters.png";
+import eyes from "../../../public/brand/sanady-logo-eyes.png";
+import smile from "../../../public/brand/sanady-logo-smile.png";
 import tagline from "../../../public/brand/sanady-tagline.png";
 import smileHd from "../../../public/brand/sanady-smile.png";
 import { cn } from "@/lib/cn";
@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
  * Official Fondation Sanady logo.
  * Supports:
  * - `variant="default"` : Official dual-tone logo.
- * - `variant="orange"`  : Upgraded vibrant orange edition.
+ * - `variant="orange"`  : Same as default (kept for existing call sites).
  * - `variant="light"`   : Approved adaptation for dark backgrounds.
  */
 export function BrandLogo({
@@ -24,15 +24,15 @@ export function BrandLogo({
   className?: string;
   priority?: boolean;
 }) {
-  const src = variant === "light" ? logoLight : variant === "orange" ? logoOrange : logo;
+  // The logo is drawn from three stacked layers (scripts/brand/split-logo.mjs)
+  // so the smile and the eyes can move: see `.brand-logo` in globals.css.
+  const letters = variant === "light" ? lettersLight : lettersDark;
   return (
-    <Image
-      src={src}
-      alt="Fondation Sanady"
-      priority={priority}
-      className={cn("h-9 w-auto select-none", className)}
-      sizes="(min-width: 1024px) 220px, 160px"
-    />
+    <span className={cn("brand-logo relative inline-block aspect-[694/316] h-9 select-none", className)}>
+      <Image src={letters} alt="Fondation Sanady" priority={priority} fill sizes="(min-width: 1024px) 220px, 160px" />
+      <Image src={eyes} alt="" aria-hidden priority={priority} fill sizes="(min-width: 1024px) 220px, 160px" className="brand-logo-eyes" />
+      <Image src={smile} alt="" aria-hidden priority={priority} fill sizes="(min-width: 1024px) 220px, 160px" className="brand-logo-smile" />
+    </span>
   );
 }
 
