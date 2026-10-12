@@ -3,14 +3,15 @@ import { redirect } from "next/navigation";
 import { Smartphone } from "lucide-react";
 import { MfaVerifyForm } from "@/components/auth/mfa-forms";
 import { safeRedirectPath } from "@/lib/validation";
-import { requireViewer } from "@/server/auth";
+import { homeFor, requireViewer } from "@/server/auth";
 
 export const metadata: Metadata = { title: "Vérification en deux étapes" };
 
 export default async function MfaVerifyPage(props: PageProps<"/securite/verification">) {
   const viewer = await requireViewer({ allowOnboarding: true, allowPendingMfa: true });
   const { suite } = await props.searchParams;
-  const next = safeRedirectPath(suite, viewer.isSanadyAdmin ? "/admin" : "/espace");
+  // Back to the person's own area (admin, pedagogy, partnerships, institution, teacher).
+  const next = safeRedirectPath(suite, homeFor(viewer));
   if (!viewer.mfaEnrolled) redirect(`/securite/activer?suite=${encodeURIComponent(next)}`);
   if (viewer.aal === "aal2") redirect(next);
 

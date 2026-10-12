@@ -12,6 +12,9 @@ Every rule below is enforced **in the database** (row-level security and checks 
 | **Administrateur d’établissement** | `institution_memberships.role = admin` | Invitation by a SANADY administrator | Optional |
 | **Superviseur d’établissement** | `institution_memberships.role = supervisor` | Invitation by the institution or a SANADY administrator | Optional |
 | **Enseignant** | Personal account (+ optional `teacher` memberships) | Invitation, enrolment code, or approved access request | Optional |
+| **Chargé(e) des partenariats** | `platform_roles.role = partnership_coordinator` | Granted by an administrator (Équipe SANADY) | **Mandatory** |
+| **Responsable des partenariats** | `platform_roles.role = partnership_manager` | Granted by an administrator | **Mandatory** |
+| **Approbateur habilité** (partenariats) | `partnership_signatories` (explicit grant, not a role) | Appointed by an administrator — **never by themself**; holder must be an admin or have a partnership role | **Mandatory** to use it |
 | **Visiteur** | — | — | — |
 
 One account has at most one platform role. An account can be a member of several institutions, with one role in each.
@@ -57,3 +60,22 @@ One account has at most one platform role. An account can be a member of several
 - **Review workflow:** `draft → review → published`, or back to `draft` with the reviewer's comment. Trainers cannot change a course's status or public listing; content is locked for them outside drafts.
 - **Two-step login:** for administrators and training managers, the database grants their privileges only to sessions verified with a second factor (`aal2`). A stolen password alone gives no administrative access.
 - **Removing a role** removes all its rights immediately (including course assignments for trainers); the person keeps their own teacher account and learning.
+
+
+## Partenariats & Coopération
+
+Functions in `supabase/migrations/20261016000100_partnerships.sql`; tests in `tests/db/partnerships.test.ts`. All staff actions require a two-factor session.
+
+| Action | Admin | Chargé(e) | Responsable partenariats | Approbateur (grant) | Other staff / users | Visiteur |
+|---|---|---|---|---|---|---|
+| Send a partnership application (`/partenariats`, hidden until approved) | — | — | — | — | — | ✅ |
+| Read applications, organisations, contacts, notes, tasks, documents | ✅ | ✅ | ✅ | if also staff | — | — |
+| Change an application status, create the organisation record | ✅ | ✅ | ✅ | — | — | — |
+| Edit organisations and contacts, add notes and tasks | ✅ | ✅ | ✅ | — | — | — |
+| Pipeline: prospect → négociation, retiré, rejeté (before validation) | ✅ | ✅ | ✅ | — | — | — |
+| Submit for **validation institutionnelle** | — | — | ✅ | — | — | — |
+| **Convention signée** or **rejeté** from validation | — | — | — | ✅ | — | — |
+| Mise en œuvre → suivi → renouvellement ou clôture | ✅ | ✅ | ✅ | — | — | — |
+| Grant partnership roles, appoint or revoke approvers | ✅ (never for themself) | — | — | — | — | — |
+
+The administrator role does **not** carry signing authority (brief V2 §10). Every decision is written to `audit_logs` and to the append-only `partnership_status_history`.

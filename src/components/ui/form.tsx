@@ -7,25 +7,51 @@ import { Alert } from "./surface";
 import { Button, type ButtonProps } from "./button";
 import { useToast } from "./toast";
 
+type Snapshot = Array<{ el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement; value: string; checked: boolean }>;
+
+function snapshotForm(form: HTMLFormElement): Snapshot {
+  const out: Snapshot = [];
+  for (const el of Array.from(form.elements)) {
+    if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement)) continue;
+    if (el instanceof HTMLInputElement && (el.type === "file" || el.type === "hidden" || el.type === "password")) continue;
+    out.push({ el, value: el.value, checked: el instanceof HTMLInputElement ? el.checked : false });
+  }
+  return out;
+}
+
+function restoreForm(snapshot: Snapshot) {
+  for (const { el, value, checked } of snapshot) {
+    if (!el.isConnected) continue;
+    if (el instanceof HTMLInputElement && (el.type === "checkbox" || el.type === "radio")) el.checked = checked;
+    else el.value = value;
+  }
+}
+
 /**
- * Submit button bound to the enclosing <form>'s pending state.
- * When a submission comes back with field errors, it moves focus to the first
- * invalid field (WCAG 3.3.1), so keyboard and screen-reader users land on
- * what needs fixing — for every form, without per-form code.
+ * Submit button bound to the enclosing <form>'s pending state, for every form:
+ * - React 19 clears a form after each submission, even a refused one. When
+ *   the result comes back with errors, the values the person typed are put
+ *   back (passwords excepted), so nothing has to be typed again.
+ * - Focus then moves to the first invalid field (WCAG 3.3.1).
  */
 export function SubmitButton({ children, ...props }: ButtonProps) {
   const { pending } = useFormStatus();
   const ref = useRef<HTMLButtonElement>(null);
-  const submitted = useRef(false);
+  const snapshot = useRef<Snapshot | null>(null);
   useEffect(() => {
+    const form = ref.current?.form;
     if (pending) {
-      submitted.current = true;
+      if (form) snapshot.current = snapshotForm(form);
       return;
     }
-    if (!submitted.current) return;
-    submitted.current = false;
+    const saved = snapshot.current;
+    if (!saved || !form) return;
+    snapshot.current = null;
     const frame = requestAnimationFrame(() => {
-      ref.current?.form?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      const invalid = form.querySelector<HTMLElement>('[aria-invalid="true"]');
+      const refused = invalid ?? form.querySelector('[role="alert"]:not(:empty)');
+      if (refused) restoreForm(saved);
+      invalid?.focus();
     });
     return () => cancelAnimationFrame(frame);
   }, [pending]);

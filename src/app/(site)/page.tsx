@@ -417,7 +417,7 @@ export default async function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/demande-acces?profil=etablissement" className={buttonClasses({ variant: "accent", size: "lg", className: "rounded-xl" })}>
-                Devenir partenaire
+                Inscrire mon établissement
               </Link>
               <Link href="/a-propos#etablissements" className={buttonClasses({ variant: "secondary", size: "lg", className: "rounded-xl" })}>
                 En savoir plus

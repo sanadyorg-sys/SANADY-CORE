@@ -200,7 +200,7 @@ export async function listPedagogicalTeam() {
     supabase
       .from("platform_roles")
       .select("role, granted_at, user:profiles!platform_roles_user_id_fkey(id, full_name, email, status, job_title)")
-      .in("role", ["training_manager", "trainer"])
+      .in("role", ["training_manager", "trainer", "partnership_coordinator", "partnership_manager"])
       .order("granted_at"),
     supabase.from("course_trainers").select("user_id, course:courses(id, title)"),
   ]);
@@ -209,7 +209,7 @@ export async function listPedagogicalTeam() {
     if (a.course) byUser.set(a.user_id, [...(byUser.get(a.user_id) ?? []), a.course]);
   }
   type Row = {
-    role: "training_manager" | "trainer";
+    role: "training_manager" | "trainer" | "partnership_coordinator" | "partnership_manager";
     granted_at: string;
     user: Pick<Profile, "id" | "full_name" | "email" | "status" | "job_title">;
   };

@@ -6,12 +6,14 @@ import {
   Award,
   BookMarked,
   BookOpen,
+  Building,
   Building2,
   ChartColumn,
   ChartNoAxesCombined,
   ClipboardCheck,
   ClipboardList,
   FileText,
+  Handshake,
   History,
   Inbox,
   LayoutDashboard,
@@ -26,8 +28,8 @@ import {
 import { cn } from "@/lib/cn";
 
 export type Area = "teacher" | "institution" | "admin";
-/** admin area: admin | manager | trainer — institution area: admin | supervisor. */
-export type NavRole = "admin" | "manager" | "trainer" | "supervisor";
+/** admin area: admin | manager | trainer | partners — institution area: admin | supervisor. */
+export type NavRole = "admin" | "manager" | "trainer" | "partners" | "supervisor";
 
 interface NavItem {
   href: string;
@@ -40,7 +42,15 @@ interface NavSection {
   items: NavItem[];
 }
 
+const PARTNERSHIP_ITEMS: NavItem[] = [
+  { href: "/admin/partenariats", label: "Candidatures", icon: Handshake, exact: true },
+  { href: "/admin/partenariats/organisations", label: "Organisations partenaires", icon: Building },
+];
+
 export function navigationFor(area: Area, institutionId?: string, role: NavRole = "admin"): NavSection[] {
+  if (area === "admin" && role === "partners") {
+    return [{ title: "Partenariats", items: PARTNERSHIP_ITEMS }];
+  }
   if (area === "admin" && role === "trainer") {
     return [{ items: [{ href: "/admin/formations", label: "Mes formations", icon: Library }] }];
   }
@@ -81,6 +91,7 @@ export function navigationFor(area: Area, institutionId?: string, role: NavRole 
           { href: "/admin/invitations", label: "Invitations", icon: Mail },
         ],
       },
+      { title: "Partenariats", items: PARTNERSHIP_ITEMS },
       {
         title: "Plateforme",
         items: [

@@ -1,0 +1,53 @@
+# Guide de l’équipe — Partenariats & Coopération
+
+Pour l’équipe de la Fondation Sanady qui reçoit et suit les propositions de partenariat.
+
+## 1. Qui fait quoi
+
+| Rôle | Ce que la personne peut faire |
+|---|---|
+| **Chargé(e) des partenariats** | Lire les candidatures, les classer, créer les fiches organisation, ajouter contacts, notes et tâches, faire avancer les premières étapes. |
+| **Responsable des partenariats** | Tout ce qui précède, et **soumettre un partenariat à la validation institutionnelle** (recommandation). |
+| **Approbateur habilité** | **Valider la convention** (« Convention signée ») ou **rejeter** un partenariat soumis à validation. |
+| **Administrateur SANADY** | Attribue les rôles et désigne les approbateurs (jamais lui-même). Être administrateur ne donne **pas** le pouvoir de valider. |
+
+Les rôles et les approbateurs se gèrent dans **Administration → Équipe SANADY**. La personne doit déjà avoir un compte. Tout le monde se connecte avec la **double authentification** (code de l’application sur le téléphone).
+
+## 2. Recevoir une candidature
+
+1. Une organisation remplit le formulaire de la page **Partenariats & Coopération** (5 étapes : organisation, contact, proposition, documents PDF, récapitulatif). Elle reçoit une **référence** (ex. `PART-2026-0012`).
+2. La candidature arrive dans **Partenariats → Candidatures**, onglet « À traiter ». Si l’envoi d’e-mails est configuré, l’équipe reçoit une alerte (sans données personnelles) et l’organisation un accusé de réception.
+3. Ouvrez la candidature : informations, contact, proposition, documents (bouton **Télécharger**, lien valable une minute).
+
+## 3. Décider de la suite
+
+Dans « Suite à donner » :
+
+- **Passer en examen** — vous étudiez la proposition.
+- **Créer la fiche organisation** — la proposition mérite un suivi : la fiche reprend l’organisation, le contact principal et le domaine, et entre dans le suivi à l’étape « Proposition reçue ».
+- **Ne pas retenir**, **Retirée par l’organisation** ou **Indésirable (spam)**. Une candidature classée indésirable ne permet plus d’ouvrir ses documents.
+
+Ajoutez une **note interne** pour garder la trace des échanges (jamais visible à l’extérieur).
+
+## 4. Suivre une organisation
+
+La fiche organisation (Partenariats → Organisations partenaires) rassemble : profil, domaines et types de contribution, contacts, notes et échanges, **tâches de suivi** (avec échéance et responsable), historique des étapes.
+
+Les 11 étapes : Prospect identifié → Premier contact → Intérêt confirmé → Proposition reçue → Évaluation → Négociation → **Validation institutionnelle** → **Convention signée** → Mise en œuvre → Suivi et évaluation → Renouvellement ou clôture. Une fiche peut aussi être « Rejeté » ou « Retiré ».
+
+- La **validation institutionnelle** est demandée par le **responsable des partenariats**.
+- Seul un **approbateur habilité** peut ensuite marquer « Convention signée » ou « Rejeté ».
+- Après la signature, les premières étapes sont fermées : la fiche avance vers la mise en œuvre et le suivi.
+
+Chaque changement est enregistré (qui, quand, commentaire) dans l’historique de la fiche et dans le journal d’activité.
+
+## 5. Données et confidentialité
+
+- Seule l’équipe partenariats voit les candidatures, contacts et documents.
+- Les documents sont des **PDF vérifiés** à la réception (un fichier qui n’est pas un vrai PDF est refusé), stockés de façon privée.
+- Une candidature qui n’aboutit pas (non retenue, retirée, indésirable) est **supprimée 24 mois** après sa clôture, avec ses documents.
+- Aucun nom de partenaire n’est publié sans **accord écrit** de l’organisation.
+
+## 6. Avant d’ouvrir la page au public
+
+La page `/partenariats` est en ligne mais **non référencée et absente des menus**. Pour l’ouvrir, la Fondation doit valider : les textes de la page, les personnes (chargé·e, responsable, approbateur), le délai de réponse annoncé, et l’envoi d’e-mails (Resend). L’équipe technique ajoute alors le lien dans le menu et retire le `noindex`.

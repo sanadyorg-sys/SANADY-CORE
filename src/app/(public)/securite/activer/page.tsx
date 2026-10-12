@@ -3,14 +3,14 @@ import { redirect } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
 import { MfaEnrollForm } from "@/components/auth/mfa-forms";
 import { safeRedirectPath } from "@/lib/validation";
-import { requireViewer } from "@/server/auth";
+import { homeFor, requireViewer, staffRole } from "@/server/auth";
 
 export const metadata: Metadata = { title: "Activer la double authentification" };
 
 export default async function MfaEnrollPage(props: PageProps<"/securite/activer">) {
   const viewer = await requireViewer({ allowOnboarding: true, allowPendingMfa: true });
   const { suite } = await props.searchParams;
-  const next = safeRedirectPath(suite, viewer.isSanadyAdmin ? "/admin" : "/espace/profil");
+  const next = safeRedirectPath(suite, staffRole(viewer) ? homeFor(viewer) : "/espace/profil");
   if (viewer.mfaEnrolled && viewer.aal === "aal2") redirect(next);
   if (viewer.mfaEnrolled) redirect(`/securite/verification?suite=${encodeURIComponent(next)}`);
 

@@ -4,7 +4,8 @@ import { requireStaff, staffRole } from "@/server/auth";
 import { contextsFor, shellUser } from "@/server/shell";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const viewer = await requireStaff();
+  // Each page checks its own role; the layout admits every staff role.
+  const viewer = await requireStaff(["admin", "manager", "trainer", "partners"]);
   const role = staffRole(viewer) ?? "admin";
   return (
     <AppShell

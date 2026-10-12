@@ -21,3 +21,10 @@
 | 17 | 11/10/2026 | Partners banner and testimonials **hidden** until confirmed | Government logos and real quotes need written consent | Switches `SHOW_PARTNERS`, `SHOW_TESTIMONIALS` |
 | 18 | 11/10/2026 | **Nightly retention job** (pg_cron) | The privacy notice promises limited retention | Learner-account deletion awaits the Foundation's procedure |
 | 19 | 11/10/2026 | Tables scroll inside their card on phones (`contain: inline-size`, positioned scroller) | Pages must never zoom out on phones | Audited with `scripts/mobile-audit.mjs` |
+| 20 | 12/10/2026 | **Partenariats & Coopération** built from brief V2 (phases 1–2), page `/partenariats` **hidden** (no menu link, `noindex`) until the Foundation approves | Brief: SANADY authorisation before public launch | Shown via its link only |
+| 21 | 12/10/2026 | Signing authority is an **explicit grant** (`partnership_signatories`), not a role; never self-granted; requires 2FA | Brief V2 §10: technical administration must not confer signing authority | An admin needs another admin to be appointed |
+| 22 | 12/10/2026 | Proposal PDFs uploaded through **single-use signed links**, then verified by their first bytes (`%PDF-`) and moved by the server | Keeps the 2 MB server-action limit for everyone; never trust names or declared types | Unattached uploads deleted after 24 h |
+| 23 | 12/10/2026 | Fields of intervention in a table (`intervention_fields`), public texts from verified code constants; **anon still reads no table** | Configurable fields; existing invariant kept | Public pages need no database read |
+| 24 | 12/10/2026 | Refused applications kept **24 months** after closure; purged when the team opens the inbox (files first, then rows) | Data minimisation; storage files cannot be deleted from SQL | Stated in the privacy notice (§8) |
+| 25 | 12/10/2026 | Forms keep what was typed after a refused submission (`SubmitButton` restores values; the multi-step form submits by hand) | React 19 clears forms after every submission, even refused ones | Passwords are never restored |
+

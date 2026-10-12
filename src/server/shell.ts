@@ -12,6 +12,14 @@ export function contextsFor(viewer: Viewer): ShellContext[] {
     contexts.push({ key: "admin", label: "Espace pédagogique", description: "Responsable pédagogique", href: "/admin", kind: "admin" });
   } else if (viewer.isTrainer) {
     contexts.push({ key: "admin", label: "Espace pédagogique", description: "Formateur", href: "/admin/formations", kind: "admin" });
+  } else if (viewer.platformRole === "partnership_coordinator" || viewer.platformRole === "partnership_manager") {
+    contexts.push({
+      key: "admin",
+      label: "Partenariats & Coopération",
+      description: viewer.platformRole === "partnership_manager" ? "Responsable des partenariats" : "Chargé(e) des partenariats",
+      href: "/admin/partenariats",
+      kind: "admin",
+    });
   }
   for (const inst of viewer.supervisedInstitutions) {
     contexts.push({

@@ -160,11 +160,18 @@ export async function removePlatformAdmin(userId: string): Promise<ActionState> 
   return { ok: true, message: "Rôle d’administrateur retiré." };
 }
 
-/* ─── Pedagogical team (training managers, trainers) ───────────────────── */
+/* ─── Pedagogical and partnership team ─────────────────────────────────── */
+
+const ROLE_LABELS = {
+  training_manager: "Responsable pédagogique",
+  trainer: "Formateur",
+  partnership_coordinator: "Chargé(e) des partenariats",
+  partnership_manager: "Responsable des partenariats",
+} as const;
 
 export async function setPlatformRole(_prev: ActionState, formData: FormData): Promise<ActionState> {
   await requireSanadyAdmin();
-  const parsed = parseInput(z.object({ email: emailSchema, role: z.enum(["training_manager", "trainer"], "Choisissez un rôle.") }), formData);
+  const parsed = parseInput(z.object({ email: emailSchema, role: z.enum(["training_manager", "trainer", "partnership_coordinator", "partnership_manager"], "Choisissez un rôle.") }), formData);
   if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
   const supabase = await createClient();
   const { data: profile } = await supabase.from("profiles").select("id").eq("email", parsed.data.email).maybeSingle();
@@ -179,7 +186,7 @@ export async function setPlatformRole(_prev: ActionState, formData: FormData): P
   const { error } = await supabase.rpc("set_platform_role", { p_user: (profile as { id: string }).id, p_role: parsed.data.role });
   if (error) return { ok: false, message: errorMessage(error) };
   revalidatePath("/admin/administrateurs");
-  return { ok: true, message: parsed.data.role === "trainer" ? "Rôle de formateur attribué." : "Rôle de responsable pédagogique attribué." };
+  return { ok: true, message: `Rôle « ${ROLE_LABELS[parsed.data.role]} » attribué.` };
 }
 
 export async function removePlatformRole(userId: string): Promise<ActionState> {
@@ -190,6 +197,35 @@ export async function removePlatformRole(userId: string): Promise<ActionState> {
   if (error) return { ok: false, message: errorMessage(error) };
   revalidatePath("/admin/administrateurs");
   return { ok: true, message: "Rôle retiré. La personne conserve son compte enseignant." };
+}
+
+/* ─── Partnership approvers (« approbateurs habilités ») ───────────────── */
+
+export async function grantPartnershipApprover(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireSanadyAdmin();
+  const parsed = parseInput(z.object({ email: emailSchema }), formData);
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors };
+  const supabase = await createClient();
+  const { data: profile } = await supabase.from("profiles").select("id").eq("email", parsed.data.email).maybeSingle();
+  if (!profile) return { ok: false, fieldErrors: { email: "Aucun compte avec cette adresse." } };
+  const { error } = await supabase.rpc("set_partnership_signatory", { p_user: (profile as { id: string }).id, p_active: true });
+  if (error) {
+    const code = errorMessage(error);
+    return error.message.includes("invalid_input")
+      ? { ok: false, fieldErrors: { email: "Cette personne doit d’abord être administrateur ou avoir un rôle partenariats." } }
+      : { ok: false, message: code };
+  }
+  revalidatePath("/admin/administrateurs");
+  return { ok: true, message: "Approbateur habilité désigné." };
+}
+
+export async function revokePartnershipApprover(userId: string): Promise<ActionState> {
+  await requireSanadyAdmin();
+  if (!uuidSchema.safeParse(userId).success) return { ok: false, message: messageFor("not_found") };
+  const { error } = await (await createClient()).rpc("set_partnership_signatory", { p_user: userId, p_active: false });
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidatePath("/admin/administrateurs");
+  return { ok: true, message: "Habilitation retirée." };
 }
 
 /* ─── Assessment & certificates ────────────────────────────────────────── */

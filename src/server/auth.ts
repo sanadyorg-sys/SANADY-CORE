@@ -11,9 +11,10 @@ export interface ViewerInstitution {
   role: "admin" | "teacher" | "supervisor";
 }
 
-export type PlatformRole = "sanady_admin" | "training_manager" | "trainer";
+export type PlatformRole = "sanady_admin" | "training_manager" | "trainer" | "partnership_coordinator" | "partnership_manager";
 /** Staff roles allowed in the « Administration » area, as guard shorthand. */
-export type StaffRole = "admin" | "manager" | "trainer";
+/** "partners": partnership coordinators and managers (Partenariats & Coopération). */
+export type StaffRole = "admin" | "manager" | "trainer" | "partners";
 
 export interface Viewer {
   id: string;
@@ -118,6 +119,7 @@ export function staffRole(viewer: Viewer): StaffRole | null {
   if (viewer.isSanadyAdmin) return "admin";
   if (viewer.isTrainingManager) return "manager";
   if (viewer.isTrainer) return "trainer";
+  if (viewer.platformRole === "partnership_coordinator" || viewer.platformRole === "partnership_manager") return "partners";
   return null;
 }
 
@@ -129,12 +131,20 @@ export function staffRole(viewer: Viewer): StaffRole | null {
 export async function requireStaff(allow: StaffRole[] = ["admin", "manager", "trainer"]): Promise<Viewer> {
   const viewer = await requireViewer();
   const role = staffRole(viewer);
-  if (!role || !allow.includes(role)) redirect(role ? "/admin/formations" : "/mon-espace");
+  if (!role || !allow.includes(role)) redirect(role ? homeFor(viewer) : "/mon-espace");
   if (role !== "trainer") {
     if (!viewer.mfaEnrolled) redirect("/securite/activer?suite=/admin");
     if (viewer.aal !== "aal2") redirect("/securite/verification?suite=/admin");
   }
   return viewer;
+}
+
+/**
+ * Partenariats & Coopération: SANADY administrators and partnership staff,
+ * always from a two-factor session (the database enforces the same rule).
+ */
+export async function requirePartnershipStaff(): Promise<Viewer> {
+  return requireStaff(["admin", "partners"]);
 }
 
 /** Institution pages readable by its administrators and supervisors. */
@@ -156,6 +166,7 @@ export async function requireInstitutionAdmin(institutionId: string) {
 export function homeFor(viewer: Viewer): string {
   if (viewer.isSanadyAdmin || viewer.isTrainingManager) return "/admin";
   if (viewer.isTrainer) return "/admin/formations";
+  if (viewer.platformRole === "partnership_coordinator" || viewer.platformRole === "partnership_manager") return "/admin/partenariats";
   if (viewer.supervisedInstitutions[0]) return `/etablissement/${viewer.supervisedInstitutions[0].id}`;
   return "/espace";
 }

@@ -5,7 +5,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-const PUBLIC_PAGES = ["/", "/formations", "/a-propos", "/ressources", "/demande-acces", "/connexion", "/aide", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide"];
+const PUBLIC_PAGES = ["/", "/formations", "/a-propos", "/ressources", "/demande-acces", "/connexion", "/aide", "/mot-de-passe-oublie", "/rejoindre", "/verifier", "/confidentialite", "/invitation/lien-invalide", "/partenariats", "/partenariats/domaines/rehabilitation"];
 
 async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -163,5 +163,45 @@ test.describe("public website", () => {
     await page.getByRole("button", { name: "Envoyer ma demande" }).click();
     await expect(page.getByText("Veuillez saisir votre prénom.")).toBeVisible();
     await expect(page.getByText("Veuillez accepter le traitement de vos données pour envoyer la demande.")).toBeVisible();
+  });
+});
+
+test.describe("partnerships portal (hidden until approved)", () => {
+  test("is not indexed and not linked from the menu", async ({ page }) => {
+    await page.goto("/partenariats");
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Ensemble, construisons un avenir éducatif meilleur.");
+    await page.goto("/");
+    await expect(page.locator('a[href="/partenariats"]')).toHaveCount(0);
+  });
+
+  test("validates each step before moving on", async ({ page }) => {
+    await page.goto("/partenariats#candidature");
+    await page.getByRole("button", { name: "Continuer" }).click();
+    await expect(page.getByText("Veuillez renseigner le nom de l’organisation.")).toBeVisible();
+    await expect(page.getByLabel("Nom de l’organisation")).toBeFocused();
+    await page.getByLabel("Nom de l’organisation").fill("Fondation Exemple");
+    await page.getByLabel("Type d’organisation").selectOption("fondation");
+    await page.getByLabel("Présentation de l’organisation").fill("Une fondation engagée pour l’éducation au Maroc.");
+    await page.getByRole("button", { name: "Continuer" }).click();
+    await expect(page.getByRole("heading", { name: /Étape 2 sur 5/ })).toBeVisible();
+    await page.getByRole("button", { name: "Continuer" }).click();
+    await expect(page.getByText("Adresse e-mail invalide.").or(page.getByText("Veuillez saisir une adresse e-mail."))).toBeVisible();
+  });
+
+  test("has one page per field of intervention and 404 for unknown ones", async ({ page }) => {
+    await page.goto("/partenariats/domaines/formation-continue");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Formation continue des enseignants");
+    await page.getByRole("link", { name: "Proposer un partenariat dans ce domaine" }).click();
+    await expect(page).toHaveURL(/domaine=formation-continue/);
+    const res = await page.goto("/partenariats/domaines/marketing");
+    expect(res?.status()).toBe(404);
+  });
+
+  test("the team area refuses anonymous visitors", async ({ page }) => {
+    await page.goto("/admin/partenariats");
+    await expect(page).toHaveURL(/\/connexion/);
+    const doc = await page.request.get("/api/partenariats/documents/00000000-0000-0000-0000-000000000000");
+    expect(doc.status()).toBe(401);
   });
 });

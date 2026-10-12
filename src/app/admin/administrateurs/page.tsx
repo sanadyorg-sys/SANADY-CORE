@@ -1,26 +1,34 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GraduationCap, ShieldCheck, UserRoundCog } from "lucide-react";
-import { PlatformRoleForm } from "@/components/admin/team-forms";
+import { BadgeCheck, GraduationCap, Handshake, ShieldCheck, UserRoundCog } from "lucide-react";
+import { PartnershipApproverForm, PlatformRoleForm } from "@/components/admin/team-forms";
 import { ActionButton } from "@/components/common/action-button";
 import { InviteForm } from "@/components/common/invite-form";
 import { Badge, Card, CardBody, CardHeader, PageHeader } from "@/components/ui/surface";
 import { formatDate } from "@/lib/format";
-import { removePlatformAdmin, removePlatformRole } from "@/server/actions/admin";
+import { removePlatformAdmin, removePlatformRole, revokePartnershipApprover } from "@/server/actions/admin";
 import { requireSanadyAdmin } from "@/server/auth";
 import { listAdmins, listPedagogicalTeam } from "@/server/queries/admin";
+import { listSignatories } from "@/server/queries/partnerships";
+
+const ROLE_LABEL = {
+  training_manager: "Responsable pédagogique",
+  trainer: "Formateur",
+  partnership_coordinator: "Chargé(e) des partenariats",
+  partnership_manager: "Responsable des partenariats",
+} as const;
 
 export const metadata: Metadata = { title: "Équipe SANADY" };
 
 export default async function AdminsPage() {
   const viewer = await requireSanadyAdmin();
-  const [admins, team] = await Promise.all([listAdmins(), listPedagogicalTeam()]);
+  const [admins, team, approvers] = await Promise.all([listAdmins(), listPedagogicalTeam(), listSignatories()]);
 
   return (
     <>
       <PageHeader
         title="Équipe SANADY"
-        description="Administrateurs (toute la plateforme), responsables pédagogiques (revue, publication, suivi) et formateurs (conception des formations qui leur sont confiées)."
+        description="Administrateurs (toute la plateforme), équipe pédagogique (responsables, formateurs), équipe partenariats et approbateurs habilités."
       />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
         <Card>
@@ -68,7 +76,7 @@ export default async function AdminsPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Équipe pédagogique" description={`${team.length} membre(s)`} />
+          <CardHeader title="Équipe pédagogique et partenariats" description={`${team.length} membre(s)`} />
           {team.length ? (
             <ul className="divide-y divide-line">
               {team.map((m) => (
@@ -76,13 +84,15 @@ export default async function AdminsPage() {
                   <div className="flex min-w-0 items-start gap-3">
                     {m.role === "trainer" ? (
                       <GraduationCap className="mt-0.5 size-4 shrink-0 text-accent-700" aria-hidden />
+                    ) : m.role.startsWith("partnership") ? (
+                      <Handshake className="mt-0.5 size-4 shrink-0 text-success-700" aria-hidden />
                     ) : (
                       <UserRoundCog className="mt-0.5 size-4 shrink-0 text-brand-600" aria-hidden />
                     )}
                     <div className="min-w-0">
                       <p className="font-medium text-ink-900">
                         {m.user.full_name || m.user.email}{" "}
-                        <Badge tone={m.role === "trainer" ? "accent" : "brand"}>{m.role === "trainer" ? "Formateur" : "Responsable pédagogique"}</Badge>
+                        <Badge tone={m.role === "trainer" ? "accent" : m.role.startsWith("partnership") ? "success" : "brand"}>{ROLE_LABEL[m.role]}</Badge>
                       </p>
                       <p className="text-caption text-ink-500">
                         {m.user.email} · depuis le {formatDate(m.granted_at)}
@@ -132,9 +142,53 @@ export default async function AdminsPage() {
           )}
         </Card>
         <Card className="self-start">
-          <CardHeader title="Attribuer un rôle pédagogique" />
+          <CardHeader title="Attribuer un rôle" />
           <CardBody>
             <PlatformRoleForm />
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="Approbateurs habilités — partenariats"
+            description="Seules ces personnes valident une convention ou rejettent un partenariat soumis à validation institutionnelle (double authentification). Le rôle d’administrateur ne donne pas ce pouvoir."
+          />
+          {approvers.length ? (
+            <ul className="divide-y divide-line">
+              {approvers.map((a) => (
+                <li key={a.user.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <BadgeCheck className="size-4 shrink-0 text-success-700" aria-hidden />
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-ink-900">{a.user.full_name || a.user.email}</p>
+                      <p className="text-caption text-ink-500">
+                        {a.user.email} · désigné(e) le {formatDate(a.granted_at)}
+                        {a.granter ? ` par ${a.granter.full_name || a.granter.email}` : ""}
+                      </p>
+                    </div>
+                  </div>
+                  {a.user.id !== viewer.id ? (
+                    <ActionButton
+                      variant="danger-ghost"
+                      action={revokePartnershipApprover.bind(null, a.user.id)}
+                      confirm={{ title: "Retirer l’habilitation ?", description: "La personne ne pourra plus valider de convention.", confirmLabel: "Retirer" }}
+                    >
+                      Retirer
+                    </ActionButton>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <CardBody>
+              <p className="text-body text-ink-600">Aucun approbateur désigné : aucune convention ne peut être validée.</p>
+            </CardBody>
+          )}
+        </Card>
+        <Card className="self-start">
+          <CardHeader title="Désigner un approbateur" />
+          <CardBody>
+            <PartnershipApproverForm />
           </CardBody>
         </Card>
       </div>

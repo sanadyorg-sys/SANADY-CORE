@@ -128,6 +128,7 @@ export default async function PrivacyPage() {
               <li>Certificats : conservés afin de permettre leur vérification, sauf demande de suppression.</li>
               <li>Journaux d’administration : 3 ans.</li>
               <li>Demandes d’accès : 12 mois au plus après leur traitement.</li>
+              <li>Candidatures de partenariat qui n’aboutissent pas (non retenues, retirées) : 24 mois au plus après leur clôture.</li>
             </ul>
           </section>
 
@@ -148,6 +149,21 @@ export default async function PrivacyPage() {
               sont stockés de manière privée et ne sont accessibles qu’aux personnes autorisées, par des liens temporaires. Les mots de
               passe ne sont jamais stockés en clair.
             </p>
+          </section>
+
+          <section id="partenariats" className="scroll-mt-20">
+            <h2>8. Candidatures de partenariat (organisations)</h2>
+            <p>
+              Lorsqu’une organisation propose un partenariat depuis la page « Partenariats &amp; Coopération », la Fondation Sanady traite :
+              les informations sur l’organisation, le nom, la fonction, l’adresse e-mail et, s’il est indiqué, le téléphone professionnel de
+              la personne de contact, la proposition et les documents PDF joints.
+            </p>
+            <ul>
+              <li>Finalité : étudier la proposition, recontacter l’organisation et, le cas échéant, suivre le partenariat.</li>
+              <li>Accès : uniquement l’équipe partenariats de la Fondation Sanady (connexion avec double authentification). Les documents sont stockés de façon privée.</li>
+              <li>Conservation : 24 mois au plus après la clôture d’une proposition qui n’aboutit pas ; pendant la durée du partenariat et de son suivi sinon.</li>
+              <li>Aucune information n’est publiée ni transmise à des tiers sans l’accord écrit de l’organisation.</li>
+            </ul>
           </section>
         </div>
       </main>

@@ -12,6 +12,8 @@ const MESSAGES: Record<string, string> = {
   invalid_first_name: "Veuillez saisir votre prénom.",
   invalid_last_name: "Veuillez saisir votre nom.",
   rate_limited: "Trop de tentatives. Veuillez patienter quelques minutes avant de réessayer.",
+  invalid_transition: "Ce changement de statut n’est pas possible à cette étape.",
+  already_exists: "Cet élément existe déjà.",
 
   // Invitations
   invitation_not_found: "Ce lien d’invitation n’est pas valide.",
