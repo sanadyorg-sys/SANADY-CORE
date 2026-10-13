@@ -72,13 +72,27 @@ Chaque changement est enregistré (qui, quand, commentaire) dans l’historique 
 
 **À surveiller** (page Candidatures) : conventions à renouveler (selon le délai de rappel), étapes à échéance dans les 14 jours ou en retard, contributions attendues en retard, éléments en attente d’un approbateur.
 
-## 7. Données et confidentialité
+## 7. Impact et rapports aux partenaires
+
+**Indicateurs d’impact** (fiche de l’organisation → « Saisir un indicateur ») : un chiffre mesuré pour un domaine et une période (ex. élèves accompagnés, équipements livrés), rattaché à une convention ou à un projet, avec :
+
+- son **type** : *réalisation* (activités, participants) ou *résultat à long terme* — jamais mélangés ;
+- sa **méthode de mesure** (listes de présence, bons de livraison…) ;
+- la **part du partenariat** : directement financé, un soutien parmi d’autres, ou simple contexte. Rien n’est attribué automatiquement.
+
+Un **approbateur** vérifie l’indicateur (page **Impact**) ou le renvoie pour correction. Un indicateur vérifié ne se modifie plus.
+
+**Rapports aux partenaires** (fiche de l’organisation → « Préparer un rapport ») : période, convention (ou tout le partenariat), activités, difficultés, perspectives. Le PDF (aux couleurs de la Fondation) suit les 12 rubriques prévues et ne reprend **que des données vérifiées**, en chiffres agrégés : aucun élève ni enseignant n’est nommé. Un approbateur l’approuve ; l’équipe le transmet au partenaire puis enregistre la transmission.
+
+**Page Impact** : partenaires en discussion, partenariats actifs, projets, renouvellements, contributions réellement reçues, répartition par domaine, étapes des partenariats et indicateurs vérifiés — uniquement des valeurs réelles.
+
+## 8. Données et confidentialité
 
 - Seule l’équipe partenariats voit les candidatures, contacts et documents.
 - Les documents sont des **PDF vérifiés** à la réception (un fichier qui n’est pas un vrai PDF est refusé), stockés de façon privée.
 - Une candidature qui n’aboutit pas (non retenue, retirée, indésirable) est **supprimée 24 mois** après sa clôture, avec ses documents.
 - Aucun nom de partenaire n’est publié sans **accord écrit** de l’organisation.
 
-## 8. Avant d’ouvrir la page au public
+## 9. Avant d’ouvrir la page au public
 
 La page `/partenariats` est en ligne mais **non référencée et absente des menus**. Pour l’ouvrir, la Fondation doit valider : les textes de la page, les personnes (chargé·e, responsable, approbateur), le délai de réponse annoncé, et l’envoi d’e-mails (Resend). L’équipe technique ajoute alors le lien dans le menu et retire le `noindex`.

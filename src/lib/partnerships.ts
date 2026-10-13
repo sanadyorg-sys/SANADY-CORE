@@ -350,3 +350,58 @@ export function contributionAmount(c: { kind: ContributionKind; currency: string
   if (c.kind === "material") return [c.quantity ? `${c.quantity} ×` : null, c.item].filter(Boolean).join(" ");
   return c.hours_delivered ? `${c.hours_delivered} h réalisées sur ${c.hours_pledged ?? "—"} h` : c.hours_pledged ? `${c.hours_pledged} h prévues` : "—";
 }
+
+/* ─── Phase 5: impact and partner reports (migration 20261022000100) ───── */
+
+/** Impact dimensions of brief V2 §12, per field of intervention. */
+export const IMPACT_DIMENSIONS = {
+  students_supported: { label: "Élèves accompagnés", field: "soutien-scolaire" },
+  activities_delivered: { label: "Activités éducatives réalisées", field: "soutien-scolaire" },
+  teachers_trained: { label: "Enseignants formés", field: "formation-continue" },
+  trainings_completed: { label: "Formations terminées", field: "formation-continue" },
+  certificates_issued: { label: "Certificats délivrés", field: "formation-continue" },
+  orientation_activities: { label: "Activités d’orientation", field: "orientation" },
+  participating_students: { label: "Élèves participants", field: "orientation" },
+  assistance_activities: { label: "Accompagnements réalisés", field: "bourses" },
+  supported_applications: { label: "Candidatures accompagnées (vérifiées)", field: "bourses" },
+  workshops_delivered: { label: "Ateliers et événements réalisés", field: "parascolaire" },
+  participants_reached: { label: "Participants touchés", field: "parascolaire" },
+  equipment_delivered: { label: "Équipements livrés", field: "rehabilitation" },
+  schools_supported: { label: "Écoles soutenues", field: "rehabilitation" },
+  rehabilitation_milestones: { label: "Étapes de réhabilitation achevées", field: "rehabilitation" },
+  other: { label: "Autre indicateur", field: null },
+} as const;
+export type ImpactDimension = keyof typeof IMPACT_DIMENSIONS;
+
+export const METRIC_TYPES = {
+  output: "Réalisation (activités, participants)",
+  outcome: "Résultat à long terme",
+} as const;
+export type MetricType = keyof typeof METRIC_TYPES;
+
+/** How much of a figure is owed to the partnership: never assumed (brief V2 §12). */
+export const ATTRIBUTIONS = {
+  direct: "Directement financé par ce partenariat",
+  shared: "Partenariat parmi d’autres soutiens",
+  context: "Contexte (non attribué au partenariat)",
+} as const;
+export type Attribution = keyof typeof ATTRIBUTIONS;
+
+export const METRIC_STATUS = {
+  reported: { label: "À vérifier", tone: "warning" },
+  verified: { label: "Vérifié", tone: "success" },
+  rejected: { label: "À corriger", tone: "danger" },
+} as const;
+export type MetricStatus = keyof typeof METRIC_STATUS;
+
+export const REPORT_STATUS = {
+  draft: { label: "Brouillon", tone: "neutral" },
+  approved: { label: "Approuvé — à transmettre", tone: "accent" },
+  shared: { label: "Transmis au partenaire", tone: "success" },
+} as const;
+export type ReportStatus = keyof typeof REPORT_STATUS;
+
+export function dimensionLabel(dimension: string, label?: string | null) {
+  if (dimension === "other") return label || IMPACT_DIMENSIONS.other.label;
+  return IMPACT_DIMENSIONS[dimension as ImpactDimension]?.label ?? dimension;
+}

@@ -48,6 +48,11 @@ const MESSAGES: Record<string, string> = {
   evidence_required: "Ajoutez une preuve de réception (PDF) avant la vérification.",
   document_locked: "Ce document ne peut pas être supprimé (exemplaire signé ou contribution vérifiée).",
 
+  // Partenariats, phase 5: impact and partner reports
+  attribution_required: "Rattachez l’indicateur à une convention ou à un projet soutenu.",
+  metric_locked: "Cet indicateur est vérifié : il ne peut plus être modifié.",
+  report_locked: "Le rapport est approuvé : renvoyez-le en brouillon pour le modifier (nouvelle approbation).",
+
   // Invitations
   invitation_not_found: "Ce lien d’invitation n’est pas valide.",
   invitation_revoked: "Cette invitation a été annulée. Demandez une nouvelle invitation.",

@@ -179,3 +179,40 @@ export const deliverySchema = z.object({
   received_on: optionalDate.refine((v) => !v || v <= new Date().toISOString().slice(0, 10), "La date ne peut pas être future."),
   hours_delivered: hours,
 });
+
+/* ─── Phase 5: impact indicators and partner reports ─────────────────────── */
+
+export const metricSchema = z
+  .object({
+    agreement_id: optionalUuid,
+    opportunity_id: optionalUuid,
+    intervention_field: z.enum(Object.keys(INTERVENTION_FIELDS) as [keyof typeof INTERVENTION_FIELDS], "Choisissez un domaine."),
+    dimension: z.string().trim().min(1, "Choisissez un indicateur."),
+    label: optionalText(200),
+    metric_type: z.enum(["output", "outcome"], "Réalisation ou résultat ?"),
+    value: z
+      .string()
+      .trim()
+      .transform((v) => v.replace(/\s/g, "").replace(",", "."))
+      .refine((v) => /^\d{1,10}(\.\d{1,2})?$/.test(v), "Valeur numérique attendue."),
+    unit: optionalText(60),
+    period_start: z.iso.date("Date de début requise."),
+    period_end: z.iso.date("Date de fin requise."),
+    method: required("la méthode de mesure", 10, 2000),
+    attribution: z.enum(["direct", "shared", "context"], "Précisez la part du partenariat."),
+  })
+  .refine((v) => v.period_end >= v.period_start, { message: "La fin doit suivre le début.", path: ["period_end"] })
+  .refine((v) => Boolean(v.agreement_id || v.opportunity_id), { message: "Rattachez l’indicateur à une convention ou à un projet.", path: ["agreement_id"] })
+  .refine((v) => v.dimension !== "other" || Boolean(v.label), { message: "Nommez l’indicateur.", path: ["label"] });
+
+export const reportSchema = z
+  .object({
+    title: required("le titre", 5, 200),
+    agreement_id: optionalUuid,
+    period_start: z.iso.date("Date de début requise."),
+    period_end: z.iso.date("Date de fin requise."),
+    activities: optionalText(4000),
+    challenges: optionalText(4000),
+    future_opportunities: optionalText(4000),
+  })
+  .refine((v) => v.period_end >= v.period_start, { message: "La fin doit suivre le début.", path: ["period_end"] });

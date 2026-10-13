@@ -5,6 +5,7 @@ import { ArrowLeft, CalendarClock, Mail, Pencil, Phone, Plus, Star, Trash2 } fro
 import { ActionButton } from "@/components/common/action-button";
 import { ContactForm, NoteForm, OrganizationForm, PartnerStatusForm, TaskForm } from "@/components/partnerships/admin-forms";
 import { AgreementForm, ContributionForm } from "@/components/partnerships/agreement-forms";
+import { MetricForm, ReportForm } from "@/components/partnerships/impact-forms";
 import { HistoryList, NotesList } from "@/components/partnerships/timeline";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/overlay";
@@ -22,13 +23,17 @@ import {
   CONTRIBUTION_KINDS,
   CONTRIBUTION_STAGE,
   allowedNextSteps,
+  METRIC_STATUS,
+  REPORT_STATUS,
   contributionAmount,
+  dimensionLabel,
   stageTone,
 } from "@/lib/partnerships";
 import { uuidSchema } from "@/lib/validation";
 import { deleteContact, setTaskDone } from "@/server/actions/partnerships";
 import { requirePartnershipStaff } from "@/server/auth";
 import { linkOptions, listAgreements, listContributions } from "@/server/queries/agreements";
+import { listMetrics, listReports } from "@/server/queries/impact";
 import { getOrganization, partnershipTeam, pipelineActor } from "@/server/queries/partnerships";
 
 export const metadata: Metadata = { title: "Organisation partenaire" };
@@ -44,10 +49,12 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
   // An enterprise-only client has no partnership record yet.
   if (!detail.organization.status) redirect(`/admin/partenariats/entreprises/clients/${organizationId}`);
   const { organization: o, contacts, notes, history, tasks, applications } = detail;
-  const [agreements, contributions, links] = await Promise.all([
+  const [agreements, contributions, links, metrics, reports] = await Promise.all([
     listAgreements({ organization: o.id }),
     listContributions({ organization: o.id }),
     linkOptions(o.id),
+    listMetrics({ organization: o.id }),
+    listReports({ organization: o.id }),
   ]);
   const stageIndex = MAIN_STAGES.indexOf(o.status);
   const today = new Date().toISOString().slice(0, 10);
@@ -240,6 +247,96 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
               >
                 <div className="p-5">
                   <ContributionForm organizationId={o.id} agreements={links.agreements} opportunities={links.opportunities} />
+                </div>
+              </Drawer>
+            </CardBody>
+          </Card>
+
+          <Card id="impact">
+            <CardHeader title="Indicateurs d’impact" description="Saisis par l’équipe, vérifiés par un approbateur. Seuls les indicateurs vérifiés entrent dans les rapports." />
+            {metrics.length ? (
+              <ul className="divide-y divide-line">
+                {metrics.map((m) => (
+                  <li key={m.id} className="flex flex-wrap items-start justify-between gap-2 px-5 py-3">
+                    <div className="min-w-0">
+                      <p className="font-medium text-ink-900">
+                        {dimensionLabel(m.dimension, m.label)} : {Number(m.value).toLocaleString("fr-FR")}
+                        {m.unit ? ` ${m.unit}` : ""}
+                      </p>
+                      <p className="text-caption text-ink-500">
+                        {m.metric_type === "output" ? "Réalisation" : "Résultat"} · du {formatDate(m.period_start)} au {formatDate(m.period_end)}
+                        {m.agreement ? ` · ${m.agreement.reference}` : ""}
+                      </p>
+                      {m.status === "rejected" && m.review_comment ? <p className="mt-1 text-label text-danger-700">À corriger : {m.review_comment}</p> : null}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge tone={METRIC_STATUS[m.status].tone}>{METRIC_STATUS[m.status].label}</Badge>
+                      {m.status !== "verified" ? (
+                        <Drawer
+                          title="Corriger l’indicateur"
+                          width="max-w-2xl"
+                          trigger={
+                            <Button variant="ghost" size="sm">
+                              <Pencil aria-hidden /> <span className="sr-only">Corriger {dimensionLabel(m.dimension, m.label)}</span>
+                            </Button>
+                          }
+                        >
+                          <div className="p-5">
+                            <MetricForm organizationId={o.id} metric={m} agreements={links.agreements} opportunities={links.opportunities} />
+                          </div>
+                        </Drawer>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <CardBody className={metrics.length ? "border-t border-line" : undefined}>
+              <Drawer
+                title="Nouvel indicateur d’impact"
+                description="Un chiffre mesuré, rattaché à une convention ou à un projet, avec sa méthode et la part du partenariat."
+                width="max-w-2xl"
+                trigger={
+                  <Button variant="secondary">
+                    <Plus aria-hidden /> Saisir un indicateur
+                  </Button>
+                }
+              >
+                <div className="p-5">
+                  <MetricForm organizationId={o.id} agreements={links.agreements} opportunities={links.opportunities} />
+                </div>
+              </Drawer>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader title="Rapports au partenaire" />
+            {reports.length ? (
+              <ul className="divide-y divide-line">
+                {reports.map((r) => (
+                  <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 px-5 py-3">
+                    <Link href={`/admin/partenariats/rapports/${r.id}`} className="min-w-0 font-medium text-ink-900 hover:text-accent-700 hover:underline">
+                      {r.title}
+                      <span className="block text-caption font-normal text-ink-500">{r.reference}</span>
+                    </Link>
+                    <Badge tone={REPORT_STATUS[r.status].tone}>{REPORT_STATUS[r.status].label}</Badge>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <CardBody className={reports.length ? "border-t border-line" : undefined}>
+              <Drawer
+                title="Nouveau rapport au partenaire"
+                description="Construit à partir des données vérifiées ; approuvé avant transmission."
+                width="max-w-2xl"
+                trigger={
+                  <Button variant="secondary">
+                    <Plus aria-hidden /> Préparer un rapport
+                  </Button>
+                }
+              >
+                <div className="p-5">
+                  <ReportForm organizationId={o.id} agreements={links.agreements} />
                 </div>
               </Drawer>
             </CardBody>
