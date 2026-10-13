@@ -81,6 +81,14 @@ Mise à jour d’une formation lancée : « Préparer une nouvelle version », p
 5. Chaque mois, sur la page de l’espace : **Enregistrer le relevé** (actifs, inscrits, parcours terminés, stockage). Un **dépassement** est signalé : indiquez la suite donnée (avenant, régularisation…). Rien n’est facturé automatiquement.
 6. À l’approche de l’échéance (rappel dans « À surveiller ») : **Ouvrir le renouvellement**, fixer la nouvelle échéance, puis **reprendre** le contrat — ou le **clore** avec un motif.
 
-## 8. Données personnelles
+## 8. Finances (montants enregistrés, rien n’est facturé par la plateforme)
+
+- **Factures** : sur la page du contrat (carte « Facturation »), enregistrez chaque facture émise par la comptabilité (son numéro, catégorie, montant, dates). Une facture annulée garde son motif (avoir).
+- **Paiements** : enregistrez chaque paiement reçu ; il ne peut pas dépasser le reste dû. Une **autre personne** (approbateur ou administrateur) le **confirme** après vérification du relevé bancaire (page **Finances**, « Paiements à confirmer »).
+- **Coûts** : page **Finances** → « Nouveau coût » : catégorie, montant, date, contrat concerné (coût direct) ou coût général, réel ou **estimation**.
+- **Lecture** : contracté, facturé, reçu, confirmé, reste dû et coûts, par devise et par année ; marge et coût par collaborateur affichés comme **estimations**.
+- Sur la fiche d’une organisation, la carte **« Relation avec la Fondation »** montre côte à côte le partenariat (dons, contributions, impact) et les services aux entreprises (contrats, espaces, facturé) — jamais additionnés.
+
+## 9. Données personnelles
 
 Les demandes qui n’aboutissent pas sont supprimées au plus tard 24 mois après leur clôture (politique de confidentialité, §9). Les documents sont stockés dans un espace privé et vérifiés à l’arrivée (un faux PDF est refusé).

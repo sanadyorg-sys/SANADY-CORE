@@ -5,6 +5,7 @@ import { ArrowLeft, CalendarClock, Mail, Pencil, Phone, Plus, Star, Trash2 } fro
 import { ActionButton } from "@/components/common/action-button";
 import { ContactForm, NoteForm, OrganizationForm, PartnerStatusForm, TaskForm } from "@/components/partnerships/admin-forms";
 import { AgreementForm, ContributionForm } from "@/components/partnerships/agreement-forms";
+import { RelationshipCard } from "@/components/enterprise/relationship-card";
 import { MetricForm, ReportForm } from "@/components/partnerships/impact-forms";
 import { DeliverableReviewForm, InvitePartnerForm, TeamMessageForm } from "@/components/partnerships/portal-forms";
 import { HistoryList, NotesList } from "@/components/partnerships/timeline";
@@ -35,6 +36,7 @@ import { deleteContact, setTaskDone } from "@/server/actions/partnerships";
 import { revokePartnerMember } from "@/server/actions/portal";
 import { requirePartnershipStaff } from "@/server/auth";
 import { linkOptions, listAgreements, listContributions } from "@/server/queries/agreements";
+import { organizationRelationships } from "@/server/queries/finance";
 import { listMetrics, listReports } from "@/server/queries/impact";
 import { portalEnabled, portalForOrganization } from "@/server/queries/portal";
 import { getOrganization, partnershipTeam, pipelineActor } from "@/server/queries/partnerships";
@@ -61,6 +63,7 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
     portalEnabled(),
     portalForOrganization(o.id),
   ]);
+  const relationships = o.enterprise_status ? await organizationRelationships(o.id) : null;
   const activePartner = ["agreement_signed", "implementation", "monitoring", "renewal_or_closure"].includes(o.status);
   const stageIndex = MAIN_STAGES.indexOf(o.status);
   const today = new Date().toISOString().slice(0, 10);
@@ -257,6 +260,8 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
               </Drawer>
             </CardBody>
           </Card>
+
+          {relationships ? <RelationshipCard r={relationships} /> : null}
 
           <Card id="impact">
             <CardHeader title="Indicateurs d’impact" description="Saisis par l’équipe, vérifiés par un approbateur. Seuls les indicateurs vérifiés entrent dans les rapports." />

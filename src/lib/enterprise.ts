@@ -298,3 +298,32 @@ export function contractNextSteps(from: ContractStatus, a: { manager: boolean; s
   if (a.manager && ["signed", "active", "renewal"].includes(from)) out.push("closed");
   return out;
 }
+
+/* ─── Phase E6: financial foundation (migration 20261025000100) ─────────── */
+
+export const REVENUE_CATEGORIES = {
+  custom_training: "Production de formations sur mesure",
+  platform_subscription: "Abonnement à la plateforme",
+  setup: "Mise en place",
+  support_maintenance: "Support et maintenance",
+  content_updates: "Mises à jour des contenus",
+  other: "Autre service approuvé",
+} as const;
+export type RevenueCategory = keyof typeof REVENUE_CATEGORIES;
+
+export const COST_CATEGORIES = {
+  cloud_infrastructure: "Infrastructure cloud",
+  video_hosting: "Hébergement vidéo",
+  file_storage: "Stockage de fichiers",
+  technical_maintenance: "Maintenance technique",
+  content_production: "Production de contenus",
+  trainer_compensation: "Rémunération des formateurs",
+  customer_support: "Support client",
+  administrative: "Frais administratifs",
+} as const;
+export type CostCategory = keyof typeof COST_CATEGORIES;
+
+/** Costs that count as infrastructure (cost per active learner, an estimate). */
+export const INFRASTRUCTURE_COSTS: CostCategory[] = ["cloud_infrastructure", "video_hosting", "file_storage"];
+
+export const PAYMENT_METHODS = { transfer: "Virement", cheque: "Chèque", cash: "Espèces", card: "Carte", other: "Autre" } as const;

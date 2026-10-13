@@ -63,6 +63,10 @@ const MESSAGES: Record<string, string> = {
   contract_locked: "Le contrat n’est plus en brouillon : seules l’échéance (en renouvellement) et l’espace rattaché peuvent changer.",
   lines_required: "Ajoutez au moins une ligne au contrat.",
 
+  // SANADY Enterprise, phase E6: finance
+  invoice_paid: "Cette facture a déjà reçu un paiement : elle ne peut pas être annulée.",
+  payment_exceeds_invoice: "Le paiement dépasse le montant restant dû sur cette facture.",
+
   // Invitations
   invitation_not_found: "Ce lien d’invitation n’est pas valide.",
   invitation_revoked: "Cette invitation a été annulée. Demandez une nouvelle invitation.",

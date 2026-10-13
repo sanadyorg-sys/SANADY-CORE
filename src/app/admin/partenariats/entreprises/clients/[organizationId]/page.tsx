@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarClock, Handshake, Mail, Pencil, Phone, Plus, Star } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { ProjectForm } from "@/components/enterprise/studio-forms";
+import { RelationshipCard } from "@/components/enterprise/relationship-card";
 import { TenantForm } from "@/components/enterprise/tenant-forms";
 import { ClientForm, EnterpriseContactForm, EnterpriseNoteForm, EnterpriseStatusForm, EnterpriseTaskForm, ProposalForm } from "@/components/enterprise/admin-forms";
 import { HistoryList, NotesList } from "@/components/partnerships/timeline";
@@ -31,6 +32,7 @@ import { uuidSchema } from "@/lib/validation";
 import { setEnterpriseTaskDone } from "@/server/actions/enterprise";
 import { requireEnterpriseStaff } from "@/server/auth";
 import { enterpriseActor, enterpriseTeam, getClient, tenantForOrganization } from "@/server/queries/enterprise";
+import { organizationRelationships } from "@/server/queries/finance";
 import { listProjects, productionTeam, projectFormOptions } from "@/server/queries/studio";
 
 export const metadata: Metadata = { title: "Client — Enterprise" };
@@ -49,6 +51,7 @@ export default async function ClientPage(props: PageProps<"/admin/partenariats/e
     projectFormOptions(organizationId),
     productionTeam(),
   ]);
+  const relationships = await organizationRelationships(organizationId);
   if (!detail) notFound();
   const { client: c, contacts, notes, history, tasks, requests, proposals } = detail;
   const stageIndex = MAIN.indexOf(c.enterprise_status);
@@ -209,6 +212,8 @@ export default async function ClientPage(props: PageProps<"/admin/partenariats/e
               </CardBody>
             ) : null}
           </Card>
+
+          {relationships ? <RelationshipCard r={relationships} /> : null}
 
           <Card>
             <CardHeader title="Notes et réunions" description="Visibles par l’équipe Enterprise uniquement." />

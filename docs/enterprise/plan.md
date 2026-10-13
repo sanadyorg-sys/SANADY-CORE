@@ -5,9 +5,9 @@ its Phase 0 (« audit the existing project, identify reusable LMS components,
 assess multi-tenant security risks, and present a phased integration plan
 before making major code or database changes »).
 
-**Build status (13/10/2026):** phases **E1 to E5 are built** (migrations
+**Build status (13/10/2026):** phases **E1 to E6 are built** — the whole brief (migrations
 `20261018000100_enterprise.sql`, `20261018000200_staff_profiles.sql`,
-`20261019000100_enterprise_tenants.sql`, `20261020000100_training_studio.sql`, `20261024000100_enterprise_contracts.sql`), with the public page hidden and
+`20261019000100_enterprise_tenants.sql`, `20261020000100_training_studio.sql`, `20261024000100_enterprise_contracts.sql`, `20261025000100_enterprise_finance.sql`), with the public page hidden and
 worded as a proposal. E3 was built ahead of G1–G5 at the owner's request: the
 safeguard is in the database instead — a company workspace can only be
 requested for a client whose contract an approver signed, and only exists
@@ -101,7 +101,7 @@ invitations are reused as they are.
 | **E3 — Multi-tenant LMS** ✅ | Enterprise tenants on institutions, provisioning checklist (10 steps), company admin dashboard, employees (CSV), departments, private courses, offboarding, cross-tenant tests | Built 12/10/2026; first real use needs G1–G5 + a signed pilot contract |
 | **E4 — Training studio** ✅ | Training projects, curriculum brief, production tasks, client review, versioned publication on the existing authoring and review workflow | Built 12/10/2026 (§9) |
 | **E5 — Contracts & operations** ✅ | Contracts (Draft → … → Closed), service plans, usage tracking, renewals, offboarding | Built 13/10/2026 (§10) — nothing is billed |
-| E6 — Finance & impact | Contracted / invoiced / received / outstanding (no billing), costs, margin estimates (labelled as estimates), link to partnership impact | E5 + accountant |
+| **E6 — Finance & impact** ✅ | Contracted / invoiced / received / outstanding (no billing), costs, margin estimates (labelled as estimates), link to partnership impact | Built 13/10/2026 (§11) — the accountant validates categories and treatment before real use |
 
 Partnership phase 4 (agreements, contributions) is merged into E5/E6 so
 that donations and commercial contracts share one repository design while
@@ -174,4 +174,16 @@ Roles: enterprise and production managers run projects; training managers do the
 | Renewals | Contracts within their notice period and unreviewed overages appear in « À surveiller » on the Enterprise inbox. |
 
 Not in E5: minutes of video watched (Mux usage not imported), invoices, payments and costs (E6), automatic monthly readings (taken by the team).
+
+## 11. Phase E6 as built (13/10/2026) — financial foundation, cross-module view
+
+| Brief | Implementation |
+|---|---|
+| §17 separation | **Contracted** (lines of signed contracts) · **invoiced** (`enterprise_invoices`, recorded from the Foundation's accounting with their own number) · **received** (`enterprise_payments`) · **confirmed** (checked against the bank by an approver or administrator who did not record it — four eyes) · **outstanding** and **overdue**. Per currency, never converted. The platform issues no invoice and collects nothing. |
+| Integrity | An invoice belongs to a signed contract and takes its currency; a payment never exceeds what remains due; a paid invoice cannot be cancelled; a cancelled invoice is kept with its reason (credit note issued elsewhere). |
+| §18 revenue / cost categories | Revenue: custom training, platform subscription, setup, support & maintenance, content updates, other. Costs: cloud, video hosting, storage, maintenance, content production, trainers, support, administration — each **actual** or **estimated**, general or direct (tied to a contract). |
+| §18 indicators | Contract value, invoiced, confirmed payments, direct costs, **estimated** contribution margin (invoiced − costs), **estimated** infrastructure cost per active-learner month (from the E5 readings). Labelled as estimates, never as audited results. |
+| §25 cross-module | `organization_relationships`: the partnership side (stage, signed agreements, donations received, in-kind, verified impact) and the enterprise side (stage, contracts, workspaces, custom training, invoiced) shown side by side on both organisation pages — never added together. Partnership staff see the commercial side without its amounts. |
+
+Before real use: the accountant validates the categories, the revenue recognition rule (here: invoiced amounts) and the separation of analytic accounts (governance item G4).
 

@@ -4,18 +4,21 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Download, Pencil, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { ContractDocumentUpload, ContractForm, ContractLineForm, ContractStatusForm } from "@/components/enterprise/contract-forms";
+import { CancelInvoiceForm, InvoiceForm, PaymentForm } from "@/components/enterprise/finance-forms";
 import { HistoryList } from "@/components/partnerships/timeline";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/overlay";
 import { Alert, Badge, Card, CardBody, CardHeader, DescriptionList, PageHeader } from "@/components/ui/surface";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { displayName, formatDate, formatDateTime } from "@/lib/format";
-import { CONTRACT_STATUS, LINE_CATEGORIES, PRICING_MODELS, SERVICE_PLANS, contractNextSteps, lineTotal } from "@/lib/enterprise";
+import { CONTRACT_STATUS, LINE_CATEGORIES, PAYMENT_METHODS, PRICING_MODELS, REVENUE_CATEGORIES, SERVICE_PLANS, contractNextSteps, lineTotal } from "@/lib/enterprise";
 import { formatAmount } from "@/lib/partnerships";
 import { uuidSchema } from "@/lib/validation";
 import { applyContractToTenant, deleteContractLine } from "@/server/actions/contracts";
+import { confirmPayment } from "@/server/actions/finance";
 import { requireEnterpriseStaff } from "@/server/auth";
 import { enterpriseActor, getContract } from "@/server/queries/enterprise";
+import { contractInvoices } from "@/server/queries/finance";
 
 export const metadata: Metadata = { title: "Contrat — Enterprise" };
 
@@ -33,6 +36,9 @@ export default async function ContractPage(props: PageProps<"/admin/partenariats
   const [detail, actor] = await Promise.all([getContract(contractId), enterpriseActor(viewer)]);
   if (!detail) notFound();
   const { contract: c, lines, documents, history, tenants } = detail;
+  const finance = actor.manager || actor.signatory;
+  const invoices = finance ? await contractInvoices(c.id) : [];
+  const billable = ["signed", "active", "renewal", "closed"].includes(c.status);
   const total = lines.reduce((s, l) => s + lineTotal(l), 0);
   const editable = actor.manager && c.status !== "closed" && c.status !== "internal_review" && c.status !== "approved";
   const draft = c.status === "draft";
@@ -171,6 +177,78 @@ export default async function ContractPage(props: PageProps<"/admin/partenariats
               </CardBody>
             ) : null}
           </Card>
+
+          {finance && billable ? (
+            <Card id="facturation">
+              <CardHeader
+                title="Facturation"
+                description="Factures et paiements enregistrés depuis la comptabilité de la Fondation — la plateforme ne facture rien elle-même."
+              />
+              {invoices.length ? (
+                <ul className="divide-y divide-line">
+                  {invoices.map((i) => {
+                    const paid = i.payments.reduce((s, p) => s + Number(p.amount), 0);
+                    const remaining = Math.round((Number(i.amount) - paid) * 100) / 100;
+                    return (
+                      <li key={i.id} className="space-y-2 px-5 py-4">
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="font-medium text-ink-900">
+                              {i.external_reference} · {formatAmount(i.amount, i.currency)}
+                            </p>
+                            <p className="text-caption text-ink-500">
+                              {REVENUE_CATEGORIES[i.category]} · émise le {formatDate(i.issued_on)}
+                              {i.due_on ? ` · échéance ${formatDate(i.due_on)}` : ""}
+                            </p>
+                          </div>
+                          {i.cancelled_at ? (
+                            <Badge>Annulée</Badge>
+                          ) : remaining <= 0 ? (
+                            <Badge tone="success">Soldée</Badge>
+                          ) : (
+                            <Badge tone={i.due_on && i.due_on < new Date().toISOString().slice(0, 10) ? "danger" : "warning"}>Reste {formatAmount(remaining, i.currency)}</Badge>
+                          )}
+                        </div>
+                        {i.cancel_reason ? <p className="text-label text-ink-600">Motif : {i.cancel_reason}</p> : null}
+                        {i.payments.length ? (
+                          <ul className="space-y-1">
+                            {i.payments.map((p) => (
+                              <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-ink-50 px-3 py-2 text-label text-ink-700">
+                                <span>
+                                  {formatAmount(p.amount, i.currency)} reçu le {formatDate(p.received_on)} · {PAYMENT_METHODS[p.method as keyof typeof PAYMENT_METHODS] ?? p.method}
+                                  {p.bank_reference ? ` · réf. ${p.bank_reference}` : ""}
+                                </span>
+                                {p.confirmed_at ? (
+                                  <Badge tone="success">Confirmé{p.confirmer ? ` par ${displayName(p.confirmer)}` : ""}</Badge>
+                                ) : (actor.signatory || viewer.isSanadyAdmin) && p.recorded_by !== viewer.id ? (
+                                  <ActionButton action={confirmPayment.bind(null, p.id, c.id)}>Confirmer</ActionButton>
+                                ) : (
+                                  <Badge>À confirmer</Badge>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null}
+                        {!i.cancelled_at && remaining > 0 && actor.manager ? (
+                          <PaymentForm invoiceId={i.id} contractId={c.id} currency={i.currency} remaining={remaining} />
+                        ) : null}
+                        {!i.cancelled_at && !i.payments.length && actor.manager ? <CancelInvoiceForm invoiceId={i.id} contractId={c.id} /> : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <CardBody>
+                  <p className="text-body text-ink-600">Aucune facture enregistrée.</p>
+                </CardBody>
+              )}
+              {actor.manager ? (
+                <CardBody className="border-t border-line">
+                  <InvoiceForm contractId={c.id} currency={c.currency} />
+                </CardBody>
+              ) : null}
+            </Card>
+          ) : null}
 
           <Card>
             <CardHeader title="Documents" description="Projet, exemplaire signé et pièces (PDF, stockage privé)." />

@@ -270,3 +270,8 @@ test("enterprise contracts require signing in", async ({ page }) => {
   await page.goto("/admin/partenariats/entreprises/contrats");
   await expect(page).toHaveURL(/\/connexion/);
 });
+
+test("enterprise finances require signing in", async ({ page }) => {
+  await page.goto("/admin/partenariats/entreprises/finances");
+  await expect(page).toHaveURL(/\/connexion/);
+});

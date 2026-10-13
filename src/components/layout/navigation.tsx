@@ -13,6 +13,7 @@ import {
   FilePenLine,
   HandCoins,
   Sprout,
+  Wallet,
   ChartColumn,
   ChartNoAxesCombined,
   ClipboardCheck,
@@ -66,6 +67,7 @@ const ENTERPRISE_ITEMS: NavItem[] = [
   { href: "/admin/partenariats/entreprises/clients", label: "Clients et prospects", icon: Briefcase },
   { href: "/admin/partenariats/entreprises/propositions", label: "Propositions", icon: FileText },
   { href: "/admin/partenariats/entreprises/contrats", label: "Contrats", icon: FilePenLine },
+  { href: "/admin/partenariats/entreprises/finances", label: "Finances", icon: Wallet },
   { href: "/admin/partenariats/entreprises/espaces", label: "Espaces de formation", icon: Building2 },
   { href: "/admin/studio", label: "Studio de production", icon: Clapperboard },
 ];

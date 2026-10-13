@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { emailSchema, optionalText } from "./validation";
-import { EMPLOYEE_COUNTS, ENTERPRISE_SERVICES, EXISTING_CONTENT, LANGUAGES, LINE_CATEGORIES } from "./enterprise";
+import { COST_CATEGORIES, EMPLOYEE_COUNTS, ENTERPRISE_SERVICES, EXISTING_CONTENT, LANGUAGES, LINE_CATEGORIES, PAYMENT_METHODS, REVENUE_CATEGORIES } from "./enterprise";
 import { ORG_TYPES } from "./partnerships";
 
 /**
@@ -194,3 +194,39 @@ export const contractSchema = z
     tenant_id: z.union([z.uuid(), z.literal("")]).optional(),
   })
   .refine((v) => !v.start_on || !v.end_on || v.end_on >= v.start_on, { message: "La fin doit suivre le début.", path: ["end_on"] });
+
+/* ─── Phase E6: recorded invoices, payments and costs ─────────────────────── */
+
+const isoDay = z.iso.date("Date requise.");
+const amountRequired = money.refine((v) => Boolean(v) && Number(v) > 0, "Montant requis.");
+
+export const invoiceSchema = z
+  .object({
+    external_reference: z.string().trim().min(1, "Référence de la facture (comptabilité).").max(80),
+    category: z.enum(keys(REVENUE_CATEGORIES), "Choisissez une catégorie."),
+    description: optionalText(500),
+    amount: amountRequired,
+    issued_on: isoDay.refine((v) => v <= new Date().toISOString().slice(0, 10), "La date ne peut pas être future."),
+    due_on: z.union([z.iso.date("Date invalide."), z.literal("")]).optional(),
+  })
+  .refine((v) => !v.due_on || v.due_on >= v.issued_on, { message: "L’échéance suit l’émission.", path: ["due_on"] });
+
+export const paymentSchema = z.object({
+  amount: amountRequired,
+  received_on: isoDay.refine((v) => v <= new Date().toISOString().slice(0, 10), "La date ne peut pas être future."),
+  method: z.enum(keys(PAYMENT_METHODS)).default("transfer"),
+  bank_reference: optionalText(120),
+});
+
+export const costSchema = z.object({
+  category: z.enum(keys(COST_CATEGORIES), "Choisissez une catégorie."),
+  description: z.string().trim().min(3, "Décrivez le coût.").max(500),
+  amount: amountRequired,
+  currency: z.enum(["MAD", "EUR", "USD"]).default("MAD"),
+  incurred_on: isoDay,
+  is_estimate: z
+    .union([z.literal("on"), z.literal("")])
+    .optional()
+    .transform((v) => v === "on"),
+  contract_id: z.union([z.uuid(), z.literal("")]).optional(),
+});

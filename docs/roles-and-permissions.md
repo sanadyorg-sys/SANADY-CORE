@@ -152,6 +152,9 @@ Functions in `supabase/migrations/20261018000100_enterprise.sql`; tests in `test
 | **Approve** a contract; attach the signed copy and **record the signature** | — | — | ✅ |
 | Apply the contract's limits to the workspace; record monthly usage; review an overage | ✅ | — | — |
 | Read contracts and usage | ✅ | ✅ | ✅ (contracts) |
+| Record invoices, payments and costs; cancel an unpaid invoice (E6) | ✅ | — | — |
+| **Confirm a payment** (not one they recorded) | admin ✅ | — | ✅ |
+| Read finances | ✅ | — | ✅ |
 
 Enterprise staff see workspace counts (`tenant_usage`), never employee names. Employees of companies only do not see the teachers' library and are not counted in SANADY's teacher statistics.
 
