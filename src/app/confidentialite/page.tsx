@@ -163,6 +163,11 @@ export default async function PrivacyPage() {
               <li>Accès : uniquement l’équipe partenariats de la Fondation Sanady (connexion avec double authentification). Les documents sont stockés de façon privée.</li>
               <li>Conservation : 24 mois au plus après la clôture d’une proposition qui n’aboutit pas ; pendant la durée du partenariat et de son suivi sinon.</li>
               <li>Aucune information n’est publiée ni transmise à des tiers sans l’accord écrit de l’organisation.</li>
+              <li>
+                Espace partenaire (s’il est ouvert par la Fondation) : les contacts invités disposent d’un compte (nom, adresse e-mail) pour consulter
+                les conventions, rapports et étapes de leur organisation, déposer des livrables et échanger avec l’équipe. Ces messages et documents
+                sont conservés pendant la durée du partenariat et de son suivi ; l’accès est retiré à la fin du partenariat ou sur demande.
+              </li>
             </ul>
           </section>
 

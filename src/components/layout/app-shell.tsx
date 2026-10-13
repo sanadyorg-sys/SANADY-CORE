@@ -26,6 +26,7 @@ const areaTitle: Record<Area, string> = {
   admin: "Administration SANADY",
   institution: "Espace établissement",
   teacher: "Espace enseignant",
+  partner: "Espace partenaire",
 };
 
 /**

@@ -54,6 +54,7 @@ export const INVITATION_KINDS: Record<InvitationKind, string> = {
   institution_admin: "Administrateur d’établissement",
   institution_teacher: "Enseignant de l’établissement",
   institution_supervisor: "Superviseur de l’établissement (lecture seule)",
+  partner_member: "Contact d’une organisation partenaire",
 };
 
 export const MEMBERSHIP_SOURCES: Record<MembershipSource, string> = {

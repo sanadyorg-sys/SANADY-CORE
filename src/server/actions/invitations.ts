@@ -127,6 +127,7 @@ export async function acceptInvitationAsCurrentUser(_prev: ActionState, formData
     redirect(`/etablissement/${invitation.institution_id}`);
   }
   if (invitation.kind === "platform_admin") redirect("/admin");
+  if (invitation.kind === "partner_member") redirect("/espace-partenaire");
   redirect(viewer.profile.onboarded_at ? "/espace" : "/bienvenue");
 }
 

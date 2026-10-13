@@ -6,6 +6,7 @@ import { ActionButton } from "@/components/common/action-button";
 import { ContactForm, NoteForm, OrganizationForm, PartnerStatusForm, TaskForm } from "@/components/partnerships/admin-forms";
 import { AgreementForm, ContributionForm } from "@/components/partnerships/agreement-forms";
 import { MetricForm, ReportForm } from "@/components/partnerships/impact-forms";
+import { DeliverableReviewForm, InvitePartnerForm, TeamMessageForm } from "@/components/partnerships/portal-forms";
 import { HistoryList, NotesList } from "@/components/partnerships/timeline";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/overlay";
@@ -31,9 +32,11 @@ import {
 } from "@/lib/partnerships";
 import { uuidSchema } from "@/lib/validation";
 import { deleteContact, setTaskDone } from "@/server/actions/partnerships";
+import { revokePartnerMember } from "@/server/actions/portal";
 import { requirePartnershipStaff } from "@/server/auth";
 import { linkOptions, listAgreements, listContributions } from "@/server/queries/agreements";
 import { listMetrics, listReports } from "@/server/queries/impact";
+import { portalEnabled, portalForOrganization } from "@/server/queries/portal";
 import { getOrganization, partnershipTeam, pipelineActor } from "@/server/queries/partnerships";
 
 export const metadata: Metadata = { title: "Organisation partenaire" };
@@ -49,13 +52,16 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
   // An enterprise-only client has no partnership record yet.
   if (!detail.organization.status) redirect(`/admin/partenariats/entreprises/clients/${organizationId}`);
   const { organization: o, contacts, notes, history, tasks, applications } = detail;
-  const [agreements, contributions, links, metrics, reports] = await Promise.all([
+  const [agreements, contributions, links, metrics, reports, portalOn, portal] = await Promise.all([
     listAgreements({ organization: o.id }),
     listContributions({ organization: o.id }),
     linkOptions(o.id),
     listMetrics({ organization: o.id }),
     listReports({ organization: o.id }),
+    portalEnabled(),
+    portalForOrganization(o.id),
   ]);
+  const activePartner = ["agreement_signed", "implementation", "monitoring", "renewal_or_closure"].includes(o.status);
   const stageIndex = MAIN_STAGES.indexOf(o.status);
   const today = new Date().toISOString().slice(0, 10);
 
@@ -341,6 +347,99 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
               </Drawer>
             </CardBody>
           </Card>
+
+          {portalOn || portal.members.length || portal.messages.length || portal.deliverables.length ? (
+            <Card id="espace-partenaire">
+              <CardHeader
+                title="Espace partenaire"
+                description="Ce que voit le partenaire : conventions signées, étapes, projets, rapports transmis, ses livrables et cette conversation."
+              />
+              <CardBody className="space-y-5">
+                {!portalOn ? <p className="text-label text-warning-700">L’espace partenaire est désactivé : le partenaire n’y a pas accès.</p> : null}
+                <div>
+                  <h3 className="text-label font-semibold text-ink-700">Contacts ayant accès</h3>
+                  {portal.members.length || portal.invitations.length ? (
+                    <ul className="mt-2 divide-y divide-line rounded-xl border border-line">
+                      {portal.members.map((m) => (
+                        <li key={m.id} className="flex items-center justify-between gap-3 px-3 py-2">
+                          <span className="min-w-0 truncate text-body text-ink-800">{m.user ? displayName(m.user) : "Contact"}</span>
+                          {actor.manager || viewer.isSanadyAdmin ? (
+                            <ActionButton
+                              variant="danger-ghost"
+                              action={revokePartnerMember.bind(null, m.id, o.id)}
+                              confirm={{ title: "Retirer l’accès ?", description: "Ce contact ne pourra plus ouvrir l’espace partenaire.", confirmLabel: "Retirer" }}
+                            >
+                              Retirer
+                            </ActionButton>
+                          ) : null}
+                        </li>
+                      ))}
+                      {portal.invitations.map((i) => (
+                        <li key={i.id} className="flex items-center justify-between gap-3 px-3 py-2">
+                          <span className="min-w-0 truncate text-body text-ink-600">{i.email}</span>
+                          <span className="text-caption text-ink-500">Invitation en attente · expire le {formatDate(i.expires_at)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-1 text-body text-ink-600">Aucun contact.</p>
+                  )}
+                </div>
+                {portalOn && activePartner && (actor.manager || viewer.isSanadyAdmin) ? <InvitePartnerForm organizationId={o.id} /> : null}
+                {portalOn && !activePartner ? <p className="text-caption text-ink-500">L’invitation s’ouvre une fois la convention signée.</p> : null}
+                {portal.deliverables.length ? (
+                  <div>
+                    <h3 className="text-label font-semibold text-ink-700">Livrables du partenaire</h3>
+                    <ul className="mt-2 divide-y divide-line rounded-xl border border-line">
+                      {portal.deliverables.map((d) => (
+                        <li key={d.id} className="space-y-2 px-3 py-3">
+                          <p className="flex flex-wrap items-center gap-2 font-medium text-ink-900">
+                            {d.title}
+                            <Badge tone={d.status === "accepted" ? "success" : d.status === "returned" ? "warning" : "brand"}>
+                              {d.status === "accepted" ? "Accepté" : d.status === "returned" ? "À compléter" : "À examiner"}
+                            </Badge>
+                          </p>
+                          <p className="flex flex-wrap gap-x-3 text-caption text-ink-500">
+                            {formatDateTime(d.created_at)}
+                            {d.agreement ? <span>{d.agreement.reference}</span> : null}
+                            {d.docs.map((doc) => (
+                              <a key={doc.id} href={`/api/partenariats/documents/${doc.id}`} className="text-accent-700 hover:underline">
+                                {doc.file_name}
+                              </a>
+                            ))}
+                          </p>
+                          {d.description ? <p className="text-label text-ink-700">{d.description}</p> : null}
+                          {d.status === "submitted" ? <DeliverableReviewForm id={d.id} organizationId={o.id} /> : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+                <div>
+                  <h3 className="text-label font-semibold text-ink-700">Conversation avec le partenaire</h3>
+                  {portal.messages.length ? (
+                    <ol className="mt-2 space-y-2">
+                      {portal.messages.map((m) => (
+                        <li key={m.id} className={cn("max-w-[90%] rounded-2xl px-3 py-2", m.from_partner ? "bg-accent-50" : "ml-auto bg-ink-50")}>
+                          <p className="whitespace-pre-line text-body text-ink-900">{m.body}</p>
+                          <p className="mt-0.5 text-caption text-ink-500">
+                            {m.author ? displayName(m.author) : m.from_partner ? "Partenaire" : "Équipe SANADY"} · {formatDateTime(m.created_at)}
+                          </p>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="mt-1 text-body text-ink-600">Aucun message.</p>
+                  )}
+                  {portalOn ? (
+                    <div className="mt-3">
+                      <TeamMessageForm organizationId={o.id} />
+                    </div>
+                  ) : null}
+                </div>
+              </CardBody>
+            </Card>
+          ) : null}
 
           <Card>
             <CardHeader title="Notes et échanges" description="Réunions, appels, décisions — visibles par l’équipe partenariats uniquement." />

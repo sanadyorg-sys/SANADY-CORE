@@ -36,7 +36,7 @@ stays **hidden until the Foundation approves** (no menu link, `noindex`).
 | 3 — Needs registry, opportunities directory, approval of opportunities | **Built** (migration `20261017000100`) — waiting for the Foundation’s first validated needs |
 | 4 — Agreements, contributions, milestones, renewals | **Built** (migration `20261021000100`): conventions with approval and recorded signature (signed PDF required), contributions pledged → committed → delivered → verified (approver, evidence required), milestones, in-app « À surveiller » reminders |
 | 5 — Impact dashboard, verified PDF partner reports | **Built** (migration `20261022000100`): impact indicators by field (outputs vs outcomes, method, attribution) verified by an approver; `/admin/partenariats/impact` (real values only); PDF partner reports in the 12 sections of §13, verified data and aggregates only, approved before sharing |
-| 6 — Partner portal, advanced relationship management | Later, only with SANADY authorisation |
+| 6 — Partner portal, advanced relationship management | **Built, switched off** (migration `20261023000100`): `/espace-partenaire` for invited contacts of signed partners — agreements and milestones, supported projects, reports already shared, deliverables (PDF), conversation with the team. A SANADY administrator switches it on (Paramètres) once the Foundation authorises external accounts |
 
 > Sections 2–6 below were written for V1 and are kept for the audit; where
 > they differ, §0 above and the migration prevail.

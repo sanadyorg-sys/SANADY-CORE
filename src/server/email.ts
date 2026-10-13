@@ -94,6 +94,11 @@ export function invitationEmail(params: {
       title: "Suivez les formations de votre établissement",
       body: `Vous êtes invité(e) à suivre, en lecture seule, les formations des enseignants de l’établissement <strong>${inst}</strong> sur la plateforme SANADY.`,
     },
+    partner_member: {
+      subject: `Votre espace partenaire SANADY — ${params.institutionName ?? ""}`,
+      title: "Accédez à votre espace partenaire",
+      body: `La Fondation Sanady vous ouvre l’espace partenaire de <strong>${inst}</strong> : conventions, étapes des projets, rapports et échanges avec l’équipe.`,
+    },
     institution_teacher: {
       subject: `${params.institutionName ?? "Votre établissement"} vous invite sur SANADY`,
       title: "Rejoignez votre établissement sur SANADY",

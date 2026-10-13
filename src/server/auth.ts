@@ -43,6 +43,8 @@ export interface Viewer {
   supervisedInstitutions: ViewerInstitution[];
   /** Member of company workspaces only, with no school and no staff role (SANADY Enterprise). */
   isEmployeeOnly: boolean;
+  /** Partner portal access (partnerships phase 6), when the portal is on. */
+  partnerOrganization: { id: string; name: string } | null;
   /** Assurance level of the current session (from the verified JWT). */
   aal: "aal1" | "aal2";
   /** True when a second factor (TOTP) is enrolled and verified. */
@@ -61,7 +63,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
   if (!userId) return null;
   const aal = claimsData?.claims?.aal === "aal2" ? "aal2" : "aal1";
 
-  const [profileRes, roleRes, membershipRes, aalRes] = await Promise.all([
+  const [profileRes, roleRes, membershipRes, aalRes, partnerRes] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
     supabase.from("platform_roles").select("role").eq("user_id", userId).maybeSingle(),
     supabase
@@ -70,6 +72,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
       .eq("user_id", userId)
       .eq("status", "active"),
     supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
+    supabase.rpc("my_partner_organization"),
   ]);
 
   const profile = profileRes.data as Profile | null;
@@ -96,6 +99,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
     adminInstitutions: institutions.filter((i) => i.role === "admin"),
     supervisedInstitutions: institutions.filter((i) => i.role === "admin" || i.role === "supervisor"),
     isEmployeeOnly: !platformRole && institutions.length > 0 && institutions.every((i) => i.kind === "enterprise"),
+    partnerOrganization: active ? (((partnerRes.data ?? []) as Array<{ id: string; name: string }>)[0] ?? null) : null,
     aal,
     mfaEnrolled: aalRes.data?.nextLevel === "aal2",
   };
@@ -187,5 +191,13 @@ export function homeFor(viewer: Viewer): string {
   if (viewer.platformRole === "partnership_coordinator" || viewer.platformRole === "partnership_manager") return "/admin/partenariats";
   if (viewer.platformRole === "enterprise_manager" || viewer.platformRole === "production_manager") return "/admin/partenariats/entreprises";
   if (viewer.supervisedInstitutions[0]) return `/etablissement/${viewer.supervisedInstitutions[0].id}`;
+  if (viewer.partnerOrganization && !viewer.institutions.length) return "/espace-partenaire";
   return "/espace";
+}
+
+/** Partner portal: a member of a partner organisation, portal switched on (the database decides). */
+export async function requirePartnerMember(): Promise<Viewer & { partnerOrganization: { id: string; name: string } }> {
+  const viewer = await requireViewer({ allowOnboarding: true });
+  if (!viewer.partnerOrganization) redirect(homeFor(viewer));
+  return viewer as Viewer & { partnerOrganization: { id: string; name: string } };
 }

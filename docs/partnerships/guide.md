@@ -86,13 +86,24 @@ Un **approbateur** vérifie l’indicateur (page **Impact**) ou le renvoie pour 
 
 **Page Impact** : partenaires en discussion, partenariats actifs, projets, renouvellements, contributions réellement reçues, répartition par domaine, étapes des partenariats et indicateurs vérifiés — uniquement des valeurs réelles.
 
-## 8. Données et confidentialité
+## 8. Espace partenaire (désactivé par défaut)
+
+L’espace partenaire permet à un contact d’une organisation partenaire de consulter, **pour son organisation uniquement** : les conventions signées et leurs étapes, les projets soutenus, les **rapports déjà transmis** (PDF), ses **livrables** et la **conversation** avec l’équipe.
+
+1. **Ouverture** : un administrateur SANADY l’active dans **Paramètres → Espace partenaire**, une fois l’autorisation de la Fondation obtenue. Le désactiver coupe immédiatement tous les accès (rien n’est supprimé).
+2. **Invitation** : sur la fiche d’une organisation dont la convention est signée, le **responsable des partenariats** invite un contact (carte « Espace partenaire »). Si l’e-mail n’est pas configuré, transmettez le lien affiché de façon sûre.
+3. **Au quotidien** : les livrables déposés et les messages du partenaire apparaissent sur la fiche ; acceptez un livrable ou demandez un complément, et répondez dans la conversation.
+4. **Fin** : « Retirer » l’accès d’un contact à la fin du partenariat ou sur demande.
+
+Le partenaire ne voit jamais les notes internes, les besoins, les tâches, les approbations ni les autres partenaires.
+
+## 9. Données et confidentialité
 
 - Seule l’équipe partenariats voit les candidatures, contacts et documents.
 - Les documents sont des **PDF vérifiés** à la réception (un fichier qui n’est pas un vrai PDF est refusé), stockés de façon privée.
 - Une candidature qui n’aboutit pas (non retenue, retirée, indésirable) est **supprimée 24 mois** après sa clôture, avec ses documents.
 - Aucun nom de partenaire n’est publié sans **accord écrit** de l’organisation.
 
-## 9. Avant d’ouvrir la page au public
+## 10. Avant d’ouvrir la page au public
 
 La page `/partenariats` est en ligne mais **non référencée et absente des menus**. Pour l’ouvrir, la Fondation doit valider : les textes de la page, les personnes (chargé·e, responsable, approbateur), le délai de réponse annoncé, et l’envoi d’e-mails (Resend). L’équipe technique ajoute alors le lien dans le menu et retire le `noindex`.

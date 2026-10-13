@@ -258,3 +258,10 @@ test("partnership impact and partner reports require signing in", async ({ page 
   const pdf = await page.request.get("/api/partenariats/rapports/00000000-0000-0000-0000-000000000000");
   expect(pdf.status()).toBe(401);
 });
+
+test("the partner portal requires signing in", async ({ page }) => {
+  await page.goto("/espace-partenaire");
+  await expect(page).toHaveURL(/\/connexion\?suite=%2Fespace-partenaire/);
+  const pdf = await page.request.get("/api/espace-partenaire/rapports/00000000-0000-0000-0000-000000000000");
+  expect(pdf.status()).toBe(401);
+});

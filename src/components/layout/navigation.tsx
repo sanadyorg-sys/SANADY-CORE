@@ -22,6 +22,8 @@ import {
   History,
   Inbox,
   LayoutDashboard,
+  MessagesSquare,
+  Upload,
   Library,
   Mail,
   Megaphone,
@@ -33,7 +35,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-export type Area = "teacher" | "institution" | "admin";
+export type Area = "teacher" | "institution" | "admin" | "partner";
 /** admin area: admin | manager | trainer | partners | enterprise — institution area: admin | supervisor. */
 export type NavRole = "admin" | "manager" | "trainer" | "partners" | "enterprise" | "supervisor";
 
@@ -152,6 +154,18 @@ export function navigationFor(area: Area, institutionId?: string, role: NavRole 
           { href: `${base}/statistiques`, label: "Statistiques", icon: ChartNoAxesCombined },
           { href: `${base}/rapports`, label: "Rapports", icon: FileText },
           ...(enterprise ? [] : [{ href: "/espace/bibliotheque", label: "Bibliothèque", icon: BookMarked }]),
+        ],
+      },
+    ];
+  }
+  if (area === "partner") {
+    return [
+      {
+        items: [
+          { href: "/espace-partenaire", label: "Notre partenariat", icon: LayoutDashboard, exact: true },
+          { href: "/espace-partenaire/rapports", label: "Rapports", icon: FileText },
+          { href: "/espace-partenaire/livrables", label: "Livrables", icon: Upload },
+          { href: "/espace-partenaire/messages", label: "Échanges avec SANADY", icon: MessagesSquare },
         ],
       },
     ];

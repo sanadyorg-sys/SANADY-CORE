@@ -194,3 +194,45 @@ export async function renderPartnerReportPdf(data: PartnerReportPdfData): Promis
   });
   return pdf.save();
 }
+
+/** Maps the database payload (public.partner_report_data / portal_report_data) to the PDF input. */
+export function reportPdfData(d: {
+  report: { reference: string; title: string; period_start: string; period_end: string; activities: string | null; challenges: string | null; future_opportunities: string | null; status: string; approved_at: string | null };
+  approver: string | null;
+  organization: { name: string; city: string | null; country: string | null };
+  agreements: Array<{ reference: string; title: string; objectives: string; field: string; start_on: string | null; end_on: string | null }>;
+  projects: Array<{ reference: string; title: string }>;
+  contributions: Array<{ kind: ContributionKind; description: string; stage: ContributionStage; currency: string; amount_pledged: string | null; amount_received: string | null; item: string | null; quantity: number | null; hours_pledged: string | null; hours_delivered: string | null }>;
+  milestones: Array<{ title: string; done_at: string }>;
+  metrics: Array<{ field: string; dimension: string; label: string | null; type: MetricType; value: string; unit: string | null; method: string; attribution: Attribution }>;
+}): PartnerReportPdfData {
+  return {
+    reference: d.report.reference,
+    title: d.report.title,
+    periodStart: d.report.period_start,
+    periodEnd: d.report.period_end,
+    approved: d.report.approved_at ? { by: d.approver, at: d.report.approved_at } : null,
+    draft: d.report.status === "draft",
+    organization: { name: d.organization.name, place: [d.organization.city, d.organization.country].filter(Boolean).join(", ") || null },
+    agreements: d.agreements.map((a) => ({ reference: a.reference, title: a.title, objectives: a.objectives, field: a.field, startOn: a.start_on, endOn: a.end_on })),
+    projects: d.projects,
+    contributions: d.contributions.map((c) => ({
+      kind: c.kind,
+      description: c.description,
+      stage: c.stage,
+      currency: c.currency,
+      amountPledged: c.amount_pledged,
+      amountReceived: c.amount_received,
+      item: c.item,
+      quantity: c.quantity,
+      hoursPledged: c.hours_pledged,
+      hoursDelivered: c.hours_delivered,
+    })),
+    milestones: d.milestones.map((m) => ({ title: m.title, doneAt: m.done_at })),
+    activities: d.report.activities,
+    metrics: d.metrics,
+    challenges: d.report.challenges,
+    futureOpportunities: d.report.future_opportunities,
+    generatedAt: new Date().toISOString(),
+  };
+}

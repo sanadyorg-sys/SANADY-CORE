@@ -38,6 +38,17 @@ export function contextsFor(viewer: Viewer): ShellContext[] {
       kind: "institution",
     });
   }
+  if (viewer.partnerOrganization) {
+    contexts.push({
+      key: "partner",
+      label: viewer.partnerOrganization.name,
+      description: "Espace partenaire",
+      href: "/espace-partenaire",
+      kind: "institution",
+    });
+    // A partner contact with no school is not a teacher: no teacher space.
+    if (!viewer.institutions.length && !viewer.platformRole) return contexts;
+  }
   contexts.push({
     key: "teacher",
     label: viewer.isEmployeeOnly ? "Mon espace de formation" : "Espace enseignant",

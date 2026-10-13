@@ -53,6 +53,11 @@ const MESSAGES: Record<string, string> = {
   metric_locked: "Cet indicateur est vérifié : il ne peut plus être modifié.",
   report_locked: "Le rapport est approuvé : renvoyez-le en brouillon pour le modifier (nouvelle approbation).",
 
+  // Partenariats, phase 6: partner portal
+  portal_disabled: "L’espace partenaire n’est pas activé. Un administrateur SANADY doit l’ouvrir dans les paramètres.",
+  partnership_not_active: "L’espace partenaire est réservé aux organisations dont le partenariat est signé.",
+  document_required: "Joignez au moins un document PDF.",
+
   // Invitations
   invitation_not_found: "Ce lien d’invitation n’est pas valide.",
   invitation_revoked: "Cette invitation a été annulée. Demandez une nouvelle invitation.",
