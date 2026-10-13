@@ -58,6 +58,11 @@ const MESSAGES: Record<string, string> = {
   partnership_not_active: "L’espace partenaire est réservé aux organisations dont le partenariat est signé.",
   document_required: "Joignez au moins un document PDF.",
 
+  // SANADY Enterprise, phase E5: contracts
+  proposal_not_accepted: "Un contrat se prépare à partir d’une proposition acceptée par le client.",
+  contract_locked: "Le contrat n’est plus en brouillon : seules l’échéance (en renouvellement) et l’espace rattaché peuvent changer.",
+  lines_required: "Ajoutez au moins une ligne au contrat.",
+
   // Invitations
   invitation_not_found: "Ce lien d’invitation n’est pas valide.",
   invitation_revoked: "Cette invitation a été annulée. Demandez une nouvelle invitation.",

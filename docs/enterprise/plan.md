@@ -5,9 +5,9 @@ its Phase 0 (« audit the existing project, identify reusable LMS components,
 assess multi-tenant security risks, and present a phased integration plan
 before making major code or database changes »).
 
-**Build status (12/10/2026):** phases **E1, E2, E3 and E4 are built** (migrations
+**Build status (13/10/2026):** phases **E1 to E5 are built** (migrations
 `20261018000100_enterprise.sql`, `20261018000200_staff_profiles.sql`,
-`20261019000100_enterprise_tenants.sql`, `20261020000100_training_studio.sql`), with the public page hidden and
+`20261019000100_enterprise_tenants.sql`, `20261020000100_training_studio.sql`, `20261024000100_enterprise_contracts.sql`), with the public page hidden and
 worded as a proposal. E3 was built ahead of G1–G5 at the owner's request: the
 safeguard is in the database instead — a company workspace can only be
 requested for a client whose contract an approver signed, and only exists
@@ -100,7 +100,7 @@ invitations are reused as they are.
 | **E2 — Enterprise CRM** | Enterprise pipeline (Lead → … → Renouvellement) on the organisation record, proposals with configurable line items (no fixed prices), approval by an approver, tasks | E1 |
 | **E3 — Multi-tenant LMS** ✅ | Enterprise tenants on institutions, provisioning checklist (10 steps), company admin dashboard, employees (CSV), departments, private courses, offboarding, cross-tenant tests | Built 12/10/2026; first real use needs G1–G5 + a signed pilot contract |
 | **E4 — Training studio** ✅ | Training projects, curriculum brief, production tasks, client review, versioned publication on the existing authoring and review workflow | Built 12/10/2026 (§9) |
-| E5 — Contracts & operations | Contracts (Draft → … → Closed), service plans, usage tracking, renewals, offboarding | E3 |
+| **E5 — Contracts & operations** ✅ | Contracts (Draft → … → Closed), service plans, usage tracking, renewals, offboarding | Built 13/10/2026 (§10) — nothing is billed |
 | E6 — Finance & impact | Contracted / invoiced / received / outstanding (no billing), costs, margin estimates (labelled as estimates), link to partnership impact | E5 + accountant |
 
 Partnership phase 4 (agreements, contributions) is merged into E5/E6 so
@@ -162,4 +162,16 @@ Not in E3: storage and video **measurement** per workspace (allowances are recor
 | 12 steps | `training_checklist` computes them from the records. |
 
 Roles: enterprise and production managers run projects; training managers do the pedagogical review and publish; trainers write the course; approvers give the final approval; the company administrator reviews the programme. Limitation: the client reviews the programme (objectives and modules), not a preview of the lessons.
+
+## 10. Phase E5 as built (13/10/2026) — contracts, usage, renewals
+
+| Brief | Implementation |
+|---|---|
+| §16 contract repository | `enterprise_contracts` (`CTR-YYYY-NNNN`), created from an **accepted proposal** whose lines are copied; type, pricing model (annual / monthly subscription, per active or enrolled learner, fixed fee, mixed), currency, dates, renewal terms and notice, learner / storage / video limits, support, data and content ownership, termination provisions, signed documents. |
+| §16 statuses | Draft ⇄ internal review → **approved (approver)** → **signed** (an approver attaches the signed PDF and records the date — never simulated) → active → renewal → active, or closed (reason required). Terms are frozen once in review; a renewal only changes the end date and renewal terms. |
+| §17 limits | « Appliquer les limites à l’espace » copies the contract's limits and dates into the company workspace (seat limit enforced as in E3). |
+| §17 usage | Monthly readings per workspace (`enterprise_usage_records`): learners active in the month, employees enrolled, completions, storage of the company's own course files (course-media objects of courses it owns). Compared with the contract limits; an **overage is flagged for a person to review** (note recorded) — **never charged**. |
+| Renewals | Contracts within their notice period and unreviewed overages appear in « À surveiller » on the Enterprise inbox. |
+
+Not in E5: minutes of video watched (Mux usage not imported), invoices, payments and costs (E6), automatic monthly readings (taken by the team).
 

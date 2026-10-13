@@ -144,6 +144,15 @@ Functions in `supabase/migrations/20261018000100_enterprise.sql`; tests in `test
 | **Final institutional approval** (frozen version) | — | — | — | ✅ | — |
 | Publish the course (only after the approval) | — | ✅ | — | — | — |
 
+### Contracts and usage (E5)
+
+| Action | Resp. entreprises | Responsable de production | Approbateur |
+|---|---|---|---|
+| Create a contract from an accepted proposal, edit terms and lines (draft), submit for review, start, renew, close | ✅ | — | — |
+| **Approve** a contract; attach the signed copy and **record the signature** | — | — | ✅ |
+| Apply the contract's limits to the workspace; record monthly usage; review an overage | ✅ | — | — |
+| Read contracts and usage | ✅ | ✅ | ✅ (contracts) |
+
 Enterprise staff see workspace counts (`tenant_usage`), never employee names. Employees of companies only do not see the teachers' library and are not counted in SANADY's teacher statistics.
 
 An organisation can be both a partner and an enterprise client (one record, two relationships). Enterprise staff see only the organisations with an enterprise relationship; linking a request to an existing partner uses `find_organizations_for_enterprise` (names only). Partnership and enterprise staff can see the names of other staff accounts (so histories show who decided), never teachers' profiles.

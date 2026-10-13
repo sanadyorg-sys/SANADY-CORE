@@ -9,7 +9,7 @@ import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { displayName, formatDate, formatDateTime, formatRelative } from "@/lib/format";
 import { EMPLOYEE_COUNTS, ENTERPRISE_SERVICES, REQUEST_STATUS, type RequestStatus } from "@/lib/enterprise";
 import { requireEnterpriseStaff } from "@/server/auth";
-import { listClients, listProposals, listRequests, openEnterpriseTasks, purgeExpiredRequests, requestCounts } from "@/server/queries/enterprise";
+import { enterpriseWatchlist, listClients, listProposals, listRequests, openEnterpriseTasks, purgeExpiredRequests, requestCounts } from "@/server/queries/enterprise";
 
 export const metadata: Metadata = { title: "SANADY Enterprise — demandes" };
 
@@ -26,12 +26,13 @@ export default async function EnterpriseInboxPage(props: PageProps<"/admin/parte
   const sp = await props.searchParams;
   const tab = typeof sp.onglet === "string" && sp.onglet in TABS ? sp.onglet : "ouvertes";
   await purgeExpiredRequests().catch((e) => console.error("[enterprise] retention", e));
-  const [rows, counts, tasks, clients, proposals] = await Promise.all([
+  const [rows, counts, tasks, clients, proposals, watch] = await Promise.all([
     listRequests({ status: TABS[tab]!.status }),
     requestCounts(),
     openEnterpriseTasks(),
     listClients({}),
     listProposals({}),
+    enterpriseWatchlist(),
   ]);
   const today = new Date().toISOString().slice(0, 10);
   const active = clients.filter((c) => c.enterprise_status === "active_service").length;
@@ -116,7 +117,33 @@ export default async function EnterpriseInboxPage(props: PageProps<"/admin/parte
             </Card>
           )}
         </div>
-        <Card className="self-start">
+        <div className="space-y-6 self-start">
+        {watch && (watch.renewals.length || watch.overages.length || watch.approvals) ? (
+          <Card>
+            <CardHeader title="À surveiller" description={watch.approvals ? `${watch.approvals} contrat(s) en attente d’un approbateur` : "Renouvellements et dépassements"} />
+            <ul className="divide-y divide-line">
+              {watch.renewals.map((r) => (
+                <li key={`r-${r.id}`} className="px-5 py-3">
+                  <Link href={`/admin/partenariats/entreprises/contrats/${r.id}`} className="font-medium text-ink-900 hover:text-accent-700 hover:underline">
+                    Renouvellement : {r.title}
+                  </Link>
+                  <span className="block text-caption text-warning-700">
+                    {r.organization} · fin le {formatDate(r.end_on)}
+                  </span>
+                </li>
+              ))}
+              {watch.overages.map((o) => (
+                <li key={`o-${o.id}`} className="px-5 py-3">
+                  <Link href={`/admin/partenariats/entreprises/espaces/${o.tenant_id}#utilisation`} className="font-medium text-ink-900 hover:text-accent-700 hover:underline">
+                    Dépassement à examiner : {o.tenant}
+                  </Link>
+                  <span className="block text-caption text-danger-600">Relevé de {new Date(o.period).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        ) : null}
+        <Card>
           <CardHeader title="Tâches de suivi" />
           {tasks.length ? (
             <ul className="divide-y divide-line">
@@ -145,6 +172,7 @@ export default async function EnterpriseInboxPage(props: PageProps<"/admin/parte
             <p className="px-5 pb-5 text-body text-ink-600">Aucune tâche ouverte.</p>
           )}
         </Card>
+        </div>
       </div>
     </>
   );

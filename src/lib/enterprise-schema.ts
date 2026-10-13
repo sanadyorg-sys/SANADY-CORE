@@ -164,3 +164,33 @@ export const trainingProjectSchema = z.object({
   proposal_id: z.union([z.uuid(), z.literal("")]).optional(),
   lead_id: z.union([z.uuid(), z.literal("")]).optional(),
 });
+
+/** Commercial contract terms (phase E5) — mirrors public.enterprise_contracts. */
+export const contractSchema = z
+  .object({
+    title: z.string().trim().min(5, "Intitulé : 5 caractères minimum.").max(200),
+    pricing_model: z.enum(["annual_subscription", "monthly_subscription", "per_active_learner", "per_enrolled_learner", "fixed_fee", "mixed"], "Choisissez un modèle."),
+    currency: z.enum(["MAD", "EUR", "USD"]).default("MAD"),
+    start_on: date,
+    end_on: date,
+    renewal_terms: optionalText(2000),
+    renewal_notice_days: z
+      .string()
+      .trim()
+      .optional()
+      .refine((v) => !v || (/^\d{1,3}$/.test(v) && Number(v) <= 365), "Entre 0 et 365 jours."),
+    learner_limit: optionalCount("Collaborateurs", 100000),
+    storage_limit_gb: z
+      .string()
+      .trim()
+      .optional()
+      .transform((v) => (v ? v.replace(",", ".") : undefined))
+      .refine((v) => !v || (/^\d{1,5}(\.\d{1,2})?$/.test(v) && Number(v) > 0), "Stockage : nombre de Go invalide."),
+    video_minutes_limit: optionalCount("Minutes de vidéo", 10_000_000),
+    support_commitments: optionalText(2000),
+    data_ownership: optionalText(2000),
+    content_ownership: optionalText(2000),
+    termination_provisions: optionalText(2000),
+    tenant_id: z.union([z.uuid(), z.literal("")]).optional(),
+  })
+  .refine((v) => !v.start_on || !v.end_on || v.end_on >= v.start_on, { message: "La fin doit suivre le début.", path: ["end_on"] });

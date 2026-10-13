@@ -102,3 +102,17 @@ describe("training production studio (E4)", () => {
     expect(trainingNextSteps("internal_review", signatory)).toEqual([]);
   });
 });
+
+describe("commercial contracts (E5)", () => {
+  it("leave approval and the recorded signature to approvers", async () => {
+    const { contractNextSteps } = await import("@/lib/enterprise");
+    const manager = { manager: true, signatory: false };
+    const approver = { manager: false, signatory: true };
+    expect(contractNextSteps("internal_review", manager)).toEqual(["draft"]);
+    expect(contractNextSteps("internal_review", approver)).toEqual(["approved"]);
+    expect(contractNextSteps("approved", approver)).toEqual(["signed"]);
+    expect(contractNextSteps("active", manager)).toEqual(["renewal", "closed"]);
+    expect(contractNextSteps("renewal", manager)).toEqual(["active", "closed"]);
+    expect(contractNextSteps("closed", manager)).toEqual([]);
+  });
+});

@@ -265,3 +265,8 @@ test("the partner portal requires signing in", async ({ page }) => {
   const pdf = await page.request.get("/api/espace-partenaire/rapports/00000000-0000-0000-0000-000000000000");
   expect(pdf.status()).toBe(401);
 });
+
+test("enterprise contracts require signing in", async ({ page }) => {
+  await page.goto("/admin/partenariats/entreprises/contrats");
+  await expect(page).toHaveURL(/\/connexion/);
+});

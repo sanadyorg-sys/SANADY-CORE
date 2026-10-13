@@ -72,6 +72,15 @@ Menu **Studio de production**. Un projet se crée depuis la fiche du client (**N
 
 Mise à jour d’une formation lancée : « Préparer une nouvelle version », puis revues et approbation comme la première fois.
 
-## 7. Données personnelles
+## 7. Contrats et utilisation
+
+1. Sur une **proposition acceptée**, **Préparer le contrat** : les lignes de la proposition sont reprises.
+2. **Modifier** : modèle de tarification, dates, limites (collaborateurs, stockage, vidéo), support, propriété des données et des contenus, résiliation, espace de formation rattaché.
+3. **Soumettre à la revue interne** ; un **approbateur** approuve. La signature a lieu hors de la plateforme : l’approbateur joint l’**exemplaire signé** (PDF) puis **enregistre la signature** avec la date.
+4. **Démarrer le contrat**, puis **Appliquer les limites à l’espace de formation**.
+5. Chaque mois, sur la page de l’espace : **Enregistrer le relevé** (actifs, inscrits, parcours terminés, stockage). Un **dépassement** est signalé : indiquez la suite donnée (avenant, régularisation…). Rien n’est facturé automatiquement.
+6. À l’approche de l’échéance (rappel dans « À surveiller ») : **Ouvrir le renouvellement**, fixer la nouvelle échéance, puis **reprendre** le contrat — ou le **clore** avec un motif.
+
+## 8. Données personnelles
 
 Les demandes qui n’aboutissent pas sont supprimées au plus tard 24 mois après leur clôture (politique de confidentialité, §9). Les documents sont stockés dans un espace privé et vérifiés à l’arrivée (un faux PDF est refusé).

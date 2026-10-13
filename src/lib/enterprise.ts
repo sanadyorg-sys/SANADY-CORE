@@ -259,3 +259,42 @@ export function trainingNextSteps(from: TrainingStatus, a: { manage: boolean; si
   if (a.manage && ["brief", "design", "production", "internal_review", "client_review", "approval"].includes(from)) out.push("cancelled");
   return out;
 }
+
+/* ─── Phase E5: contracts and usage (migration 20261024000100) ────────────── */
+
+export const CONTRACT_STATUS = {
+  draft: { label: "Brouillon", tone: "neutral" },
+  internal_review: { label: "Revue interne", tone: "brand" },
+  approved: { label: "Approuvé — à signer", tone: "warning" },
+  signed: { label: "Signé", tone: "accent" },
+  active: { label: "En cours", tone: "success" },
+  renewal: { label: "Renouvellement", tone: "warning" },
+  closed: { label: "Clos", tone: "neutral" },
+} as const;
+export type ContractStatus = keyof typeof CONTRACT_STATUS;
+
+/** Pricing models of brief V3 §3 — the amounts are the contract lines. */
+export const PRICING_MODELS = {
+  annual_subscription: "Abonnement annuel",
+  monthly_subscription: "Abonnement mensuel",
+  per_active_learner: "Par collaborateur actif",
+  per_enrolled_learner: "Par collaborateur inscrit",
+  fixed_fee: "Forfait",
+  mixed: "Mixte",
+} as const;
+export type PricingModel = keyof typeof PRICING_MODELS;
+
+/** Next statuses for the current person (mirrors public.set_contract_status). */
+export function contractNextSteps(from: ContractStatus, a: { manager: boolean; signatory: boolean }): ContractStatus[] {
+  const out: ContractStatus[] = [];
+  if (a.manager && from === "draft") out.push("internal_review");
+  if (a.manager && from === "internal_review") out.push("draft");
+  if (a.signatory && from === "internal_review") out.push("approved");
+  if (a.signatory && from === "approved") out.push("signed");
+  if (a.manager && from === "approved") out.push("draft");
+  if (a.manager && from === "signed") out.push("active");
+  if (a.manager && from === "active") out.push("renewal");
+  if (a.manager && from === "renewal") out.push("active");
+  if (a.manager && ["signed", "active", "renewal"].includes(from)) out.push("closed");
+  return out;
+}

@@ -384,3 +384,122 @@ export async function tenantFormOptions(organizationId: string) {
     proposals: (proposals ?? []) as Array<{ id: string; reference: string; title: string }>,
   };
 }
+
+/* ─── Phase E5: contracts and usage ────────────────────────────────────── */
+
+export interface ContractRow {
+  id: string;
+  reference: string;
+  title: string;
+  status: import("@/lib/enterprise").ContractStatus;
+  service: EnterpriseService;
+  pricing_model: import("@/lib/enterprise").PricingModel;
+  currency: string;
+  start_on: string | null;
+  end_on: string | null;
+  renewal_notice_days: number;
+  updated_at: string;
+  organization: { id: string; name: string } | null;
+}
+const CONTRACT_ROW = "id, reference, title, status, service, pricing_model, currency, start_on, end_on, renewal_notice_days, updated_at, organization:partner_organizations(id, name)";
+
+export async function listContracts(filter: { status?: string; organization?: string } = {}) {
+  const supabase = await createClient();
+  let q = supabase.from("enterprise_contracts").select(CONTRACT_ROW).order("updated_at", { ascending: false }).limit(200);
+  if (filter.status) q = q.eq("status", filter.status);
+  if (filter.organization) q = q.eq("organization_id", filter.organization);
+  const { data } = await q;
+  return (data ?? []) as unknown as ContractRow[];
+}
+
+export interface ContractDetail extends ContractRow {
+  organization_id: string;
+  proposal_id: string | null;
+  tenant_id: string | null;
+  renewal_terms: string | null;
+  learner_limit: number | null;
+  storage_limit_gb: string | null;
+  video_minutes_limit: number | null;
+  support_commitments: string | null;
+  data_ownership: string | null;
+  content_ownership: string | null;
+  termination_provisions: string | null;
+  approved_at: string | null;
+  signed_on: string | null;
+  created_at: string;
+  approver: Person;
+  recorder: Person;
+  proposal: { id: string; reference: string } | null;
+  tenant: { id: string; display_name: string } | null;
+}
+
+export async function getContract(id: string) {
+  const supabase = await createClient();
+  const { data: c } = await supabase
+    .from("enterprise_contracts")
+    .select(
+      `*, organization:partner_organizations(id, name), proposal:enterprise_proposals(id, reference), tenant:enterprise_tenants(id, display_name),
+       approver:profiles!enterprise_contracts_approved_by_fkey(full_name, email), recorder:profiles!enterprise_contracts_signed_recorded_by_fkey(full_name, email)`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (!c) return null;
+  const contract = c as unknown as ContractDetail;
+  const [{ data: lines }, { data: docs }, { data: history }, { data: tenants }] = await Promise.all([
+    supabase.from("enterprise_contract_lines").select("id, category, label, quantity, unit, unit_price").eq("contract_id", id).order("position"),
+    supabase.from("enterprise_documents").select("id, kind, file_name, file_size, created_at").eq("contract_id", id).order("created_at"),
+    supabase.from("enterprise_history").select(HISTORY_SELECT).eq("contract_id", id).order("created_at", { ascending: false }),
+    supabase.from("enterprise_tenants").select("id, display_name").eq("organization_id", contract.organization_id).not("status", "in", "(closed,cancelled)"),
+  ]);
+  return {
+    contract,
+    lines: (lines ?? []) as Array<{ id: string; category: LineCategory; label: string; quantity: string; unit: string | null; unit_price: string }>,
+    documents: (docs ?? []) as Array<{ id: string; kind: string; file_name: string; file_size: number; created_at: string }>,
+    history: (history ?? []) as unknown as HistoryEntry[],
+    tenants: (tenants ?? []) as Array<{ id: string; display_name: string }>,
+  };
+}
+
+export async function contractForProposal(proposalId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("enterprise_contracts").select("id, reference, status").eq("proposal_id", proposalId).maybeSingle();
+  return (data ?? null) as { id: string; reference: string; status: string } | null;
+}
+
+export interface UsageRecord {
+  id: string;
+  period: string;
+  active_learners: number;
+  enrolled_learners: number;
+  completions: number;
+  storage_mb: string;
+  learner_limit: number | null;
+  storage_limit_gb: string | null;
+  overage: boolean;
+  review_note: string | null;
+  reviewed_at: string | null;
+}
+
+export async function tenantUsageRecords(tenantId: string) {
+  const supabase = await createClient();
+  const [{ data: records }, { data: now }, { data: contracts }] = await Promise.all([
+    supabase.from("enterprise_usage_records").select("*").eq("tenant_id", tenantId).order("period", { ascending: false }).limit(24),
+    supabase.rpc("tenant_usage_now", { p_tenant: tenantId }),
+    supabase.from("enterprise_contracts").select("id, reference, status, pricing_model, learner_limit, storage_limit_gb").eq("tenant_id", tenantId).in("status", ["signed", "active", "renewal"]),
+  ]);
+  return {
+    records: (records ?? []) as UsageRecord[],
+    now: (now ?? null) as { active_learners: number; enrolled_learners: number; completions: number; storage_mb: number } | null,
+    contracts: (contracts ?? []) as Array<{ id: string; reference: string; status: string; pricing_model: string; learner_limit: number | null; storage_limit_gb: string | null }>,
+  };
+}
+
+export async function enterpriseWatchlist() {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("enterprise_watchlist");
+  return (data ?? null) as {
+    renewals: Array<{ id: string; reference: string; title: string; organization: string; end_on: string }>;
+    overages: Array<{ id: string; tenant_id: string; tenant: string; period: string }>;
+    approvals: number;
+  } | null;
+}

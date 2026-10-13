@@ -12,9 +12,11 @@ import { cn } from "@/lib/cn";
 import { displayName, formatDate, formatDateTime } from "@/lib/format";
 import { SERVICE_PLANS, TENANT_STATUS, TENANT_STEPS, tenantNextSteps } from "@/lib/enterprise";
 import { uuidSchema } from "@/lib/validation";
+import { OverageReviewForm } from "@/components/enterprise/contract-forms";
+import { recordTenantUsage } from "@/server/actions/contracts";
 import { authorizeTenantExport, confirmTenantSecurity, generateWorkspace } from "@/server/actions/enterprise";
 import { requireEnterpriseStaff } from "@/server/auth";
-import { enterpriseActor, getTenant } from "@/server/queries/enterprise";
+import { enterpriseActor, getTenant, tenantUsageRecords } from "@/server/queries/enterprise";
 
 export const metadata: Metadata = { title: "Espace de formation — Enterprise" };
 
@@ -33,6 +35,9 @@ export default async function TenantPage(props: PageProps<"/admin/partenariats/e
   const [detail, actor] = await Promise.all([getTenant(tenantId), enterpriseActor(viewer)]);
   if (!detail) notFound();
   const { tenant: t, checklist, usage, history, contacts, proposals } = detail;
+  const readings = t.institution_id ? await tenantUsageRecords(t.id) : null;
+  const month = new Date().toISOString().slice(0, 7) + "-01";
+  const monthLabel = (d: string) => new Date(d).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
   const open = !["closed", "cancelled"].includes(t.status);
   const setupOpen = ["provisioning", "active", "suspended"].includes(t.status);
   const done = TENANT_STEPS.filter((s) => checklist[s.key]).length;
@@ -137,6 +142,51 @@ export default async function TenantPage(props: PageProps<"/admin/partenariats/e
               />
             </CardBody>
           </Card>
+
+          {readings ? (
+            <Card id="utilisation">
+              <CardHeader
+                title="Relevés mensuels"
+                description={
+                  readings.contracts[0]
+                    ? `Comparés au contrat ${readings.contracts[0].reference}. Un dépassement est signalé pour examen : rien n’est facturé automatiquement.`
+                    : "Aucun contrat signé rattaché : les limites de l’espace servent de référence."
+                }
+              />
+              <CardBody className="space-y-4">
+                {readings.now ? (
+                  <p className="text-label text-ink-700">
+                    Ce mois-ci, à l’instant : {readings.now.active_learners} actif(s), {readings.now.enrolled_learners} inscrit(s), {readings.now.completions} parcours terminé(s),{" "}
+                    {Number(readings.now.storage_mb).toLocaleString("fr-FR")} Mo de contenus de l’entreprise.
+                  </p>
+                ) : null}
+                {actor.manager ? (
+                  <ActionButton action={recordTenantUsage.bind(null, t.id, month)}>Enregistrer le relevé de {monthLabel(month)}</ActionButton>
+                ) : null}
+                {readings.records.length ? (
+                  <ul className="divide-y divide-line rounded-xl border border-line">
+                    {readings.records.map((r) => (
+                      <li key={r.id} className="space-y-2 px-3 py-3">
+                        <p className="flex flex-wrap items-center gap-2 font-medium text-ink-900">
+                          {monthLabel(r.period)}
+                          {r.overage ? <Badge tone={r.reviewed_at ? "neutral" : "danger"}>{r.reviewed_at ? "Dépassement examiné" : "Dépassement"}</Badge> : <Badge tone="success">Dans les limites</Badge>}
+                        </p>
+                        <p className="text-caption text-ink-600">
+                          {r.active_learners} actif(s) · {r.enrolled_learners} inscrit(s){r.learner_limit ? ` / ${r.learner_limit} prévus` : ""} · {r.completions} terminé(s) ·{" "}
+                          {Number(r.storage_mb).toLocaleString("fr-FR")} Mo{r.storage_limit_gb ? ` / ${r.storage_limit_gb} Go` : ""}
+                        </p>
+                        {r.review_note ? <p className="text-label text-ink-700">Suite donnée : {r.review_note}</p> : null}
+                        {r.overage && !r.reviewed_at && actor.manager ? <OverageReviewForm id={r.id} tenantId={t.id} /> : null}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-body text-ink-600">Aucun relevé enregistré.</p>
+                )}
+                <p className="text-caption text-ink-500">Les minutes de vidéo regardées ne sont pas encore mesurées.</p>
+              </CardBody>
+            </Card>
+          ) : null}
 
           {usage && t.institution_id ? (
             <Card>

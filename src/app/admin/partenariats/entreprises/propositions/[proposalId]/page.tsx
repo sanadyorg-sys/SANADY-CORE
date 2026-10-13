@@ -13,9 +13,10 @@ import { displayName, formatDate, formatDateTime } from "@/lib/format";
 import { ENTERPRISE_SERVICES, LINE_CATEGORIES, PROPOSAL_STATUS, lineTotal, proposalNextSteps } from "@/lib/enterprise";
 import { formatAmount } from "@/lib/partnerships";
 import { uuidSchema } from "@/lib/validation";
+import { createContractFromProposal } from "@/server/actions/contracts";
 import { deleteLine } from "@/server/actions/enterprise";
 import { requireEnterpriseStaff } from "@/server/auth";
-import { enterpriseActor, getProposal } from "@/server/queries/enterprise";
+import { contractForProposal, enterpriseActor, getProposal } from "@/server/queries/enterprise";
 
 export const metadata: Metadata = { title: "Proposition — Enterprise" };
 
@@ -35,7 +36,7 @@ export default async function ProposalPage(props: PageProps<"/admin/partenariats
   const viewer = await requireEnterpriseStaff();
   const { proposalId } = await props.params;
   if (!uuidSchema.safeParse(proposalId).success) notFound();
-  const [detail, actor] = await Promise.all([getProposal(proposalId), enterpriseActor(viewer)]);
+  const [detail, actor, contract] = await Promise.all([getProposal(proposalId), enterpriseActor(viewer), contractForProposal(proposalId)]);
   if (!detail) notFound();
   const { proposal: p, lines, notes, history } = detail;
   const editable = actor.manager && (p.status === "draft" || p.status === "internal_review");
@@ -53,6 +54,20 @@ export default async function ProposalPage(props: PageProps<"/admin/partenariats
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone={PROPOSAL_STATUS[p.status].tone}>{PROPOSAL_STATUS[p.status].label}</Badge>
+            {contract ? (
+              <Link href={`/admin/partenariats/entreprises/contrats/${contract.id}`} className="text-label font-medium text-accent-700 hover:underline">
+                Contrat {contract.reference}
+              </Link>
+            ) : p.status === "accepted" && p.service !== "partenariat" && actor.manager ? (
+              <ActionButton
+                variant="accent"
+                size="md"
+                action={createContractFromProposal.bind(null, p.id)}
+                confirm={{ title: "Préparer le contrat ?", description: "Un contrat en brouillon reprend les lignes de cette proposition ; il sera approuvé puis signé.", confirmLabel: "Préparer" }}
+              >
+                Préparer le contrat
+              </ActionButton>
+            ) : null}
             {editable ? (
               <Drawer
                 title="Modifier la proposition"
