@@ -128,6 +128,7 @@ export interface ProposalRow {
   status: ProposalStatus;
   currency: string;
   valid_until: string | null;
+  plan_id?: string | null;
   updated_at: string;
   organization: { id: string; name: string } | null;
   lines: Array<{ quantity: string; unit_price: string }>;
@@ -208,6 +209,7 @@ export async function getProposal(id: string) {
       summary: string | null;
       currency: string;
       valid_until: string | null;
+      plan_id: string | null;
       status: ProposalStatus;
       approved_at: string | null;
       sent_at: string | null;

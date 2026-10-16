@@ -39,6 +39,13 @@ Les rôles se gèrent dans **Administration → Équipe SANADY**. Tout le monde 
 
 Chaque changement est inscrit dans l’historique avec le nom de la personne.
 
+**Formules de service** (menu **Formules de service**) : des offres types réutilisables pour aller plus vite.
+
+1. Le responsable entreprises crée une formule : nom, service, modèle de tarification, limites (collaborateurs, stockage, vidéo), niveau et engagements de support, puis ses **lignes chiffrées** (aucun prix n’est fixé par la plateforme).
+2. Un **approbateur** l’approuve (« Approuver la formule »). Toute modification la repasse en brouillon et demande une nouvelle approbation ; une formule peut être archivée puis rétablie.
+3. Sur une proposition **en brouillon**, « Formule de service » → **Appliquer** : ses lignes sont ajoutées à la proposition, où elles restent modifiables. Une formule dans une autre devise ne s’applique qu’à une proposition vide (les montants ne sont jamais convertis).
+4. La proposition suit ensuite son circuit habituel (revue, approbation, envoi). Le contrat préparé à partir d’elle reprend le modèle de tarification, les limites et le support de la formule — modifiables dans le contrat en brouillon.
+
 ## 5. Espaces de formation des entreprises
 
 Un **espace de formation** est l’espace sécurisé d’un client : ses collaborateurs, les formations ouvertes pour lui, ses rapports. Une entreprise ne voit jamais les données d’une autre, ni les enseignants de SANADY.

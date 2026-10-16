@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { EnterpriseNoteForm, EnterpriseStatusForm, LineForm, ProposalForm } from "@/components/enterprise/admin-forms";
+import { ApplyPlanForm } from "@/components/enterprise/plan-forms";
 import { HistoryList, NotesList } from "@/components/partnerships/timeline";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/overlay";
@@ -17,6 +18,7 @@ import { createContractFromProposal } from "@/server/actions/contracts";
 import { deleteLine } from "@/server/actions/enterprise";
 import { requireEnterpriseStaff } from "@/server/auth";
 import { contractForProposal, enterpriseActor, getProposal } from "@/server/queries/enterprise";
+import { listPlans } from "@/server/queries/plans";
 
 export const metadata: Metadata = { title: "Proposition — Enterprise" };
 
@@ -36,7 +38,7 @@ export default async function ProposalPage(props: PageProps<"/admin/partenariats
   const viewer = await requireEnterpriseStaff();
   const { proposalId } = await props.params;
   if (!uuidSchema.safeParse(proposalId).success) notFound();
-  const [detail, actor, contract] = await Promise.all([getProposal(proposalId), enterpriseActor(viewer), contractForProposal(proposalId)]);
+  const [detail, actor, contract, plans] = await Promise.all([getProposal(proposalId), enterpriseActor(viewer), contractForProposal(proposalId), listPlans()]);
   if (!detail) notFound();
   const { proposal: p, lines, notes, history } = detail;
   const editable = actor.manager && (p.status === "draft" || p.status === "internal_review");
@@ -149,6 +151,24 @@ export default async function ProposalPage(props: PageProps<"/admin/partenariats
             {editable ? (
               <CardBody className="border-t border-line">
                 <LineForm proposalId={p.id} currency={p.currency} />
+              </CardBody>
+            ) : null}
+            {actor.manager && p.status === "draft" && plans.some((x) => x.status === "active") ? (
+              <CardBody className="border-t border-line">
+                <ApplyPlanForm
+                  proposalId={p.id}
+                  plans={plans.filter((x) => x.status === "active").map((x) => ({ id: x.id, label: `${x.name} (${x.currency}, ${x.lines.length} ligne(s))` }))}
+                />
+              </CardBody>
+            ) : null}
+            {p.plan_id ? (
+              <CardBody className="border-t border-line">
+                <p className="text-caption text-ink-500">
+                  Formule appliquée :{" "}
+                  <Link href={`/admin/partenariats/entreprises/formules/${p.plan_id}`} className="text-accent-700 hover:underline">
+                    {plans.find((x) => x.id === p.plan_id)?.name ?? "voir la formule"}
+                  </Link>
+                </p>
               </CardBody>
             ) : null}
           </Card>

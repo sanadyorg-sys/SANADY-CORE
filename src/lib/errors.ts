@@ -66,6 +66,11 @@ const MESSAGES: Record<string, string> = {
   proposal_not_accepted: "Un contrat se prépare à partir d’une proposition acceptée par le client.",
   contract_locked: "Le contrat n’est plus en brouillon : seules l’échéance (en renouvellement) et l’espace rattaché peuvent changer.",
   lines_required: "Ajoutez au moins une ligne au contrat.",
+  plan_lines_required: "Ajoutez au moins une ligne à la formule avant de la faire approuver.",
+  plan_locked: "La formule est approuvée : repassez-la en brouillon pour modifier ses lignes (nouvelle approbation).",
+  plan_archived: "Cette formule est archivée : remettez-la en brouillon pour la modifier.",
+  plan_inactive: "Seule une formule approuvée peut être appliquée.",
+  currency_mismatch: "La formule est dans une autre devise que la proposition : les montants ne sont jamais convertis.",
 
   // SANADY Enterprise, phase E6: finance
   invoice_paid: "Cette facture a déjà reçu un paiement : elle ne peut pas être annulée.",

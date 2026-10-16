@@ -360,3 +360,12 @@ export function supportNextSteps(from: SupportStatus, team: boolean): SupportSta
   const all: SupportStatus[] = ["in_progress", "waiting_client", "resolved"];
   return [...all.filter((s) => s !== from), ...(from === "resolved" ? (["closed"] as SupportStatus[]) : [])];
 }
+
+/* ─── Service plans (migration 20261029000100) ────────────────────────────── */
+
+export const PLAN_STATUS = {
+  draft: { label: "Brouillon — à approuver", tone: "warning" },
+  active: { label: "Approuvée", tone: "success" },
+  archived: { label: "Archivée", tone: "neutral" },
+} as const;
+export type PlanStatus = keyof typeof PLAN_STATUS;

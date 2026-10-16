@@ -290,3 +290,8 @@ test("support requests require signing in", async ({ page }) => {
   await page.goto("/etablissement/00000000-0000-0000-0000-000000000000/assistance");
   await expect(page).toHaveURL(/\/connexion/);
 });
+
+test("service plans require signing in", async ({ page }) => {
+  await page.goto("/admin/partenariats/entreprises/formules");
+  await expect(page).toHaveURL(/\/connexion/);
+});

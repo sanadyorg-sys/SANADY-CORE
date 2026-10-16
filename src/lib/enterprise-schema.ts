@@ -241,3 +241,22 @@ export const supportRequestSchema = z.object({
 export const supportMessageSchema = z.object({
   body: z.string().trim().min(2, "Écrivez votre message.").max(6000),
 });
+
+/** Reusable service plan (mirrors public.enterprise_service_plans). */
+export const planSchema = z.object({
+  name: z.string().trim().min(3, "Nom : 3 caractères minimum.").max(120),
+  service: z.enum(["sur_mesure", "plateforme", "complete"], "Choisissez un service."),
+  description: optionalText(2000),
+  currency: z.enum(["MAD", "EUR", "USD"]).default("MAD"),
+  pricing_model: z.enum(["annual_subscription", "monthly_subscription", "per_active_learner", "per_enrolled_learner", "fixed_fee", "mixed"], "Choisissez un modèle."),
+  learner_limit: optionalCount("Collaborateurs", 100000),
+  storage_limit_gb: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => (v ? v.replace(",", ".") : undefined))
+    .refine((v) => !v || (/^\d{1,5}(\.\d{1,2})?$/.test(v) && Number(v) > 0), "Stockage : nombre de Go invalide."),
+  video_minutes_limit: optionalCount("Minutes de vidéo", 10_000_000),
+  support_level: optionalText(200),
+  support_commitments: optionalText(2000),
+});

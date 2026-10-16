@@ -18,6 +18,7 @@ import {
   setProposalStatus,
   setRequestStatus,
 } from "@/server/actions/enterprise";
+import { savePlanLine } from "@/server/actions/plans";
 
 /** Team forms of SANADY Enterprise (E1-E2). */
 
@@ -230,14 +231,15 @@ export function ProposalForm({
   );
 }
 
-export function LineForm({ proposalId, currency }: { proposalId: string; currency: string }) {
-  const [state, action] = useActionState(saveLine, INITIAL_ACTION_STATE);
+/** A priced line, for a proposal or for a service plan. */
+export function LineForm({ proposalId, planId, currency }: { proposalId?: string; planId?: string; currency: string }) {
+  const [state, action] = useActionState(planId ? savePlanLine : saveLine, INITIAL_ACTION_STATE);
   const ref = useRef<HTMLFormElement>(null);
   useActionToast(state, () => ref.current?.reset());
   const e = state.fieldErrors ?? {};
   return (
     <form ref={ref} action={action} className="grid gap-3 sm:grid-cols-[1.3fr_2fr_0.7fr_0.8fr_1fr_auto] sm:items-end">
-      <input type="hidden" name="proposal_id" value={proposalId} />
+      {planId ? <input type="hidden" name="plan_id" value={planId} /> : <input type="hidden" name="proposal_id" value={proposalId} />}
       <Field label="Catégorie" error={e.category}>
         <Select name="category" defaultValue="needs_analysis">
           {Object.entries(LINE_CATEGORIES).map(([k, v]) => (

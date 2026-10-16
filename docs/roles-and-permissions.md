@@ -158,6 +158,8 @@ Functions in `supabase/migrations/20261018000100_enterprise.sql`; tests in `test
 | Record invoices, payments and costs; cancel an unpaid invoice (E6) | ✅ | — | — |
 | **Confirm a payment** (not one they recorded) | admin ✅ | — | ✅ |
 | Read finances | ✅ | — | ✅ |
+| Create and edit service plans and their lines; apply an approved plan to a draft proposal; archive a plan | ✅ | — | — |
+| **Approve a service plan** (it carries prices) | — | — | ✅ |
 | **Support**: read every request, reply, write internal notes, assign, change status, read workload | ✅ | ✅ | — |
 | **Company administrator**: open a support request for their company, read its replies (never internal notes), answer, reopen a resolved request, close it | — | — | — |
 
