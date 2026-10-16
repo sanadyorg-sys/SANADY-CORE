@@ -118,10 +118,18 @@ export default async function EnterpriseInboxPage(props: PageProps<"/admin/parte
           )}
         </div>
         <div className="space-y-6 self-start">
-        {watch && (watch.renewals.length || watch.overages.length || watch.approvals) ? (
+        {watch && (watch.renewals.length || watch.overages.length || watch.approvals || watch.support_waiting) ? (
           <Card>
             <CardHeader title="À surveiller" description={watch.approvals ? `${watch.approvals} contrat(s) en attente d’un approbateur` : "Renouvellements et dépassements"} />
             <ul className="divide-y divide-line">
+              {watch.support_waiting ? (
+                <li className="px-5 py-3">
+                  <Link href="/admin/partenariats/entreprises/assistance" className="font-medium text-ink-900 hover:text-accent-700 hover:underline">
+                    Assistance : {watch.support_waiting} demande(s) à traiter
+                  </Link>
+                  {watch.support_urgent ? <span className="block text-caption font-semibold text-danger-600">dont {watch.support_urgent} urgente(s) sans réponse</span> : null}
+                </li>
+              ) : null}
               {watch.renewals.map((r) => (
                 <li key={`r-${r.id}`} className="px-5 py-3">
                   <Link href={`/admin/partenariats/entreprises/contrats/${r.id}`} className="font-medium text-ink-900 hover:text-accent-700 hover:underline">

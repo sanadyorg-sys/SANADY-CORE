@@ -283,3 +283,10 @@ test("finance and impact exports refuse anonymous visitors", async ({ request })
     expect((await request.get(url)).status()).toBe(401);
   }
 });
+
+test("support requests require signing in", async ({ page }) => {
+  await page.goto("/admin/partenariats/entreprises/assistance");
+  await expect(page).toHaveURL(/\/connexion/);
+  await page.goto("/etablissement/00000000-0000-0000-0000-000000000000/assistance");
+  await expect(page).toHaveURL(/\/connexion/);
+});

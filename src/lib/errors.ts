@@ -50,6 +50,8 @@ const MESSAGES: Record<string, string> = {
 
   // Partenariats, phase 5: impact and partner reports
   attribution_required: "Rattachez l’indicateur à une convention ou à un projet soutenu.",
+  support_unavailable: "L’espace de formation de l’entreprise n’est pas actif : aucune demande ne peut être ouverte.",
+  support_closed: "Cette demande est fermée. Ouvrez une nouvelle demande si besoin.",
   metric_locked: "Cet indicateur est vérifié : il ne peut plus être modifié.",
   metric_computed: "Ce chiffre est calculé par la plateforme : recalculez-le plutôt que de le saisir.",
   scope_required: "Choisissez au moins un établissement.",

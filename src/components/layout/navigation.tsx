@@ -23,6 +23,7 @@ import {
   History,
   Inbox,
   LayoutDashboard,
+  LifeBuoy,
   MessagesSquare,
   Upload,
   Library,
@@ -70,6 +71,7 @@ const ENTERPRISE_ITEMS: NavItem[] = [
   { href: "/admin/partenariats/entreprises/contrats", label: "Contrats", icon: FilePenLine },
   { href: "/admin/partenariats/entreprises/finances", label: "Finances", icon: Wallet },
   { href: "/admin/partenariats/entreprises/espaces", label: "Espaces de formation", icon: Building2 },
+  { href: "/admin/partenariats/entreprises/assistance", label: "Assistance", icon: LifeBuoy },
   { href: "/admin/studio", label: "Studio de production", icon: Clapperboard },
 ];
 
@@ -151,6 +153,7 @@ export function navigationFor(area: Area, institutionId?: string, role: NavRole 
             ? [
                 { href: `${base}/services`, label: "Services", icon: Building },
                 { href: `${base}/projets`, label: "Formations sur mesure", icon: Clapperboard },
+                { href: `${base}/assistance`, label: "Assistance", icon: LifeBuoy },
               ]
             : []),
           { href: `${base}/formations`, label: "Formations autorisées", icon: Library },

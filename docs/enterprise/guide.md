@@ -91,6 +91,19 @@ Mise à jour d’une formation lancée : « Préparer une nouvelle version », p
 - **Exports CSV pour la comptabilité** (en haut de la page, pour l’année choisie) : factures (avec reçu et reste dû), paiements (confirmés ou non), coûts (réels ou estimés), contrats. Réservés au responsable entreprises, aux administrateurs et aux approbateurs.
 - Sur la fiche d’une organisation, la carte **« Relation avec la Fondation »** montre côte à côte le partenariat (dons, contributions, impact) et les services aux entreprises (contrats, espaces, facturé) — jamais additionnés.
 
-## 9. Données personnelles
+## 9. Assistance (demandes des entreprises)
+
+**Côté entreprise** : l’administrateur de l’entreprise ouvre une demande dans **Assistance** de son espace (type, priorité, objet, description). Il voit le niveau de support prévu au contrat. Les collaborateurs passent par leur administrateur.
+
+**Côté équipe** : menu **Assistance**.
+
+1. Ouvrez la demande, choisissez qui la suit (**Suivie par**).
+2. **Répondre à l’entreprise** envoie un message visible par l’entreprise ; **Ajouter une note interne** reste visible par l’équipe uniquement (fond jaune).
+3. Faites avancer : **en cours** → **attendre la réponse de l’entreprise** → **résolue**. Une réponse de l’entreprise remet la demande « en cours ». L’entreprise peut **rouvrir** une demande résolue ou la **fermer** ; l’équipe la ferme une fois résolue.
+4. La page montre la charge réelle : demandes à traiter, urgentes sans réponse, délai médian de première réponse, incidents sur 90 jours, demandes par entreprise. Les engagements de support du contrat s’affichent sur chaque demande.
+
+« À surveiller » (page Demandes entreprises) signale les demandes à traiter et les urgentes sans réponse. Les notifications par e-mail viendront avec la configuration de l’envoi d’e-mails.
+
+## 10. Données personnelles
 
 Les demandes qui n’aboutissent pas sont supprimées au plus tard 24 mois après leur clôture (politique de confidentialité, §9). Les documents sont stockés dans un espace privé et vérifiés à l’arrivée (un faux PDF est refusé).

@@ -501,5 +501,7 @@ export async function enterpriseWatchlist() {
     renewals: Array<{ id: string; reference: string; title: string; organization: string; end_on: string }>;
     overages: Array<{ id: string; tenant_id: string; tenant: string; period: string }>;
     approvals: number;
+    support_waiting: number;
+    support_urgent: number;
   } | null;
 }

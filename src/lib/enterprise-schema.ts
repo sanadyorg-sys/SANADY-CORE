@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { emailSchema, optionalText } from "./validation";
-import { COST_CATEGORIES, EMPLOYEE_COUNTS, ENTERPRISE_SERVICES, EXISTING_CONTENT, LANGUAGES, LINE_CATEGORIES, PAYMENT_METHODS, REVENUE_CATEGORIES } from "./enterprise";
+import { COST_CATEGORIES, EMPLOYEE_COUNTS, ENTERPRISE_SERVICES, EXISTING_CONTENT, LANGUAGES, LINE_CATEGORIES, PAYMENT_METHODS, REVENUE_CATEGORIES, SUPPORT_CATEGORIES, type SupportCategory } from "./enterprise";
 import { ORG_TYPES } from "./partnerships";
 
 /**
@@ -229,4 +229,15 @@ export const costSchema = z.object({
     .optional()
     .transform((v) => v === "on"),
   contract_id: z.union([z.uuid(), z.literal("")]).optional(),
+});
+
+export const supportRequestSchema = z.object({
+  category: z.enum(Object.keys(SUPPORT_CATEGORIES) as [SupportCategory], "Choisissez le type de demande."),
+  priority: z.enum(["normal", "urgent"], "Choisissez la priorité."),
+  subject: z.string().trim().min(5, "Décrivez la demande en quelques mots (5 caractères au moins).").max(200),
+  body: z.string().trim().min(10, "Expliquez la situation (10 caractères au moins).").max(6000),
+});
+
+export const supportMessageSchema = z.object({
+  body: z.string().trim().min(2, "Écrivez votre message.").max(6000),
 });

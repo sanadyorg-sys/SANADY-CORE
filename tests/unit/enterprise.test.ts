@@ -116,3 +116,14 @@ describe("commercial contracts (E5)", () => {
     expect(contractNextSteps("closed", manager)).toEqual([]);
   });
 });
+
+describe("support requests", () => {
+  it("offer each side only the status changes the database allows", async () => {
+    const { supportNextSteps } = await import("@/lib/enterprise");
+    expect(supportNextSteps("open", true)).toEqual(["in_progress", "waiting_client", "resolved"]);
+    expect(supportNextSteps("resolved", true)).toEqual(["in_progress", "waiting_client", "closed"]);
+    expect(supportNextSteps("in_progress", false)).toEqual(["closed"]);
+    expect(supportNextSteps("resolved", false)).toEqual(["in_progress", "closed"]);
+    expect(supportNextSteps("closed", true)).toEqual([]);
+  });
+});

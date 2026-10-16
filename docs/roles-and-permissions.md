@@ -158,6 +158,8 @@ Functions in `supabase/migrations/20261018000100_enterprise.sql`; tests in `test
 | Record invoices, payments and costs; cancel an unpaid invoice (E6) | ✅ | — | — |
 | **Confirm a payment** (not one they recorded) | admin ✅ | — | ✅ |
 | Read finances | ✅ | — | ✅ |
+| **Support**: read every request, reply, write internal notes, assign, change status, read workload | ✅ | ✅ | — |
+| **Company administrator**: open a support request for their company, read its replies (never internal notes), answer, reopen a resolved request, close it | — | — | — |
 
 Enterprise staff see workspace counts (`tenant_usage`), never employee names. Employees of companies only do not see the teachers' library and are not counted in SANADY's teacher statistics.
 

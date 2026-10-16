@@ -327,3 +327,36 @@ export type CostCategory = keyof typeof COST_CATEGORIES;
 export const INFRASTRUCTURE_COSTS: CostCategory[] = ["cloud_infrastructure", "video_hosting", "file_storage"];
 
 export const PAYMENT_METHODS = { transfer: "Virement", cheque: "Chèque", cash: "Espèces", card: "Carte", other: "Autre" } as const;
+
+/* ─── Support requests (migration 20261028000100) ─────────────────────────── */
+
+export const SUPPORT_CATEGORIES = {
+  access: "Accès et comptes",
+  technical: "Problème technique",
+  incident: "Incident (service indisponible)",
+  content: "Contenu d’une formation",
+  training_request: "Demande de formation",
+  billing: "Contrat et facturation",
+  other: "Autre",
+} as const;
+export type SupportCategory = keyof typeof SUPPORT_CATEGORIES;
+
+export const SUPPORT_PRIORITY = { normal: "Normale", urgent: "Urgente" } as const;
+export type SupportPriority = keyof typeof SUPPORT_PRIORITY;
+
+export const SUPPORT_STATUS = {
+  open: { label: "Nouvelle", tone: "brand" },
+  in_progress: { label: "En cours", tone: "accent" },
+  waiting_client: { label: "En attente de l’entreprise", tone: "warning" },
+  resolved: { label: "Résolue", tone: "success" },
+  closed: { label: "Fermée", tone: "neutral" },
+} as const;
+export type SupportStatus = keyof typeof SUPPORT_STATUS;
+
+/** Status changes offered to each side (the database re-checks them). */
+export function supportNextSteps(from: SupportStatus, team: boolean): SupportStatus[] {
+  if (from === "closed") return [];
+  if (!team) return from === "resolved" ? ["in_progress", "closed"] : ["closed"];
+  const all: SupportStatus[] = ["in_progress", "waiting_client", "resolved"];
+  return [...all.filter((s) => s !== from), ...(from === "resolved" ? (["closed"] as SupportStatus[]) : [])];
+}
