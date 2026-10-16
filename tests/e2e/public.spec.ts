@@ -311,3 +311,7 @@ test("the daily job refuses calls without its secret, and deletion pages require
   await page.goto("/admin/partenariats/entreprises/espaces/00000000-0000-0000-0000-000000000000/certificat-suppression");
   await expect(page).toHaveURL(/\/connexion/);
 });
+
+test("the end-of-contract export is never public", async ({ request }) => {
+  expect((await request.get("/api/espaces/00000000-0000-0000-0000-000000000000/export")).status()).toBe(401);
+});

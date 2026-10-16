@@ -591,3 +591,13 @@ export async function tenantDeletion(tenantId: string) {
   const { data: blockers } = deletion.status === "proposed" ? await supabase.rpc("deletion_blockers", { p_deletion: deletion.id }) : { data: [] };
   return { deletion, blockers: ((blockers ?? []) as string[]) };
 }
+
+/** The company space behind an institution, when its end-of-contract export may be downloaded by this person. */
+export async function workspaceExport(institutionId: string) {
+  const supabase = await createClient();
+  const { data: t } = await supabase.from("enterprise_tenants").select("id, deletion_due_on").eq("institution_id", institutionId).maybeSingle();
+  if (!t) return null;
+  const tenant = t as { id: string; deletion_due_on: string | null };
+  const { data: ok } = await supabase.rpc("can_export_tenant", { p_tenant: tenant.id });
+  return ok ? tenant : null;
+}

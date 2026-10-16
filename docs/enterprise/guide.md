@@ -74,6 +74,8 @@ Tout est appliqué par la base de données : un collaborateur ne peut ni changer
 
 **Fin de contrat** : « Enregistrer la fin du contrat » (motif obligatoire) → plus aucune nouvelle invitation → un approbateur **autorise l’export** → fixez la **date de suppression** des données → **Fermer l’espace** (accès retirés). Rien n’est supprimé immédiatement.
 
+**Export complet** (après l’autorisation de l’approbateur) : « Télécharger l’export complet (ZIP) » sur la page de l’espace — et, tant que l’espace n’est pas fermé, l’administrateur de l’entreprise le télécharge aussi depuis son tableau de bord. Contenu : collaborateurs et services, affectations, progression, évaluations, attestations (avec leur adresse de vérification), demandes d’assistance et échanges (jamais les notes internes), relevés d’utilisation, contenu complet des formations propres à l’entreprise (avec les bonnes réponses) et liste de leurs fichiers ; un fichier LISEZMOI explique tout. Fichiers CSV lisibles par Excel. Les vidéos et PDF ne sont pas dans le ZIP (taille) : leur liste y figure, l’équipe les transmet sur demande. Chaque téléchargement est inscrit dans l’historique.
+
 **Suppression des données** (carte du même nom) — **jamais automatique** :
 
 1. Le responsable entreprises **propose la suppression** (motif).

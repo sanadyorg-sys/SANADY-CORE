@@ -158,6 +158,8 @@ Functions in `supabase/migrations/20261018000100_enterprise.sql`; tests in `test
 | Record invoices, payments and costs; cancel an unpaid invoice (E6) | ✅ | — | — |
 | **Confirm a payment** (not one they recorded) | admin ✅ | — | ✅ |
 | Read finances | ✅ | — | ✅ |
+| Download the end-of-contract export (ZIP), once authorised by an approver | ✅ | — | ✅ |
+| **Company administrator**: download the export while the space is still open (offboarding) | — | — | — |
 | Propose the deletion of a closed company space's data; record the notice sent and the data handed over | ✅ | — | — |
 | Put a deletion on hold, or cancel it (any time before it is carried out) | ✅ | — | ✅ |
 | **Confirm a deletion** (never the person who proposed it; after the date, no unpaid invoice, no running contract) | admin ✅ | — | ✅ |

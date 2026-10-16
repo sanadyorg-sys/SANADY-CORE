@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BadgeCheck, Check, Circle, Pencil, RotateCcw, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Check, Circle, Download, Pencil, RotateCcw, ShieldCheck, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { AuthorizeTenantForm, DeletionDateForm, InviteTenantAdminForm, TenantForm, TenantStatusForm } from "@/components/enterprise/tenant-forms";
 import { AssessmentPolicyForm } from "@/components/enterprise/assessment-form";
 import { DeletionCard } from "@/components/enterprise/deletion-card";
 import { LogoForm } from "@/components/enterprise/logo-form";
 import { HistoryList } from "@/components/partnerships/timeline";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClasses } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/overlay";
 import { Alert, Badge, Card, CardBody, CardHeader, DescriptionList, PageHeader } from "@/components/ui/surface";
 import { cn } from "@/lib/cn";
@@ -28,6 +28,7 @@ export const metadata: Metadata = { title: "Espace de formation — Enterprise" 
 const HISTORY_LABELS: Record<string, string> = {
   ...Object.fromEntries(Object.entries(TENANT_STATUS).map(([k, v]) => [k, v.label])),
   security_checked: "Contrôles de sécurité effectués",
+  export_downloaded: "Export complet téléchargé",
   logo_updated: "Logo de l’entreprise mis à jour",
   logo_removed: "Logo de l’entreprise retiré",
   assessment_policy_saved: "Règles d’évaluation enregistrées (à approuver)",
@@ -373,6 +374,11 @@ export default async function TenantPage(props: PageProps<"/admin/partenariats/e
                   Export des données :{" "}
                   {t.export_authorized_at ? `autorisé par ${t.exporter ? displayName(t.exporter) : "un approbateur"} le ${formatDateTime(t.export_authorized_at)}` : "non autorisé"}
                 </p>
+                {t.export_authorized_at && !t.data_deleted_at ? (
+                  <a href={`/api/espaces/${t.id}/export`} className={buttonClasses({ variant: "secondary" })}>
+                    <Download aria-hidden /> Télécharger l’export complet (ZIP)
+                  </a>
+                ) : null}
                 {!t.export_authorized_at && t.status === "offboarding" && actor.signatory ? (
                   <ActionButton
                     action={authorizeTenantExport.bind(null, t.id)}

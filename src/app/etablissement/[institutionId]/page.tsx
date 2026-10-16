@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BookOpen, CircleCheck, Clock3, LifeBuoy, Mail, UserCheck, Users } from "lucide-react";
+import { ArrowRight, BookOpen, CircleCheck, Clock3, Download, LifeBuoy, Mail, UserCheck, Users } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
 import { EmptyState, ProgressBar } from "@/components/ui/feedback";
-import { Badge, Card, CardBody, CardHeader, PageHeader, StatTile } from "@/components/ui/surface";
-import { formatDateTime, formatRelative } from "@/lib/format";
+import { Alert, Badge, Card, CardBody, CardHeader, PageHeader, StatTile } from "@/components/ui/surface";
+import { formatDate, formatDateTime, formatRelative } from "@/lib/format";
 import { EVENT_LABELS } from "@/lib/labels";
 import { createClient } from "@/lib/supabase/server";
 import type { LearningEventType } from "@/lib/types";
 import { requireInstitutionViewer } from "@/server/auth";
 import { getAssignments, getInstitutionOverview, getTeacherSummaries } from "@/server/queries/institution";
 import { wording } from "@/lib/enterprise";
+import { workspaceExport } from "@/server/queries/enterprise";
 
 export const metadata: Metadata = { title: "Tableau de bord" };
 
@@ -21,6 +22,7 @@ export default async function InstitutionDashboardPage(props: PageProps<"/etabli
   const base = `/etablissement/${institutionId}`;
   const supabase = await createClient();
 
+  const exportable = institution.kind === "enterprise" && canManage ? await workspaceExport(institutionId) : null;
   const [overview, teachers, assignments] = await Promise.all([
     getInstitutionOverview(institutionId),
     getTeacherSummaries(institutionId),
@@ -70,6 +72,18 @@ export default async function InstitutionDashboardPage(props: PageProps<"/etabli
           ) : undefined
         }
       />
+
+      {exportable ? (
+        <Alert tone="warning" className="mb-6" title="Fin du contrat : récupérez vos données">
+          <span className="block">
+            L’export complet de votre espace est disponible (collaborateurs, affectations, progression, évaluations, attestations, assistance, utilisation, contenu de vos formations).
+            {exportable.deletion_due_on ? ` Suppression prévue à partir du ${formatDate(exportable.deletion_due_on)} : vous serez prévenu par écrit.` : ""}
+          </span>
+          <a href={`/api/espaces/${exportable.id}/export`} className={buttonClasses({ variant: "secondary", size: "sm", className: "mt-3" })}>
+            <Download aria-hidden /> Télécharger l’export (ZIP)
+          </a>
+        </Alert>
+      ) : null}
 
       <section aria-label="Indicateurs" className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <StatTile label={say("Enseignants inscrits")} value={overview.registered_teachers} icon={Users} detail={`${overview.pending_invitations} invitation(s) en attente`} />

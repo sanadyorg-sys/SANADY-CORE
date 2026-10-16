@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Circle, PauseCircle, Printer, ShieldCheck } from "lucide-react";
+import { Check, Circle, Download, PauseCircle, Printer, ShieldCheck } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { NoticeText, ReasonForm, StepForm } from "@/components/enterprise/deletion-forms";
 import { Alert, Badge, Card, CardBody, CardHeader } from "@/components/ui/surface";
@@ -155,7 +155,10 @@ export function DeletionCard({
                     Le {formatDate(d.data_delivered_on)} — {d.delivery_method}
                   </p>
                 ) : actor.manager && d.status === "proposed" ? (
-                  <div className="mt-2">
+                  <div className="mt-2 space-y-2">
+                    <a href={`/api/espaces/${t.id}/export`} className="inline-flex items-center gap-1.5 text-label font-medium text-accent-700 hover:underline">
+                      <Download className="size-4" aria-hidden /> Télécharger l’export complet (ZIP) à remettre
+                    </a>
                     <StepForm action={recordDataDelivery.bind(null, t.id, d.id)} kind="delivery" />
                   </div>
                 ) : (
