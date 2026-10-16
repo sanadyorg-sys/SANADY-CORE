@@ -21,6 +21,7 @@ export function PlayerView({
   backHref,
   backLabel,
   preview = false,
+  audience = "un enseignant",
 }: {
   data: PlayerData;
   courseId: string;
@@ -28,6 +29,8 @@ export function PlayerView({
   backHref: string;
   backLabel: string;
   preview?: boolean;
+  /** Who will follow the course (preview banner). */
+  audience?: string;
 }) {
   const { lesson, outline, state } = data;
   const { totals } = outline;
@@ -67,7 +70,7 @@ export function PlayerView({
 
         {preview ? (
           <Alert tone="info" className="mb-4">
-            Mode aperçu : vous voyez la leçon telle qu’un enseignant la verra. Aucune progression n’est enregistrée.
+            Mode aperçu : vous voyez la leçon telle qu’{audience} la verra. Aucune progression n’est enregistrée.
           </Alert>
         ) : null}
 

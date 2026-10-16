@@ -172,6 +172,7 @@ export async function workspaceProjects(institutionId: string) {
     outline: Array<{ title: string; description: string | null }>;
     client_review_required: boolean;
     due_on: string | null;
+    can_preview: boolean;
   }>;
 }
 
@@ -186,4 +187,27 @@ export async function projectFormOptions(organizationId: string) {
     tenants: ((tenants ?? []) as Array<{ id: string; display_name: string; status: string }>).map((t) => ({ id: t.id, label: t.display_name })),
     proposals: ((proposals ?? []) as Array<{ id: string; reference: string; title: string }>).map((p) => ({ id: p.id, label: `${p.reference} — ${p.title}` })),
   };
+}
+
+export interface ClientPreview {
+  project_id: string;
+  project_title: string;
+  status: TrainingStatus;
+  course_id: string;
+  course_title: string;
+  description: string | null;
+  modules: Array<{
+    id: string;
+    title: string;
+    description: string | null;
+    lessons: Array<{ id: string; title: string; kind: "video" | "pdf"; minutes: number | null; pages: number | null }>;
+    quiz: { id: string; title: string; questions: Array<{ prompt: string; kind: string; options: string[] }> } | null;
+  }>;
+}
+
+/** The draft course behind a project, for the company's administrators while their review is awaited (labels only). */
+export async function clientCoursePreview(projectId: string) {
+  const { data, error } = await (await createClient()).rpc("client_course_preview", { p_project: projectId });
+  if (error) return null;
+  return data as ClientPreview;
 }

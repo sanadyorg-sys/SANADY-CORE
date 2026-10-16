@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Clapperboard } from "lucide-react";
+import Link from "next/link";
+import { Clapperboard, Eye } from "lucide-react";
+import { buttonClasses } from "@/components/ui/button";
 import { ReviewForm } from "@/components/enterprise/studio-forms";
 import { EmptyState } from "@/components/ui/feedback";
 import { Alert, Badge, Card, CardBody, CardHeader, PageHeader } from "@/components/ui/surface";
@@ -62,6 +64,11 @@ export default async function WorkspaceProjectsPage(props: PageProps<"/etablisse
                       ))}
                     </ol>
                   </div>
+                ) : null}
+                {p.can_preview ? (
+                  <Link href={`/etablissement/${institutionId}/projets/${p.id}/apercu`} className={buttonClasses({ variant: "secondary" })}>
+                    <Eye aria-hidden /> Voir le contenu de la formation
+                  </Link>
                 ) : null}
                 {p.status === "client_review" ? (
                   <div className="rounded-xl border border-warning-200 bg-warning-50/50 p-4">

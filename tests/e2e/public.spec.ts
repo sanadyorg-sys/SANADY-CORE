@@ -299,3 +299,8 @@ test("service plans require signing in", async ({ page }) => {
 test("company logos are never public", async ({ request }) => {
   expect((await request.get("/api/logos/entreprise/00000000-0000-0000-0000-000000000000")).status()).toBe(401);
 });
+
+test("the client course preview requires signing in", async ({ page }) => {
+  await page.goto("/etablissement/00000000-0000-0000-0000-000000000000/projets/00000000-0000-0000-0000-000000000000/apercu");
+  await expect(page).toHaveURL(/\/connexion/);
+});

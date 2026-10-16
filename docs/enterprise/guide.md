@@ -82,7 +82,7 @@ Menu **Studio de production**. Un projet se crée depuis la fiche du client (**N
 2. **Conception** : ajoutez les modules du **programme**, puis **Créer la formation à partir du programme** (brouillon réservé au client).
 3. **Production** : ajoutez les **formateurs** (ils écrivent la formation dans l’éditeur habituel : vidéos, PDF, évaluations) et les **tâches** (vidéo, PDF, évaluation…). Chacun termine ses tâches depuis le Studio.
 4. **Revue pédagogique** : « Soumettre à la revue pédagogique » (toutes les tâches terminées, formation complète) ; un responsable pédagogique valide ou demande des modifications.
-5. **Revue du client** (si prévue) : l’administrateur de l’entreprise valide le programme dans « Formations sur mesure » de son espace, ou l’équipe enregistre sa réponse.
+5. **Revue du client** (si prévue) : l’administrateur de l’entreprise valide le programme dans « Formations sur mesure » de son espace, ou l’équipe enregistre sa réponse. Pendant la revue du client et la validation institutionnelle, il peut **« Voir le contenu de la formation »** : les vraies leçons (vidéos, PDF, fichiers joints) et les questions des évaluations, en lecture seule — sans les bonnes réponses, sans rien enregistrer. L’aperçu se ferme une fois la formation approuvée ; les collaborateurs n’y ont pas accès.
 6. **Validation institutionnelle** : un approbateur approuve ; une copie de la formation est figée (version).
 7. **Publication** : l’équipe pédagogique publie la formation (« Approuver et publier ») — impossible avant l’approbation.
 8. **Lancement** : « Lancer dans l’espace du client » ; l’administrateur de l’entreprise l’affecte ensuite à ses collaborateurs.
