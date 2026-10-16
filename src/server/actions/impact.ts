@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { errorMessage, messageFor } from "@/lib/errors";
-import { metricSchema, reportSchema } from "@/lib/partnerships-schema";
+import { metricSchema, platformMetricSchema, reportSchema } from "@/lib/partnerships-schema";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types";
 import { optionalText, parseInput, uuidSchema } from "@/lib/validation";
@@ -33,6 +33,41 @@ export async function saveMetric(_prev: ActionState, formData: FormData): Promis
   if (error) return { ok: false, message: errorMessage(error) };
   for (const p of [`${BASE}/impact`, `${BASE}/organisations/${org.data}`]) revalidatePath(p);
   return { ok: true, message: id ? "Indicateur corrigé et soumis à nouveau." : "Indicateur enregistré, à vérifier par un approbateur." };
+}
+
+/**
+ * Indicator computed from platform data. « preview » only shows the figure;
+ * « save » records it (the database recomputes it, the form never sends it).
+ */
+export async function savePlatformMetric(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  await requireViewer();
+  const id = String(formData.get("id") ?? "");
+  const org = uuidSchema.safeParse(formData.get("organization_id"));
+  if (!org.success) return { ok: false, message: messageFor("not_found") };
+  const parsed = parseInput(platformMetricSchema, {
+    ...Object.fromEntries(formData.entries()),
+    institution_ids: formData.getAll("institution_ids").map(String),
+    course_ids: formData.getAll("course_ids").map(String),
+  });
+  if (!parsed.ok) return { ok: false, fieldErrors: parsed.fieldErrors, message: "Certaines informations sont à compléter." };
+  const d = parsed.data;
+  const supabase = await createClient();
+  if (formData.get("intent") === "preview") {
+    const { data, error } = await supabase.rpc("platform_impact_measure", {
+      p_measure: d.measure,
+      p_institutions: d.institution_ids,
+      p_courses: d.course_ids,
+      p_from: d.period_start,
+      p_to: d.period_end,
+    });
+    if (error) return { ok: false, message: errorMessage(error) };
+    const r = data as { value: number; small: boolean };
+    return { ok: true, data: { preview: r.value, small: r.small } };
+  }
+  const { error } = await supabase.rpc("record_platform_metric", { p_id: id || null, p_org: org.data, p: d });
+  if (error) return { ok: false, message: errorMessage(error) };
+  for (const p of [`${BASE}/impact`, `${BASE}/organisations/${org.data}`]) revalidatePath(p);
+  return { ok: true, message: id ? "Indicateur recalculé et soumis à nouveau." : "Indicateur calculé et enregistré, à vérifier par un approbateur." };
 }
 
 export async function setMetricStatus(_prev: ActionState, formData: FormData): Promise<ActionState> {

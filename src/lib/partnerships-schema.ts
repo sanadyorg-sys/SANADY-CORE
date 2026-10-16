@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { emailSchema, optionalText } from "./validation";
-import { CONTRIBUTION_TYPES, INTERVENTION_FIELDS, ORG_TYPES } from "./partnerships";
+import { emailSchema, optionalText, uuidSchema } from "./validation";
+import { CONTRIBUTION_TYPES, INTERVENTION_FIELDS, ORG_TYPES, PLATFORM_MEASURES, type PlatformMeasure } from "./partnerships";
 
 /**
  * Partnership application, validated step by step in the browser and again,
@@ -234,3 +234,19 @@ export const messageSchema = z.object({
   subject: required("l’objet", 1, 200),
   body: required("le message", 1, 6000),
 });
+
+export const platformMetricSchema = z
+  .object({
+    agreement_id: optionalUuid,
+    opportunity_id: optionalUuid,
+    intervention_field: z.enum(Object.keys(INTERVENTION_FIELDS) as [keyof typeof INTERVENTION_FIELDS], "Choisissez un domaine."),
+    measure: z.enum(Object.keys(PLATFORM_MEASURES) as [PlatformMeasure], "Choisissez ce qui est mesuré."),
+    institution_ids: z.array(uuidSchema).min(1, "Choisissez au moins un établissement.").max(200),
+    course_ids: z.array(uuidSchema).max(200),
+    period_start: z.iso.date("Date de début requise."),
+    period_end: z.iso.date("Date de fin requise."),
+    attribution: z.enum(["direct", "shared", "context"], "Précisez la part du partenariat."),
+    note: optionalText(500),
+  })
+  .refine((v) => v.period_end >= v.period_start, { message: "La fin doit suivre le début.", path: ["period_end"] })
+  .refine((v) => Boolean(v.agreement_id || v.opportunity_id), { message: "Rattachez l’indicateur à une convention ou à un projet.", path: ["agreement_id"] });

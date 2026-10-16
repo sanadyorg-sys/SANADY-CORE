@@ -373,6 +373,16 @@ export const IMPACT_DIMENSIONS = {
 } as const;
 export type ImpactDimension = keyof typeof IMPACT_DIMENSIONS;
 
+/** Training indicators the database can compute from SANADY itself (aggregates only). */
+export const PLATFORM_MEASURES = {
+  teachers_trained: { label: "Enseignants formés", hint: "Enseignants ayant terminé au moins une formation sur la période." },
+  trainings_completed: { label: "Formations terminées", hint: "Une par enseignant et par formation terminée sur la période." },
+  certificates_issued: { label: "Certificats délivrés", hint: "Certificats délivrés sur la période et non révoqués." },
+  active_teachers: { label: "Enseignants actifs sur SANADY", hint: "Enseignants inscrits ou actifs dans une formation sur la période." },
+  participating_schools: { label: "Établissements participants", hint: "Établissements dont au moins un enseignant a terminé une formation." },
+} as const;
+export type PlatformMeasure = keyof typeof PLATFORM_MEASURES;
+
 export const METRIC_TYPES = {
   output: "Réalisation (activités, participants)",
   outcome: "Résultat à long terme",

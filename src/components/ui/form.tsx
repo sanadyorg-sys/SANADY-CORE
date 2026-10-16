@@ -33,8 +33,10 @@ function restoreForm(snapshot: Snapshot) {
  *   the result comes back with errors, the values the person typed are put
  *   back (passwords excepted), so nothing has to be typed again.
  * - Focus then moves to the first invalid field (WCAG 3.3.1).
+ * - `keepValues` puts the values back after a successful submission too
+ *   (e.g. a preview that saves nothing).
  */
-export function SubmitButton({ children, ...props }: ButtonProps) {
+export function SubmitButton({ children, keepValues = false, ...props }: ButtonProps & { keepValues?: boolean }) {
   const { pending } = useFormStatus();
   const ref = useRef<HTMLButtonElement>(null);
   const snapshot = useRef<Snapshot | null>(null);
@@ -50,11 +52,11 @@ export function SubmitButton({ children, ...props }: ButtonProps) {
     const frame = requestAnimationFrame(() => {
       const invalid = form.querySelector<HTMLElement>('[aria-invalid="true"]');
       const refused = invalid ?? form.querySelector('[role="alert"]:not(:empty)');
-      if (refused) restoreForm(saved);
+      if (refused || keepValues) restoreForm(saved);
       invalid?.focus();
     });
     return () => cancelAnimationFrame(frame);
-  }, [pending]);
+  }, [pending, keepValues]);
   return (
     <Button ref={ref} type="submit" loading={pending} {...props}>
       {children}

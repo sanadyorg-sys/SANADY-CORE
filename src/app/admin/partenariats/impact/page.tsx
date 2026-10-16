@@ -8,7 +8,7 @@ import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { formatDate } from "@/lib/format";
 import { ATTRIBUTIONS, INTERVENTION_FIELDS, METRIC_STATUS, METRIC_TYPES, PIPELINE, dimensionLabel, formatAmount, type PipelineStatus } from "@/lib/partnerships";
 import { requirePartnershipStaff } from "@/server/auth";
-import { listMetrics, partnershipDashboard } from "@/server/queries/impact";
+import { listMetrics, partnershipDashboard, platformRecounts } from "@/server/queries/impact";
 import { pipelineActor } from "@/server/queries/partnerships";
 
 export const metadata: Metadata = { title: "Impact des partenariats" };
@@ -23,6 +23,7 @@ export default async function ImpactPage() {
     listMetrics({ status: "rejected" }),
     pipelineActor(viewer),
   ]);
+  const recounts = await platformRecounts(pending.filter((m) => m.source === "platform").map((m) => m.id));
   if (!d) return null;
   const pipelineTotal = Object.values(d.pipeline).reduce((a, b) => a + Number(b), 0);
 
@@ -172,6 +173,12 @@ export default async function ImpactPage() {
                       {m.agreement ? ` · ${m.agreement.reference}` : ""}
                     </p>
                     <p className="mt-1 text-label text-ink-700">Méthode : {m.method}</p>
+                    {m.source === "platform" && recounts[m.id] !== undefined ? (
+                      <p className={recounts[m.id] === Number(m.value) ? "text-label font-medium text-success-700" : "text-label font-medium text-warning-700"}>
+                        Recalculé aujourd’hui : {num(String(recounts[m.id]))}
+                        {recounts[m.id] === Number(m.value) ? " — identique" : " — différent (données mises à jour depuis ; renvoyez pour recalcul si besoin)"}
+                      </p>
+                    ) : null}
                     <p className="text-label text-ink-700">{ATTRIBUTIONS[m.attribution]}</p>
                   </div>
                   <Badge tone={METRIC_STATUS[m.status].tone}>{METRIC_STATUS[m.status].label}</Badge>

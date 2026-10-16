@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, CalendarClock, Mail, Pencil, Phone, Plus, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, CalendarClock, Database, Mail, Pencil, Phone, Plus, Star, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { ContactForm, NoteForm, OrganizationForm, PartnerStatusForm, TaskForm } from "@/components/partnerships/admin-forms";
 import { AgreementForm, ContributionForm } from "@/components/partnerships/agreement-forms";
 import { RelationshipCard } from "@/components/enterprise/relationship-card";
 import { MetricForm, ReportForm } from "@/components/partnerships/impact-forms";
+import { PlatformMetricForm } from "@/components/partnerships/platform-metric-form";
 import { DeliverableReviewForm, InvitePartnerForm, TeamMessageForm } from "@/components/partnerships/portal-forms";
 import { MessageComposer } from "@/components/partnerships/template-forms";
 import { HistoryList, NotesList } from "@/components/partnerships/timeline";
@@ -39,7 +40,7 @@ import { revokePartnerMember } from "@/server/actions/portal";
 import { requirePartnershipStaff } from "@/server/auth";
 import { linkOptions, listAgreements, listContributions } from "@/server/queries/agreements";
 import { organizationRelationships } from "@/server/queries/finance";
-import { listMetrics, listReports } from "@/server/queries/impact";
+import { listMetrics, listReports, platformScope } from "@/server/queries/impact";
 import { portalEnabled, portalForOrganization } from "@/server/queries/portal";
 import { getOrganization, partnershipTeam, pipelineActor } from "@/server/queries/partnerships";
 import { listTemplates, organizationReferences } from "@/server/queries/templates";
@@ -57,7 +58,7 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
   // An enterprise-only client has no partnership record yet.
   if (!detail.organization.status) redirect(`/admin/partenariats/entreprises/clients/${organizationId}`);
   const { organization: o, contacts, notes, history, tasks, applications } = detail;
-  const [agreements, contributions, links, metrics, reports, portalOn, portal, templates, references] = await Promise.all([
+  const [agreements, contributions, links, metrics, reports, portalOn, portal, templates, references, scope] = await Promise.all([
     listAgreements({ organization: o.id }),
     listContributions({ organization: o.id }),
     linkOptions(o.id),
@@ -67,6 +68,7 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
     portalForOrganization(o.id),
     listTemplates(),
     organizationReferences(o.id),
+    platformScope(),
   ]);
   const relationships = o.enterprise_status ? await organizationRelationships(o.id) : null;
   const activePartner = ["agreement_signed", "implementation", "monitoring", "renewal_or_closure"].includes(o.status);
@@ -282,6 +284,7 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
                       <p className="text-caption text-ink-500">
                         {m.metric_type === "output" ? "Réalisation" : "Résultat"} · du {formatDate(m.period_start)} au {formatDate(m.period_end)}
                         {m.agreement ? ` · ${m.agreement.reference}` : ""}
+                        {m.source === "platform" ? " · Calculé depuis SANADY" : ""}
                       </p>
                       {m.status === "rejected" && m.review_comment ? <p className="mt-1 text-label text-danger-700">À corriger : {m.review_comment}</p> : null}
                     </div>
@@ -298,7 +301,11 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
                           }
                         >
                           <div className="p-5">
-                            <MetricForm organizationId={o.id} metric={m} agreements={links.agreements} opportunities={links.opportunities} />
+                            {m.source === "platform" ? (
+                              <PlatformMetricForm organizationId={o.id} metric={m} agreements={links.agreements} opportunities={links.opportunities} scope={scope} />
+                            ) : (
+                              <MetricForm organizationId={o.id} metric={m} agreements={links.agreements} opportunities={links.opportunities} />
+                            )}
                           </div>
                         </Drawer>
                       ) : null}
@@ -307,7 +314,7 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
                 ))}
               </ul>
             ) : null}
-            <CardBody className={metrics.length ? "border-t border-line" : undefined}>
+            <CardBody className={cn("flex flex-wrap gap-2", metrics.length && "border-t border-line")}>
               <Drawer
                 title="Nouvel indicateur d’impact"
                 description="Un chiffre mesuré, rattaché à une convention ou à un projet, avec sa méthode et la part du partenariat."
@@ -320,6 +327,20 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
               >
                 <div className="p-5">
                   <MetricForm organizationId={o.id} agreements={links.agreements} opportunities={links.opportunities} />
+                </div>
+              </Drawer>
+              <Drawer
+                title="Calculer depuis la plateforme"
+                description="Un indicateur de formation calculé à partir des données de SANADY : chiffres agrégés, jamais de nom."
+                width="max-w-2xl"
+                trigger={
+                  <Button variant="secondary">
+                    <Database aria-hidden /> Calculer depuis la plateforme
+                  </Button>
+                }
+              >
+                <div className="p-5">
+                  <PlatformMetricForm organizationId={o.id} agreements={links.agreements} opportunities={links.opportunities} scope={scope} />
                 </div>
               </Drawer>
             </CardBody>

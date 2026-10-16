@@ -51,6 +51,8 @@ const MESSAGES: Record<string, string> = {
   // Partenariats, phase 5: impact and partner reports
   attribution_required: "Rattachez l’indicateur à une convention ou à un projet soutenu.",
   metric_locked: "Cet indicateur est vérifié : il ne peut plus être modifié.",
+  metric_computed: "Ce chiffre est calculé par la plateforme : recalculez-le plutôt que de le saisir.",
+  scope_required: "Choisissez au moins un établissement.",
   report_locked: "Le rapport est approuvé : renvoyez-le en brouillon pour le modifier (nouvelle approbation).",
 
   // Partenariats, phase 6: partner portal

@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import type { PlatformMeasure } from "@/lib/partnerships";
 import type { Attribution, ContributionKind, ContributionStage, InterventionField, MetricStatus, MetricType, ReportStatus } from "@/lib/partnerships";
 
 /** Partnership phase 5. Reads go through RLS: partnership staff and approvers (2FA). */
@@ -25,6 +26,8 @@ export interface MetricRow {
   review_comment: string | null;
   verified_at: string | null;
   updated_at: string;
+  source: "manual" | "platform";
+  source_scope: { measure: PlatformMeasure; institution_ids: string[]; course_ids: string[]; computed_at: string } | null;
   organization: { id: string; name: string } | null;
   agreement: { id: string; reference: string } | null;
   verifier: Person;
@@ -139,4 +142,29 @@ export async function partnershipDashboard() {
   const supabase = await createClient();
   const { data } = await supabase.rpc("partnership_dashboard");
   return (data ?? null) as Dashboard | null;
+}
+
+export interface PlatformScope {
+  institutions: Array<{ id: string; name: string }>;
+  courses: Array<{ id: string; title: string }>;
+  project_schools: Record<string, string>;
+}
+
+/** Schools and courses the team can choose from (partnership staff). */
+export async function platformScope(): Promise<PlatformScope> {
+  const { data } = await (await createClient()).rpc("platform_impact_scope");
+  return (data as PlatformScope | null) ?? { institutions: [], courses: [], project_schools: {} };
+}
+
+/** Today's value of indicators computed from platform data, for the approver. */
+export async function platformRecounts(metricIds: string[]) {
+  const supabase = await createClient();
+  const out: Record<string, number> = {};
+  await Promise.all(
+    metricIds.map(async (id) => {
+      const { data } = await supabase.rpc("platform_metric_recount", { p_metric: id });
+      if (typeof data === "number") out[id] = data;
+    }),
+  );
+  return out;
 }

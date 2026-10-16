@@ -82,6 +82,15 @@ Chaque changement est enregistré (qui, quand, commentaire) dans l’historique 
 
 Un **approbateur** vérifie l’indicateur (page **Impact**) ou le renvoie pour correction. Un indicateur vérifié ne se modifie plus.
 
+**Calculer depuis la plateforme** (même carte) : pour la formation des enseignants, le chiffre peut être calculé par SANADY au lieu d’être saisi.
+
+1. Choisissez la convention ou le projet, **ce qui est mesuré** (enseignants formés, formations terminées, certificats délivrés, enseignants actifs, établissements participants), la période, les **établissements** (celui du projet est proposé) et, si besoin, les **formations** (sinon : toutes).
+2. **Calculer** affiche le résultat sans rien enregistrer. En dessous de 5 personnes, un avertissement rappelle de vérifier que personne ne peut être reconnu.
+3. **Enregistrer l’indicateur** : la plateforme recalcule le chiffre et écrit la méthode (périmètre, période, date du calcul). Le chiffre ne peut pas être saisi à la main.
+4. L’approbateur voit sur la page **Impact** le chiffre **recalculé le jour même** (« identique » ou « différent »). S’il a changé, le bouton de correction propose **Recalculer et soumettre**.
+
+Seuls sont comptés les enseignants qui ont accepté de partager leur progression avec leur établissement, et dont le rattachement est actif. Les espaces des entreprises ne sont jamais inclus. Seuls des totaux sortent, jamais un nom. La part du partenariat reste à indiquer par l’équipe.
+
 **Rapports aux partenaires** (fiche de l’organisation → « Préparer un rapport ») : période, convention (ou tout le partenariat), activités, difficultés, perspectives. Le PDF (aux couleurs de la Fondation) suit les 12 rubriques prévues et ne reprend **que des données vérifiées**, en chiffres agrégés : aucun élève ni enseignant n’est nommé. Un approbateur l’approuve ; l’équipe le transmet au partenaire puis enregistre la transmission.
 
 **Page Impact** : partenaires en discussion, partenariats actifs, projets, renouvellements, contributions réellement reçues, répartition par domaine, étapes des partenariats et indicateurs vérifiés — uniquement des valeurs réelles.
