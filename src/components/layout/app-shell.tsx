@@ -42,6 +42,7 @@ export function AppShell({
   contexts,
   user,
   signOutAction,
+  companyLogo,
   children,
 }: {
   area: Area;
@@ -54,6 +55,8 @@ export function AppShell({
   contexts: ShellContext[];
   user: ShellUser;
   signOutAction: () => Promise<void>;
+  /** Company space logo (SANADY Enterprise), shown beside the space's name. */
+  companyLogo?: { url: string; name: string } | null;
   children: ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -110,6 +113,10 @@ export function AppShell({
           <Link href="/mon-espace" className="lg:hidden">
             <BrandLogo className="h-8" />
           </Link>
+          {companyLogo ? (
+            // eslint-disable-next-line @next/next/no-img-element -- private logo served by our own route, sized by CSS
+            <img src={companyLogo.url} alt={`Logo de ${companyLogo.name}`} className="h-8 max-w-[120px] object-contain" />
+          ) : null}
           <p className="hidden truncate text-label font-medium text-ink-500 lg:block">{current?.label ?? areaTitle[area]}</p>
           <div className="ml-auto flex items-center gap-2">
             <UserMenu user={user} signOutAction={signOutAction} />

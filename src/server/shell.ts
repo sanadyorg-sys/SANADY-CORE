@@ -1,4 +1,5 @@
 import "server-only";
+import { createClient } from "@/lib/supabase/server";
 import type { ShellContext, ShellUser } from "@/components/layout/app-shell";
 import { displayName } from "@/lib/format";
 import type { Viewer } from "./auth";
@@ -61,4 +62,11 @@ export function contextsFor(viewer: Viewer): ShellContext[] {
 
 export function shellUser(viewer: Viewer): ShellUser {
   return { name: displayName(viewer.profile), email: viewer.email };
+}
+
+/** URL of a company space's logo, if it has one and the viewer may see it (versioned by file name). */
+export async function companyLogoUrl(institutionId: string | undefined) {
+  if (!institutionId) return null;
+  const { data } = await (await createClient()).rpc("tenant_logo", { p_institution: institutionId });
+  return data ? `/api/logos/entreprise/${institutionId}?v=${encodeURIComponent(String(data).split("/")[1] ?? "")}` : null;
 }

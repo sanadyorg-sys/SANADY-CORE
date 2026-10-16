@@ -60,6 +60,8 @@ Un **espace de formation** est l’espace sécurisé d’un client : ses collabo
 6. Un **administrateur SANADY** confirme les contrôles de sécurité.
 7. **Activer l’espace** : refusé tant qu’une étape manque.
 
+**Logo de l’entreprise** (page de l’espace, carte « Logo de l’entreprise ») : le responsable entreprises enregistre le logo fourni par l’entreprise — PNG ou JPEG, 1 Mo au plus (le SVG est refusé). Il apparaît dans l’en-tête de l’espace de l’entreprise et de ses collaborateurs, et à côté du logo de la Fondation (qui reste) sur les attestations et certificats des formations propres à l’entreprise. Remplacer ou retirer le logo supprime l’ancien fichier.
+
 **Ensuite**, l’administrateur de l’entreprise invite ses collaborateurs (un par un ou par liste/CSV), crée des **services**, affecte les formations et suit la progression. La limite de collaborateurs du contrat est appliquée automatiquement (invitations en attente comprises).
 
 **Fin de contrat** : « Enregistrer la fin du contrat » (motif obligatoire) → plus aucune nouvelle invitation → un approbateur **autorise l’export** → fixez la **date de suppression** des données → **Fermer l’espace** (accès retirés). Rien n’est supprimé immédiatement.

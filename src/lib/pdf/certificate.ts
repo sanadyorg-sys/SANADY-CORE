@@ -18,6 +18,8 @@ export interface CertificateData {
   kind?: "certificat" | "attestation";
   /** Company that ordered the training, shown on its employees' documents. */
   organization?: string | null;
+  /** That company's logo (PNG or JPEG, already checked), beside the Foundation logo. */
+  organizationLogo?: { bytes: Uint8Array; type: "png" | "jpg" } | null;
 }
 
 /**
@@ -171,6 +173,17 @@ export async function renderCertificatePdf(data: CertificateData): Promise<Uint8
     width: logoWidth,
     height: logoHeight,
   });
+
+  // Company logo (co-branding), top left inside the frame; the Foundation logo stays centred.
+  if (data.organizationLogo) {
+    try {
+      const img = data.organizationLogo.type === "png" ? await pdf.embedPng(data.organizationLogo.bytes) : await pdf.embedJpg(data.organizationLogo.bytes);
+      const scale = Math.min(120 / img.width, 44 / img.height);
+      page.drawImage(img, { x: 72, y: height - 50 - img.height * scale, width: img.width * scale, height: img.height * scale });
+    } catch {
+      // An unreadable logo never blocks the document.
+    }
+  }
 
   // Institution Sub-header
   const headerSubtitle = "DÉVELOPPEMENT PROFESSIONNEL DES ENSEIGNANTS • PLATEFORME SANADY";

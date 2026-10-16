@@ -306,6 +306,8 @@ export interface TenantDetail extends TenantRow {
   support_email: string | null;
   primary_contact_id: string | null;
   certificate_kind: "attestation" | "certificat";
+  logo_path: string | null;
+  logo_updated_at: string | null;
   authorized_at: string | null;
   security_checked_at: string | null;
   activated_at: string | null;

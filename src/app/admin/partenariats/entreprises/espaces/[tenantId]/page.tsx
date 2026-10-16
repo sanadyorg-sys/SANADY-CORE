@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Check, Circle, Pencil, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Check, Circle, Pencil, ShieldCheck, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { AuthorizeTenantForm, DeletionDateForm, InviteTenantAdminForm, TenantForm, TenantStatusForm } from "@/components/enterprise/tenant-forms";
+import { LogoForm } from "@/components/enterprise/logo-form";
 import { HistoryList } from "@/components/partnerships/timeline";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/overlay";
@@ -14,6 +15,7 @@ import { SERVICE_PLANS, TENANT_STATUS, TENANT_STEPS, tenantNextSteps } from "@/l
 import { uuidSchema } from "@/lib/validation";
 import { OverageReviewForm } from "@/components/enterprise/contract-forms";
 import { recordTenantUsage } from "@/server/actions/contracts";
+import { removeTenantLogo } from "@/server/actions/logo";
 import { authorizeTenantExport, confirmTenantSecurity, generateWorkspace } from "@/server/actions/enterprise";
 import { requireEnterpriseStaff } from "@/server/auth";
 import { enterpriseActor, getTenant, tenantUsageRecords } from "@/server/queries/enterprise";
@@ -23,6 +25,8 @@ export const metadata: Metadata = { title: "Espace de formation — Enterprise" 
 const HISTORY_LABELS: Record<string, string> = {
   ...Object.fromEntries(Object.entries(TENANT_STATUS).map(([k, v]) => [k, v.label])),
   security_checked: "Contrôles de sécurité effectués",
+  logo_updated: "Logo de l’entreprise mis à jour",
+  logo_removed: "Logo de l’entreprise retiré",
   admin_invited: "Administrateur de l’entreprise invité",
   export_authorized: "Export des données autorisé",
   deletion_scheduled: "Suppression des données programmée",
@@ -140,6 +144,29 @@ export default async function TenantPage(props: PageProps<"/admin/partenariats/e
                   { term: "Sécurité vérifiée par", value: t.checker ? `${displayName(t.checker)}${t.security_checked_at ? ` le ${formatDateTime(t.security_checked_at)}` : ""}` : "—" },
                 ]}
               />
+            </CardBody>
+          </Card>
+
+          <Card id="logo">
+            <CardHeader title="Logo de l’entreprise" description="Affiché dans l’espace de l’entreprise et, à côté du logo de la Fondation, sur les documents de ses propres formations." />
+            <CardBody className="space-y-4">
+              {t.logo_path && t.institution_id ? (
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex h-20 w-48 items-center justify-center rounded-xl border border-line bg-white p-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- private logo served by our own route */}
+                    <img src={`/api/logos/entreprise/${t.institution_id}?v=${encodeURIComponent(t.logo_path.split("/")[1] ?? "")}`} alt={`Logo de ${t.display_name}`} className="max-h-full max-w-full object-contain" />
+                  </div>
+                  <p className="text-caption text-ink-500">Mis à jour le {t.logo_updated_at ? formatDateTime(t.logo_updated_at) : "—"}</p>
+                  {actor.manager ? (
+                    <ActionButton variant="danger-ghost" action={removeTenantLogo.bind(null, t.id)} confirm={{ title: "Retirer le logo ?", description: "Il n’apparaîtra plus dans l’espace ni sur les nouveaux documents.", confirmLabel: "Retirer le logo" }}>
+                      <Trash2 aria-hidden /> Retirer
+                    </ActionButton>
+                  ) : null}
+                </div>
+              ) : (
+                <p className="text-body text-ink-600">Aucun logo pour l’instant.</p>
+              )}
+              {actor.manager ? <LogoForm tenantId={t.id} hasLogo={Boolean(t.logo_path)} /> : null}
             </CardBody>
           </Card>
 
