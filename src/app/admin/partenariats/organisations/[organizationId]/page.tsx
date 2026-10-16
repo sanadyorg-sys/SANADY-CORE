@@ -8,6 +8,7 @@ import { AgreementForm, ContributionForm } from "@/components/partnerships/agree
 import { RelationshipCard } from "@/components/enterprise/relationship-card";
 import { MetricForm, ReportForm } from "@/components/partnerships/impact-forms";
 import { DeliverableReviewForm, InvitePartnerForm, TeamMessageForm } from "@/components/partnerships/portal-forms";
+import { MessageComposer } from "@/components/partnerships/template-forms";
 import { HistoryList, NotesList } from "@/components/partnerships/timeline";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/overlay";
@@ -31,6 +32,7 @@ import {
   dimensionLabel,
   stageTone,
 } from "@/lib/partnerships";
+import { serverEnv } from "@/lib/server-env";
 import { uuidSchema } from "@/lib/validation";
 import { deleteContact, setTaskDone } from "@/server/actions/partnerships";
 import { revokePartnerMember } from "@/server/actions/portal";
@@ -40,6 +42,7 @@ import { organizationRelationships } from "@/server/queries/finance";
 import { listMetrics, listReports } from "@/server/queries/impact";
 import { portalEnabled, portalForOrganization } from "@/server/queries/portal";
 import { getOrganization, partnershipTeam, pipelineActor } from "@/server/queries/partnerships";
+import { listTemplates, organizationReferences } from "@/server/queries/templates";
 
 export const metadata: Metadata = { title: "Organisation partenaire" };
 
@@ -54,7 +57,7 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
   // An enterprise-only client has no partnership record yet.
   if (!detail.organization.status) redirect(`/admin/partenariats/entreprises/clients/${organizationId}`);
   const { organization: o, contacts, notes, history, tasks, applications } = detail;
-  const [agreements, contributions, links, metrics, reports, portalOn, portal] = await Promise.all([
+  const [agreements, contributions, links, metrics, reports, portalOn, portal, templates, references] = await Promise.all([
     listAgreements({ organization: o.id }),
     listContributions({ organization: o.id }),
     linkOptions(o.id),
@@ -62,6 +65,8 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
     listReports({ organization: o.id }),
     portalEnabled(),
     portalForOrganization(o.id),
+    listTemplates(),
+    organizationReferences(o.id),
   ]);
   const relationships = o.enterprise_status ? await organizationRelationships(o.id) : null;
   const activePartner = ["agreement_signed", "implementation", "monitoring", "renewal_or_closure"].includes(o.status);
@@ -445,6 +450,22 @@ export default async function OrganizationPage(props: PageProps<"/admin/partenar
               </CardBody>
             </Card>
           ) : null}
+
+          <Card>
+            <CardHeader title="Écrire au partenaire" description="À partir d’un modèle ou d’un message libre. Vous relisez et envoyez vous-même ; le message est ajouté aux notes." />
+            <CardBody>
+              <MessageComposer
+                organizationId={o.id}
+                organizationName={o.name}
+                interlocutor={displayName(viewer.profile)}
+                templates={templates}
+                contacts={contacts.map((c) => ({ id: c.id, full_name: c.full_name, email: c.email }))}
+                references={references}
+                portalAvailable={portalOn && portal.members.length > 0}
+                emailConfigured={Boolean(serverEnv.resendApiKey)}
+              />
+            </CardBody>
+          </Card>
 
           <Card>
             <CardHeader title="Notes et échanges" description="Réunions, appels, décisions — visibles par l’équipe partenariats uniquement." />

@@ -210,6 +210,8 @@ test.describe("partnerships portal (hidden until approved)", () => {
   test("the team area refuses anonymous visitors", async ({ page }) => {
     await page.goto("/admin/partenariats");
     await expect(page).toHaveURL(/\/connexion/);
+    await page.goto("/admin/partenariats/modeles");
+    await expect(page).toHaveURL(/\/connexion/);
     const doc = await page.request.get("/api/partenariats/documents/00000000-0000-0000-0000-000000000000");
     expect(doc.status()).toBe(401);
   });

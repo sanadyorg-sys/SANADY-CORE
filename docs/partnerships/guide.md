@@ -97,13 +97,22 @@ L’espace partenaire permet à un contact d’une organisation partenaire de co
 
 Le partenaire ne voit jamais les notes internes, les besoins, les tâches, les approbations ni les autres partenaires.
 
-## 9. Données et confidentialité
+## 9. Modèles de messages
+
+Menu **Modèles de messages** : textes réutilisables (premier contact, accusé de réception, relance, réponse négative, renouvellement, transmission d’un rapport, remerciements). Sept modèles de départ sont fournis, à adapter : ils ne contiennent **aucun chiffre ni engagement** de la Fondation — n’en ajoutez que s’ils sont confirmés.
+
+1. **Créer ou modifier** un modèle : nom, catégorie, objet, texte. Les champs `{{organisation}}`, `{{contact}}`, `{{interlocuteur}}` (vous), `{{reference}}` (candidature, convention ou rapport) et `{{date}}` sont remplis automatiquement. **Archiver** retire un modèle de la liste (il peut être rétabli).
+2. **Écrire** : sur la fiche de l’organisation, carte **« Écrire au partenaire »** → choisissez le modèle, le contact et la référence, puis **relisez et adaptez** le texte.
+3. **Envoyer**, un message à la fois : **Copier**, **Ouvrir dans ma messagerie**, **Publier dans l’espace partenaire** (si le partenaire y a un accès) ou **Envoyer par e-mail** (quand l’envoi d’e-mails est configuré). L’envoi est refusé tant qu’un champ `{{ }}` reste à compléter.
+4. Chaque message est **ajouté aux notes** de l’organisation (historique des échanges) avec le canal utilisé. Aucun envoi automatique, aucun envoi groupé.
+
+## 10. Données et confidentialité
 
 - Seule l’équipe partenariats voit les candidatures, contacts et documents.
 - Les documents sont des **PDF vérifiés** à la réception (un fichier qui n’est pas un vrai PDF est refusé), stockés de façon privée.
 - Une candidature qui n’aboutit pas (non retenue, retirée, indésirable) est **supprimée 24 mois** après sa clôture, avec ses documents.
 - Aucun nom de partenaire n’est publié sans **accord écrit** de l’organisation.
 
-## 10. Avant d’ouvrir la page au public
+## 11. Avant d’ouvrir la page au public
 
 La page `/partenariats` est en ligne mais **non référencée et absente des menus**. Pour l’ouvrir, la Fondation doit valider : les textes de la page, les personnes (chargé·e, responsable, approbateur), le délai de réponse annoncé, et l’envoi d’e-mails (Resend). L’équipe technique ajoute alors le lien dans le menu et retire le `noindex`.

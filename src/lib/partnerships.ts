@@ -405,3 +405,39 @@ export function dimensionLabel(dimension: string, label?: string | null) {
   if (dimension === "other") return label || IMPACT_DIMENSIONS.other.label;
   return IMPACT_DIMENSIONS[dimension as ImpactDimension]?.label ?? dimension;
 }
+
+/* ─── Communication templates (migration 20261026000100) ─────────────────── */
+
+export const TEMPLATE_CATEGORIES = {
+  first_contact: "Premier contact",
+  acknowledgement: "Accusé de réception",
+  follow_up: "Relance",
+  decline: "Réponse négative",
+  renewal: "Renouvellement",
+  report: "Transmission d’un rapport",
+  thanks: "Remerciements",
+  other: "Autre",
+} as const;
+export type TemplateCategory = keyof typeof TEMPLATE_CATEGORIES;
+
+export const TEMPLATE_PLACEHOLDERS = {
+  organisation: "Nom de l’organisation",
+  contact: "Nom du contact",
+  interlocuteur: "Votre nom (interlocuteur SANADY)",
+  reference: "Référence choisie (candidature, convention, rapport)",
+  date: "Date du jour",
+} as const;
+export type TemplateVars = Partial<Record<keyof typeof TEMPLATE_PLACEHOLDERS, string>>;
+
+/** Fills {{placeholders}}; an unknown or empty one stays visible so it is noticed before sending. */
+export function fillTemplate(text: string, vars: TemplateVars) {
+  return text.replace(/\{\{\s*([a-z]+)\s*\}\}/g, (all, key: string) => {
+    const v = vars[key as keyof TemplateVars];
+    return v && v.trim() ? v : all;
+  });
+}
+
+/** Placeholders still present (to warn before sending). */
+export function missingPlaceholders(text: string) {
+  return [...new Set([...text.matchAll(/\{\{\s*([a-z]+)\s*\}\}/g)].map((m) => m[1]!))];
+}

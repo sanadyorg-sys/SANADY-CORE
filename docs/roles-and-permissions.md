@@ -96,6 +96,7 @@ Functions in `supabase/migrations/20261016000100_partnerships.sql`; tests in `te
 | Invite or remove a partner contact (signed partners only) | ✅ | — | ✅ | — | — | — |
 | Review partner deliverables; reply in the partner conversation | ✅ | ✅ | ✅ | — | — | — |
 | **Partner contact**: see their organisation's signed agreements, milestones, supported projects and shared reports; submit deliverables; write to the team | — | — | — | — | own organisation only | — |
+| Write, edit and archive message templates; prepare and send a message to a partner (recorded in the notes) | ✅ | ✅ | ✅ | — | — | — |
 | Grant partnership roles, appoint or revoke approvers | ✅ (never for themself) | — | — | — | — | — |
 
 The administrator role does **not** carry signing authority (brief V2 §10). Needs are internal and never public; a project’s content is frozen once approved (back to draft means a new approval). Visitors read projects only through `public_partnership_opportunities()`, which returns no internal field (no need, no internal cost, no author). Every decision is written to `audit_logs` and to the append-only `partnership_status_history`.

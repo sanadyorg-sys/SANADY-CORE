@@ -216,3 +216,21 @@ export const reportSchema = z
     future_opportunities: optionalText(4000),
   })
   .refine((v) => v.period_end >= v.period_start, { message: "La fin doit suivre le début.", path: ["period_end"] });
+
+/* ─── Communication templates ─────────────────────────────────────────────── */
+
+export const templateSchema = z.object({
+  category: z.enum(["first_contact", "acknowledgement", "follow_up", "decline", "renewal", "report", "thanks", "other"], "Choisissez une catégorie."),
+  title: required("le nom du modèle", 3, 120),
+  subject: required("l’objet", 3, 200),
+  body: required("le texte", 10, 6000),
+});
+
+export const messageSchema = z.object({
+  organization_id: z.uuid(),
+  contact_id: z.union([z.uuid(), z.literal("")]).optional(),
+  template_id: z.union([z.uuid(), z.literal("")]).optional(),
+  channel: z.enum(["email", "portal", "copy"]),
+  subject: required("l’objet", 1, 200),
+  body: required("le message", 1, 6000),
+});

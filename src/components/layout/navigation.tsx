@@ -60,6 +60,7 @@ const PARTNERSHIP_ITEMS: NavItem[] = [
   { href: "/admin/partenariats/contributions", label: "Contributions", icon: HandCoins },
   { href: "/admin/partenariats/impact", label: "Impact", icon: Sprout },
   { href: "/admin/partenariats/rapports", label: "Rapports aux partenaires", icon: FileText },
+  { href: "/admin/partenariats/modeles", label: "Modèles de messages", icon: MessagesSquare },
 ];
 
 const ENTERPRISE_ITEMS: NavItem[] = [
