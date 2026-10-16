@@ -89,6 +89,8 @@ Menu **Studio de production**. Un projet se crée depuis la fiche du client (**N
 
 Mise à jour d’une formation lancée : « Préparer une nouvelle version », puis revues et approbation comme la première fois.
 
+**Restaurer une version** (carte « Versions approuvées ») : pendant la préparation d’une nouvelle version (conception ou production), le responsable de production peut **« Restaurer cette version »**. Le contenu de la formation redevient celui de la version choisie : leçons, textes, évaluations et questions. Rien n’est supprimé — ce qui n’y figure pas est archivé — et les leçons déjà suivies (même vidéo ou même PDF) sont reprises avec la progression des collaborateurs. La formation est ensuite relue et approuvée à nouveau. Chaque restauration est inscrite dans l’historique.
+
 ## 7. Contrats et utilisation
 
 1. Sur une **proposition acceptée**, **Préparer le contrat** : les lignes de la proposition sont reprises.

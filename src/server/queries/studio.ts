@@ -104,7 +104,7 @@ export async function getProject(id: string) {
       .order("created_at", { ascending: false }),
     supabase
       .from("training_versions")
-      .select("id, version, approved_at, approver:profiles!training_versions_approved_by_fkey(full_name, email)")
+      .select("id, version, approved_at, snapshot, approver:profiles!training_versions_approved_by_fkey(full_name, email)")
       .eq("project_id", id)
       .order("version", { ascending: false }),
     supabase
@@ -120,7 +120,13 @@ export async function getProject(id: string) {
     outline: (outline ?? []) as Array<{ id: string; position: number; title: string; description: string | null }>,
     tasks: (tasks ?? []) as unknown as TrainingTask[],
     reviews: (reviews ?? []) as unknown as TrainingReview[],
-    versions: (versions ?? []) as unknown as Array<{ id: string; version: number; approved_at: string; approver: Person }>,
+    versions: ((versions ?? []) as unknown as Array<{ id: string; version: number; approved_at: string; approver: Person; snapshot: VersionSnapshot }>).map(({ snapshot, ...v }) => ({
+      ...v,
+      title: snapshot?.title ?? null,
+      modules: snapshot?.modules?.length ?? 0,
+      lessons: (snapshot?.modules ?? []).reduce((n, m) => n + (m.lessons?.length ?? 0), 0),
+      questions: (snapshot?.modules ?? []).reduce((n, m) => n + (m.quiz?.questions?.length ?? 0), 0),
+    })),
     history: (history ?? []) as unknown as HistoryEntry[],
     checklist: (checklist ?? null) as TrainingChecklist | null,
     trainers: (trainers ?? []) as Array<{ id: string; full_name: string | null; email: string }>,
@@ -156,6 +162,9 @@ export async function myTrainingTasks(userId: string) {
     .order("due_on", { ascending: true, nullsFirst: false });
   return (data ?? []) as unknown as Array<{ id: string; kind: TaskKind; title: string; status: TaskStatus; due_on: string | null; project: { id: string; reference: string; title: string } | null }>;
 }
+
+/** What the studio needs to know of a frozen version (counts only; the copy stays in the database). */
+type VersionSnapshot = { title?: string; modules?: Array<{ lessons?: unknown[]; quiz?: { questions?: unknown[] } | null }> } | null;
 
 /** Projects of a company workspace, as its administrator sees them. */
 export async function workspaceProjects(institutionId: string) {

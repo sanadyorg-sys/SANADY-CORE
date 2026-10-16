@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowDown, ArrowLeft, ArrowUp, CalendarClock, Check, ExternalLink, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, CalendarClock, Check, ExternalLink, History, Pencil, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { OutlineForm, ProjectForm, ReviewForm, TaskForm, TrainerForm, TrainingStatusForm } from "@/components/enterprise/studio-forms";
 import { HistoryList } from "@/components/partnerships/timeline";
@@ -12,7 +12,7 @@ import { cn } from "@/lib/cn";
 import { displayName, formatDate, formatDateTime } from "@/lib/format";
 import { COURSE_OWNERSHIP, LANGUAGES, TASK_KINDS, TASK_STATUS, TRAINING_STATUS, TRAINING_STEPS, trainingNextSteps } from "@/lib/enterprise";
 import { uuidSchema } from "@/lib/validation";
-import { createProjectCourse, deleteOutlineItem, moveOutlineItem, removeProjectTrainer, setTrainingTaskStatus } from "@/server/actions/studio";
+import { createProjectCourse, deleteOutlineItem, moveOutlineItem, removeProjectTrainer, restoreTrainingVersion, setTrainingTaskStatus } from "@/server/actions/studio";
 import { requireStaff } from "@/server/auth";
 import { getProject, productionTeam, projectFormOptions, studioActor } from "@/server/queries/studio";
 
@@ -21,6 +21,7 @@ export const metadata: Metadata = { title: "Projet de formation — Studio" };
 const HISTORY_LABELS: Record<string, string> = {
   ...Object.fromEntries(Object.entries(TRAINING_STATUS).map(([k, v]) => [k, v.label])),
   course_created: "Formation créée en brouillon",
+  version_restored: "Version précédente restaurée",
 };
 const COURSE_STATUS: Record<string, string> = { draft: "Brouillon (en écriture)", review: "Soumise à l’équipe pédagogique", published: "Publiée" };
 const EDITABLE = ["brief", "design", "production"];
@@ -340,11 +341,29 @@ export default async function ProjectPage(props: PageProps<"/admin/studio/[proje
             {versions.length ? (
               <ul className="divide-y divide-line">
                 {versions.map((v) => (
-                  <li key={v.id} className="px-5 py-3">
-                    <p className="font-medium text-ink-900">Version {v.version}</p>
-                    <p className="text-caption text-ink-500">
-                      Approuvée {v.approver ? `par ${displayName(v.approver)} ` : ""}le {formatDateTime(v.approved_at)}
-                    </p>
+                  <li key={v.id} className="space-y-2 px-5 py-3">
+                    <div>
+                      <p className="font-medium text-ink-900">Version {v.version}</p>
+                      <p className="text-caption text-ink-500">
+                        Approuvée {v.approver ? `par ${displayName(v.approver)} ` : ""}le {formatDateTime(v.approved_at)}
+                      </p>
+                      <p className="text-caption text-ink-500">
+                        {v.modules} module(s) · {v.lessons} leçon(s) · {v.questions} question(s)
+                      </p>
+                    </div>
+                    {actor.manage && p.course_id && (p.status === "design" || p.status === "production") && v.version < p.version ? (
+                      <ActionButton
+                        action={restoreTrainingVersion.bind(null, p.id, v.version)}
+                        confirm={{
+                          title: `Restaurer la version ${v.version} ?`,
+                          description: "Le contenu actuel de la formation est remplacé par celui de cette version. Rien n’est supprimé : ce qui n’y figure pas est archivé, et les leçons déjà suivies sont reprises avec la progression des collaborateurs. La formation devra être relue et approuvée à nouveau.",
+                          confirmLabel: `Restaurer la version ${v.version}`,
+                          tone: "primary",
+                        }}
+                      >
+                        <History aria-hidden /> Restaurer cette version
+                      </ActionButton>
+                    ) : null}
                   </li>
                 ))}
               </ul>

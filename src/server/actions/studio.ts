@@ -134,3 +134,17 @@ export async function setTrainingStatus(_prev: ActionState, formData: FormData):
   const { id, status, note } = parsed.data;
   return call("set_training_status", { p_project: id, p_status: status, p_note: note ?? null }, projectPaths(id), `Étape « ${TRAINING_STATUS[status].label} » enregistrée.`);
 }
+
+/** Brings an approved version back while a new one is prepared (lessons reused, nothing deleted). */
+export async function restoreTrainingVersion(projectId: string, version: number): Promise<ActionState> {
+  await requireViewer();
+  if (!uuidSchema.safeParse(projectId).success || !Number.isInteger(version)) return { ok: false, message: messageFor("not_found") };
+  const { data, error } = await (await createClient()).rpc("restore_training_version", { p_project: projectId, p_version: version });
+  if (error) return { ok: false, message: errorMessage(error) };
+  const r = data as { lessons_reused: number; lessons_created: number; questions: number };
+  revalidatePath(`/admin/studio/${projectId}`);
+  return {
+    ok: true,
+    message: `Version ${version} restaurée : ${r.lessons_reused} leçon(s) reprise(s) avec leur progression, ${r.lessons_created} recréée(s), ${r.questions} question(s). Faites-la relire et approuver.`,
+  };
+}
