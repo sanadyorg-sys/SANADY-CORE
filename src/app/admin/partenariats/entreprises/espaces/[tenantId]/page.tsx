@@ -5,6 +5,7 @@ import { ArrowLeft, BadgeCheck, Check, Circle, Pencil, RotateCcw, ShieldCheck, T
 import { ActionButton } from "@/components/common/action-button";
 import { AuthorizeTenantForm, DeletionDateForm, InviteTenantAdminForm, TenantForm, TenantStatusForm } from "@/components/enterprise/tenant-forms";
 import { AssessmentPolicyForm } from "@/components/enterprise/assessment-form";
+import { DeletionCard } from "@/components/enterprise/deletion-card";
 import { LogoForm } from "@/components/enterprise/logo-form";
 import { HistoryList } from "@/components/partnerships/timeline";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ import { approveAssessmentPolicy, removeAssessmentPolicy } from "@/server/action
 import { removeTenantLogo } from "@/server/actions/logo";
 import { authorizeTenantExport, confirmTenantSecurity, generateWorkspace } from "@/server/actions/enterprise";
 import { requireEnterpriseStaff } from "@/server/auth";
-import { assessmentPolicy, enterpriseActor, getTenant, tenantUsageRecords } from "@/server/queries/enterprise";
+import { assessmentPolicy, enterpriseActor, getTenant, tenantDeletion, tenantUsageRecords } from "@/server/queries/enterprise";
 
 export const metadata: Metadata = { title: "Espace de formation — Enterprise" };
 
@@ -32,6 +33,14 @@ const HISTORY_LABELS: Record<string, string> = {
   assessment_policy_saved: "Règles d’évaluation enregistrées (à approuver)",
   assessment_policy_approved: "Règles d’évaluation approuvées",
   assessment_policy_removed: "Règles d’évaluation retirées (règle SANADY)",
+  deletion_proposed: "Suppression des données proposée",
+  deletion_notice_sent: "Avis de suppression envoyé à l’organisation",
+  deletion_data_delivered: "Données remises à l’organisation",
+  deletion_on_hold: "Suppression suspendue",
+  deletion_hold_lifted: "Suspension de la suppression levée",
+  deletion_confirmed: "Suppression confirmée (délai de 30 jours)",
+  deletion_cancelled: "Suppression annulée",
+  deletion_executed: "Données supprimées (certificat de suppression)",
   admin_invited: "Administrateur de l’entreprise invité",
   export_authorized: "Export des données autorisé",
   deletion_scheduled: "Suppression des données programmée",
@@ -44,7 +53,7 @@ export default async function TenantPage(props: PageProps<"/admin/partenariats/e
   const [detail, actor] = await Promise.all([getTenant(tenantId), enterpriseActor(viewer)]);
   if (!detail) notFound();
   const { tenant: t, checklist, usage, history, contacts, proposals } = detail;
-  const [readings, policy] = await Promise.all([t.institution_id ? tenantUsageRecords(t.id) : null, assessmentPolicy(t.id)]);
+  const [readings, policy, del] = await Promise.all([t.institution_id ? tenantUsageRecords(t.id) : null, assessmentPolicy(t.id), tenantDeletion(t.id)]);
   const month = new Date().toISOString().slice(0, 7) + "-01";
   const monthLabel = (d: string) => new Date(d).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
   const open = !["closed", "cancelled"].includes(t.status);
@@ -210,6 +219,15 @@ export default async function TenantPage(props: PageProps<"/admin/partenariats/e
               </div>
             </CardBody>
           </Card>
+
+          <DeletionCard
+            tenant={t}
+            deletion={del.deletion}
+            blockers={del.blockers}
+            actor={{ manager: actor.manager, signatory: actor.signatory, admin: viewer.isSanadyAdmin }}
+            viewerId={viewer.id}
+            viewerName={displayName(viewer.profile)}
+          />
 
           <Card id="logo">
             <CardHeader title="Logo de l’entreprise" description="Affiché dans l’espace de l’entreprise et, à côté du logo de la Fondation, sur les documents de ses propres formations." />

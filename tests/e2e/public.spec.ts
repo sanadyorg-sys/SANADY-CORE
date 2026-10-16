@@ -304,3 +304,10 @@ test("the client course preview requires signing in", async ({ page }) => {
   await page.goto("/etablissement/00000000-0000-0000-0000-000000000000/projets/00000000-0000-0000-0000-000000000000/apercu");
   await expect(page).toHaveURL(/\/connexion/);
 });
+
+test("the daily job refuses calls without its secret, and deletion pages require signing in", async ({ page, request }) => {
+  expect((await request.get("/api/cron/daily")).status()).toBe(401);
+  expect((await request.get("/api/cron/daily", { headers: { authorization: "Bearer devine" } })).status()).toBe(401);
+  await page.goto("/admin/partenariats/entreprises/espaces/00000000-0000-0000-0000-000000000000/certificat-suppression");
+  await expect(page).toHaveURL(/\/connexion/);
+});

@@ -37,6 +37,10 @@ Never prefix the service-role key with `NEXT_PUBLIC_`.
 2. Add the environment variables (Production and Preview — use a separate Supabase project for Preview).
 3. Deploy. `proxy.ts` runs on every navigation to refresh sessions.
 
+### Daily job (`CRON_SECRET`)
+
+`vercel.json` schedules `/api/cron/daily` every day at 04:00 UTC: last month's usage readings, deletions **already confirmed by two people** whose 30-day delay has passed (with their files), and the retention purge of old requests. Set a long random `CRON_SECRET` in Vercel (Production): Vercel sends it to the job, which refuses any call without it. As a fallback, the same work runs when the Enterprise team opens its inbox.
+
 ## 4. First administrator
 
 ```bash

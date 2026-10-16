@@ -74,6 +74,18 @@ Tout est appliqué par la base de données : un collaborateur ne peut ni changer
 
 **Fin de contrat** : « Enregistrer la fin du contrat » (motif obligatoire) → plus aucune nouvelle invitation → un approbateur **autorise l’export** → fixez la **date de suppression** des données → **Fermer l’espace** (accès retirés). Rien n’est supprimé immédiatement.
 
+**Suppression des données** (carte du même nom) — **jamais automatique** :
+
+1. Le responsable entreprises **propose la suppression** (motif).
+2. Il **prévient l’organisation par écrit** : un avis est pré-rédigé (« Copier le texte de l’avis ») ; il enregistre la date d’envoi et le destinataire.
+3. Il **remet ses données** à l’organisation et enregistre comment (ou l’écrit de l’organisation qui n’en veut pas).
+4. Chacun peut **suspendre** la suppression (renouvellement, désaccord, demande légale), avec un motif.
+5. Une **deuxième personne** — un approbateur ou un administrateur SANADY, jamais celle qui a proposé — **confirme**, une fois la date arrivée, sans facture impayée ni contrat en cours. La carte indique ce qui manque.
+6. **30 jours** restent pour annuler ou suspendre ; ensuite la suppression est faite par la tâche quotidienne.
+7. Un **certificat de suppression** (version imprimable) est remis à l’organisation.
+
+Supprimé : les comptes utilisés uniquement pour cet espace (avec leurs progressions, résultats et attestations), les rattachements des autres personnes, les formations propres à l’entreprise et leurs fichiers, les demandes d’assistance, le logo, l’espace. Conservé : l’organisation, les contrats, factures et paiements, les relevés d’utilisation (totaux sans nom), l’historique. « À surveiller » signale les dates de suppression à moins de 30 jours et les suppressions en cours. La plateforme ne supprime jamais les espaces des écoles ni les fiches des partenaires.
+
 ## 6. Studio de production (formations sur mesure)
 
 Menu **Studio de production**. Un projet se crée depuis la fiche du client (**Nouveau projet**).
@@ -97,7 +109,7 @@ Mise à jour d’une formation lancée : « Préparer une nouvelle version », p
 2. **Modifier** : modèle de tarification, dates, limites (collaborateurs, stockage, vidéo), support, propriété des données et des contenus, résiliation, espace de formation rattaché.
 3. **Soumettre à la revue interne** ; un **approbateur** approuve. La signature a lieu hors de la plateforme : l’approbateur joint l’**exemplaire signé** (PDF) puis **enregistre la signature** avec la date.
 4. **Démarrer le contrat**, puis **Appliquer les limites à l’espace de formation**.
-5. Chaque mois, sur la page de l’espace : **Enregistrer le relevé** (actifs, inscrits, parcours terminés, stockage). Un **dépassement** est signalé : indiquez la suite donnée (avenant, régularisation…). Rien n’est facturé automatiquement.
+5. Chaque mois, le **relevé du mois précédent est enregistré automatiquement** (actifs, inscrits, parcours terminés, stockage) ; « Enregistrer le relevé » reste possible à tout moment. Un **dépassement** est signalé : indiquez la suite donnée (avenant, régularisation…). Rien n’est facturé automatiquement.
 6. À l’approche de l’échéance (rappel dans « À surveiller ») : **Ouvrir le renouvellement**, fixer la nouvelle échéance, puis **reprendre** le contrat — ou le **clore** avec un motif.
 
 ## 8. Finances (montants enregistrés, rien n’est facturé par la plateforme)

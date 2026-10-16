@@ -84,7 +84,7 @@ export function AppShell({
   );
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[264px_minmax(0,1fr)]">
+    <div className="min-h-dvh lg:grid lg:grid-cols-[264px_minmax(0,1fr)] print:block">
       <a
         href="#contenu"
         className="sr-only z-[70] rounded-md bg-brand-700 px-4 py-2 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
@@ -92,10 +92,10 @@ export function AppShell({
         Aller au contenu
       </a>
 
-      <aside className="sticky top-0 hidden h-dvh border-r border-line bg-surface lg:block">{sidebar()}</aside>
+      <aside className="sticky top-0 hidden h-dvh border-r border-line bg-surface lg:block print:hidden">{sidebar()}</aside>
 
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-line bg-surface/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-surface/85 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-line bg-surface/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-surface/85 sm:px-6 lg:px-8 print:hidden">
           <Drawer
             open={mobileOpen}
             onOpenChange={setMobileOpen}

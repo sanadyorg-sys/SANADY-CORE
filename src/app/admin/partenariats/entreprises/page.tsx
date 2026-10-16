@@ -9,7 +9,8 @@ import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { displayName, formatDate, formatDateTime, formatRelative } from "@/lib/format";
 import { EMPLOYEE_COUNTS, ENTERPRISE_SERVICES, REQUEST_STATUS, type RequestStatus } from "@/lib/enterprise";
 import { requireEnterpriseStaff } from "@/server/auth";
-import { enterpriseWatchlist, listClients, listProposals, listRequests, openEnterpriseTasks, purgeExpiredRequests, requestCounts } from "@/server/queries/enterprise";
+import { runHousekeeping } from "@/server/housekeeping";
+import { enterpriseWatchlist, listClients, listProposals, listRequests, openEnterpriseTasks, requestCounts } from "@/server/queries/enterprise";
 
 export const metadata: Metadata = { title: "SANADY Enterprise — demandes" };
 
@@ -25,7 +26,8 @@ export default async function EnterpriseInboxPage(props: PageProps<"/admin/parte
   await requireEnterpriseStaff();
   const sp = await props.searchParams;
   const tab = typeof sp.onglet === "string" && sp.onglet in TABS ? sp.onglet : "ouvertes";
-  await purgeExpiredRequests().catch((e) => console.error("[enterprise] retention", e));
+  // Fallback for the daily job: readings, confirmed deletions due, retention purge.
+  await runHousekeeping().catch((e) => console.error("[enterprise] housekeeping", e));
   const [rows, counts, tasks, clients, proposals, watch] = await Promise.all([
     listRequests({ status: TABS[tab]!.status }),
     requestCounts(),
@@ -118,7 +120,7 @@ export default async function EnterpriseInboxPage(props: PageProps<"/admin/parte
           )}
         </div>
         <div className="space-y-6 self-start">
-        {watch && (watch.renewals.length || watch.overages.length || watch.approvals || watch.support_waiting) ? (
+        {watch && (watch.renewals.length || watch.overages.length || watch.approvals || watch.support_waiting || watch.deletions.length) ? (
           <Card>
             <CardHeader title="À surveiller" description={watch.approvals ? `${watch.approvals} contrat(s) en attente d’un approbateur` : "Renouvellements et dépassements"} />
             <ul className="divide-y divide-line">
@@ -130,6 +132,24 @@ export default async function EnterpriseInboxPage(props: PageProps<"/admin/parte
                   {watch.support_urgent ? <span className="block text-caption font-semibold text-danger-600">dont {watch.support_urgent} urgente(s) sans réponse</span> : null}
                 </li>
               ) : null}
+              {watch.deletions.map((d) => (
+                <li key={`d-${d.tenant_id}`} className="px-5 py-3">
+                  <Link href={`/admin/partenariats/entreprises/espaces/${d.tenant_id}#suppression`} className="font-medium text-ink-900 hover:text-accent-700 hover:underline">
+                    Suppression des données : {d.tenant}
+                  </Link>
+                  <span className={d.status === "confirmed" || d.due_on <= today ? "block text-caption font-semibold text-danger-600" : "block text-caption text-warning-700"}>
+                    {d.on_hold
+                      ? "Suspendue"
+                      : d.status === "confirmed"
+                        ? `Confirmée — exécution à partir du ${d.execute_after ? formatDate(d.execute_after) : "—"}`
+                        : d.status === "proposed"
+                          ? `Proposée — date prévue le ${formatDate(d.due_on)}`
+                          : d.due_on <= today
+                            ? `Date prévue dépassée (${formatDate(d.due_on)}) : à proposer ou reporter`
+                            : `Prévue le ${formatDate(d.due_on)} : prévenir l’organisation`}
+                  </span>
+                </li>
+              ))}
               {watch.renewals.map((r) => (
                 <li key={`r-${r.id}`} className="px-5 py-3">
                   <Link href={`/admin/partenariats/entreprises/contrats/${r.id}`} className="font-medium text-ink-900 hover:text-accent-700 hover:underline">

@@ -258,9 +258,9 @@ export async function enterpriseActor(viewer: Viewer) {
 
 /** Retention: closed requests without follow-up, 24 months after closure (files first). */
 export async function purgeExpiredRequests() {
-  const supabase = await createClient();
+  // Server-side job: also runs without a signed-in person (daily schedule).
   const cutoff = new Date(Date.now() - 730 * 24 * 3600 * 1000).toISOString();
-  const { data } = await supabase.from("enterprise_requests").select("id").in("status", ["declined", "withdrawn", "spam"]).lt("updated_at", cutoff).limit(50);
+  const { data } = await createAdminClient().from("enterprise_requests").select("id").in("status", ["declined", "withdrawn", "spam"]).lt("updated_at", cutoff).limit(50);
   const ids = ((data ?? []) as Array<{ id: string }>).map((r) => r.id);
   if (!ids.length) return 0;
   const admin = createAdminClient();
@@ -316,6 +316,7 @@ export interface TenantDetail extends TenantRow {
   export_authorized_at: string | null;
   deletion_due_on: string | null;
   closed_at: string | null;
+  data_deleted_at: string | null;
   created_at: string;
   authorizer: Person;
   checker: Person;
@@ -507,6 +508,7 @@ export async function enterpriseWatchlist() {
     approvals: number;
     support_waiting: number;
     support_urgent: number;
+    deletions: Array<{ tenant_id: string; tenant: string; due_on: string; status: "proposed" | "confirmed" | null; execute_after: string | null; on_hold: boolean }>;
   } | null;
 }
 
@@ -543,4 +545,49 @@ export async function workspaceAssessmentPolicy(institutionId: string) {
   if (!t) return null;
   const policy = await assessmentPolicy((t as { id: string }).id);
   return policy?.status === "approved" ? policy : null;
+}
+
+export interface DataDeletion {
+  id: string;
+  tenant_id: string;
+  status: "proposed" | "confirmed" | "cancelled" | "executed";
+  reason: string;
+  proposed_at: string;
+  notice_sent_on: string | null;
+  notice_recipient: string | null;
+  data_delivered_on: string | null;
+  delivery_method: string | null;
+  hold_reason: string | null;
+  held_at: string | null;
+  confirmed_at: string | null;
+  confirm_reason: string | null;
+  execute_after: string | null;
+  cancelled_at: string | null;
+  cancel_reason: string | null;
+  executed_at: string | null;
+  certificate: {
+    organisation: string; space: string; executed_at: string; proposed_at: string; proposed_by: string | null; confirmed_at: string; confirmed_by: string | null;
+    notice_sent_on: string; data_delivered_on: string; delivery_method: string;
+    deleted: { accounts: number; memberships: number; courses: number; files: number; support_requests: number };
+    kept: string;
+  } | null;
+  proposed_by: string | null;
+  proposer: Person;
+  confirmer: Person;
+}
+
+/** The deletion in progress for a company space (or the last one), and what still blocks it. */
+export async function tenantDeletion(tenantId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("data_deletions")
+    .select("*, proposer:profiles!data_deletions_proposed_by_fkey(full_name, email), confirmer:profiles!data_deletions_confirmed_by_fkey(full_name, email)")
+    .eq("tenant_id", tenantId)
+    .order("proposed_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const deletion = (data ?? null) as DataDeletion | null;
+  if (!deletion) return { deletion: null, blockers: [] as string[] };
+  const { data: blockers } = deletion.status === "proposed" ? await supabase.rpc("deletion_blockers", { p_deletion: deletion.id }) : { data: [] };
+  return { deletion, blockers: ((blockers ?? []) as string[]) };
 }
