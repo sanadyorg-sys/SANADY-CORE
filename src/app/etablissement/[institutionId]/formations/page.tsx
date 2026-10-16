@@ -4,19 +4,21 @@ import { Clock, Library } from "lucide-react";
 import { CourseCover } from "@/components/learning/course-card";
 import { buttonClasses } from "@/components/ui/button";
 import { EmptyState, ProgressBar } from "@/components/ui/feedback";
-import { Badge, Card, PageHeader } from "@/components/ui/surface";
+import { Alert, Badge, Card, PageHeader } from "@/components/ui/surface";
 import { formatDuration } from "@/lib/format";
 import { COURSE_LEVELS } from "@/lib/labels";
 import { requireInstitutionViewer } from "@/server/auth";
 import { getAuthorizedCourses } from "@/server/queries/institution";
-import { wording } from "@/lib/enterprise";
+import { ASSESSMENT_FEEDBACK, wording } from "@/lib/enterprise";
+import { workspaceAssessmentPolicy } from "@/server/queries/enterprise";
 
 export const metadata: Metadata = { title: "Formations autorisées" };
 
 export default async function AuthorizedCoursesPage(props: PageProps<"/etablissement/[institutionId]/formations">) {
   const { institutionId } = await props.params;
-  const say = wording((await requireInstitutionViewer(institutionId)).institution.kind);
-  const courses = await getAuthorizedCourses(institutionId);
+  const { institution } = await requireInstitutionViewer(institutionId);
+  const say = wording(institution.kind);
+  const [courses, policy] = await Promise.all([getAuthorizedCourses(institutionId), institution.kind === "enterprise" ? workspaceAssessmentPolicy(institutionId) : null]);
   const base = `/etablissement/${institutionId}/formations`;
 
   return (
@@ -25,6 +27,13 @@ export default async function AuthorizedCoursesPage(props: PageProps<"/etablisse
         title="Formations autorisées"
         description={say("Formations que SANADY a autorisées pour votre établissement. Affectez-les aux enseignants concernés.")}
       />
+      {policy ? (
+        <Alert tone="info" className="mb-4" title="Règles d’évaluation de votre entreprise">
+          {policy.pass_threshold} % pour réussir chaque évaluation, {policy.max_attempts} tentative{policy.max_attempts > 1 ? "s" : ""} ; bonnes réponses : {ASSESSMENT_FEEDBACK[policy.feedback].toLowerCase()} ;{" "}
+          {policy.certificates ? "document délivré à la fin du parcours" : "pas de document de fin (la formation est marquée terminée)"}
+          {policy.enforce_due_dates ? " ; les évaluations se ferment à la date limite que vous fixez en affectant une formation" : ""}.
+        </Alert>
+      ) : null}
       {courses.length === 0 ? (
         <Card>
           <EmptyState

@@ -121,6 +121,7 @@ const MESSAGES: Record<string, string> = {
   quiz_locked: "Terminez toutes les leçons obligatoires du module pour accéder à l’évaluation.",
   quiz_empty: "Cette évaluation ne contient pas encore de questions.",
   quiz_already_passed: "Vous avez déjà réussi cette évaluation.",
+  assessment_closed: "La date limite fixée par votre entreprise pour cette formation est passée : l’évaluation est close. Contactez votre administrateur.",
   attempts_exhausted:
     "Vous avez utilisé vos trois tentatives. Une intervention de l’administration SANADY est nécessaire pour poursuivre.",
   attempt_already_submitted: "Cette tentative a déjà été soumise.",

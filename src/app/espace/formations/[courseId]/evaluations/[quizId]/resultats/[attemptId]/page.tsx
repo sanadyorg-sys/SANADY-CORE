@@ -76,6 +76,11 @@ export default async function AttemptResultPage(
           poursuivre.
         </Alert>
       ) : null}
+      {result.passed && !result.answers_revealed ? (
+        <Alert tone="info" className="mt-6">
+          Selon les règles d’évaluation fixées par votre entreprise, les bonnes réponses ne sont pas affichées.
+        </Alert>
+      ) : null}
       {!result.passed && !result.answers_revealed ? (
         <Alert tone="info" className="mt-6">
           Les bonnes réponses ne sont pas affichées afin que vos prochaines tentatives restent représentatives. Appuyez-vous sur les

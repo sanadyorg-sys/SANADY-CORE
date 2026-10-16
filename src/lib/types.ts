@@ -294,6 +294,11 @@ export interface QuizStatus {
   unlocked: boolean;
   question_count: number;
   exhausted: boolean;
+  /** A company's approved assessment policy applies (SANADY Enterprise). */
+  company_policy?: boolean;
+  due_on?: string | null;
+  /** The company's due date has passed: no new attempt. */
+  closed?: boolean;
 }
 
 export interface AttemptQuestion {

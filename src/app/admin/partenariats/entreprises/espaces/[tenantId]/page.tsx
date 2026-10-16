@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Check, Circle, Pencil, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Check, Circle, Pencil, RotateCcw, ShieldCheck, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { AuthorizeTenantForm, DeletionDateForm, InviteTenantAdminForm, TenantForm, TenantStatusForm } from "@/components/enterprise/tenant-forms";
+import { AssessmentPolicyForm } from "@/components/enterprise/assessment-form";
 import { LogoForm } from "@/components/enterprise/logo-form";
 import { HistoryList } from "@/components/partnerships/timeline";
 import { Button } from "@/components/ui/button";
@@ -11,14 +12,15 @@ import { Drawer } from "@/components/ui/overlay";
 import { Alert, Badge, Card, CardBody, CardHeader, DescriptionList, PageHeader } from "@/components/ui/surface";
 import { cn } from "@/lib/cn";
 import { displayName, formatDate, formatDateTime } from "@/lib/format";
-import { SERVICE_PLANS, TENANT_STATUS, TENANT_STEPS, tenantNextSteps } from "@/lib/enterprise";
+import { ASSESSMENT_FEEDBACK, SANADY_ASSESSMENT, SERVICE_PLANS, TENANT_STATUS, TENANT_STEPS, tenantNextSteps } from "@/lib/enterprise";
 import { uuidSchema } from "@/lib/validation";
 import { OverageReviewForm } from "@/components/enterprise/contract-forms";
 import { recordTenantUsage } from "@/server/actions/contracts";
+import { approveAssessmentPolicy, removeAssessmentPolicy } from "@/server/actions/assessment";
 import { removeTenantLogo } from "@/server/actions/logo";
 import { authorizeTenantExport, confirmTenantSecurity, generateWorkspace } from "@/server/actions/enterprise";
 import { requireEnterpriseStaff } from "@/server/auth";
-import { enterpriseActor, getTenant, tenantUsageRecords } from "@/server/queries/enterprise";
+import { assessmentPolicy, enterpriseActor, getTenant, tenantUsageRecords } from "@/server/queries/enterprise";
 
 export const metadata: Metadata = { title: "Espace de formation — Enterprise" };
 
@@ -27,6 +29,9 @@ const HISTORY_LABELS: Record<string, string> = {
   security_checked: "Contrôles de sécurité effectués",
   logo_updated: "Logo de l’entreprise mis à jour",
   logo_removed: "Logo de l’entreprise retiré",
+  assessment_policy_saved: "Règles d’évaluation enregistrées (à approuver)",
+  assessment_policy_approved: "Règles d’évaluation approuvées",
+  assessment_policy_removed: "Règles d’évaluation retirées (règle SANADY)",
   admin_invited: "Administrateur de l’entreprise invité",
   export_authorized: "Export des données autorisé",
   deletion_scheduled: "Suppression des données programmée",
@@ -39,7 +44,7 @@ export default async function TenantPage(props: PageProps<"/admin/partenariats/e
   const [detail, actor] = await Promise.all([getTenant(tenantId), enterpriseActor(viewer)]);
   if (!detail) notFound();
   const { tenant: t, checklist, usage, history, contacts, proposals } = detail;
-  const readings = t.institution_id ? await tenantUsageRecords(t.id) : null;
+  const [readings, policy] = await Promise.all([t.institution_id ? tenantUsageRecords(t.id) : null, assessmentPolicy(t.id)]);
   const month = new Date().toISOString().slice(0, 7) + "-01";
   const monthLabel = (d: string) => new Date(d).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
   const open = !["closed", "cancelled"].includes(t.status);
@@ -144,6 +149,65 @@ export default async function TenantPage(props: PageProps<"/admin/partenariats/e
                   { term: "Sécurité vérifiée par", value: t.checker ? `${displayName(t.checker)}${t.security_checked_at ? ` le ${formatDateTime(t.security_checked_at)}` : ""}` : "—" },
                 ]}
               />
+            </CardBody>
+          </Card>
+
+          <Card id="evaluations">
+            <CardHeader
+              title="Règles d’évaluation"
+              description="Par défaut, la règle SANADY : 70 % pour réussir, 3 tentatives, réponses montrées après la réussite, document à la fin. Des règles propres à l’entreprise s’appliquent une fois approuvées."
+              actions={policy ? <Badge tone={policy.status === "approved" ? "success" : "warning"}>{policy.status === "approved" ? "Approuvées" : "À approuver"}</Badge> : <Badge>Règle SANADY</Badge>}
+            />
+            <CardBody className="space-y-4">
+              {policy ? (
+                <DescriptionList
+                  items={[
+                    { term: "Seuil de réussite", value: `${policy.pass_threshold} %` },
+                    { term: "Tentatives", value: policy.max_attempts },
+                    { term: "Bonnes réponses", value: ASSESSMENT_FEEDBACK[policy.feedback] },
+                    { term: "Document de fin", value: policy.certificates ? "Délivré" : "Non délivré (formation marquée terminée)" },
+                    { term: "Date limite", value: policy.enforce_due_dates ? "Close les évaluations après la date fixée par l’entreprise" : "Indicative" },
+                    { term: "Approbation", value: policy.status === "approved" && policy.approved_at ? `${policy.approver ? displayName(policy.approver) : "—"} le ${formatDateTime(policy.approved_at)}` : "En attente d’un approbateur" },
+                  ]}
+                />
+              ) : (
+                <p className="text-body text-ink-600">
+                  Règle SANADY : {SANADY_ASSESSMENT.pass_threshold} %, {SANADY_ASSESSMENT.max_attempts} tentatives.
+                </p>
+              )}
+              {policy?.note ? <p className="text-label text-ink-600">{policy.note}</p> : null}
+              <div className="flex flex-wrap gap-2">
+                {actor.signatory && policy?.status === "draft" ? (
+                  <ActionButton variant="primary" action={approveAssessmentPolicy.bind(null, t.id)}>
+                    <BadgeCheck aria-hidden /> Approuver les règles
+                  </ActionButton>
+                ) : null}
+                {actor.manager ? (
+                  <Drawer
+                    title="Règles d’évaluation de l’entreprise"
+                    description="Toute modification devra être approuvée à nouveau ; elle ne change que les nouvelles tentatives."
+                    width="max-w-xl"
+                    trigger={
+                      <Button variant="secondary" size="sm">
+                        <Pencil aria-hidden /> {policy ? "Modifier les règles" : "Définir des règles propres"}
+                      </Button>
+                    }
+                  >
+                    <div className="p-5">
+                      <AssessmentPolicyForm tenantId={t.id} policy={policy} contracts={(readings?.contracts ?? []).map((c) => ({ id: c.id, label: c.reference }))} />
+                    </div>
+                  </Drawer>
+                ) : null}
+                {actor.manager && policy ? (
+                  <ActionButton
+                    variant="ghost"
+                    action={removeAssessmentPolicy.bind(null, t.id)}
+                    confirm={{ title: "Revenir à la règle SANADY ?", description: "Les nouvelles tentatives suivront 70 % et 3 tentatives.", confirmLabel: "Revenir à la règle SANADY", tone: "primary" }}
+                  >
+                    <RotateCcw aria-hidden /> Revenir à la règle SANADY
+                  </ActionButton>
+                ) : null}
+              </div>
             </CardBody>
           </Card>
 

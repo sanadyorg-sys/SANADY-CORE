@@ -60,6 +60,14 @@ Un **espace de formation** est l’espace sécurisé d’un client : ses collabo
 6. Un **administrateur SANADY** confirme les contrôles de sécurité.
 7. **Activer l’espace** : refusé tant qu’une étape manque.
 
+**Règles d’évaluation** (page de l’espace, carte « Règles d’évaluation ») : par défaut, la règle SANADY s’applique — 70 % pour réussir, 3 tentatives, bonnes réponses montrées après la réussite, document à la fin. Si le contrat le prévoit :
+
+1. Le responsable entreprises définit des **règles propres** : seuil de réussite (50 à 100 %), nombre de tentatives (1 à 10), quand montrer les bonnes réponses (après la réussite, après chaque tentative, jamais), délivrance ou non du document de fin, et fermeture des évaluations à la **date limite** que l’entreprise fixe en affectant une formation.
+2. Un **approbateur** les approuve ; elles ne s’appliquent qu’ensuite. Toute modification demande une nouvelle approbation ; « Revenir à la règle SANADY » les retire.
+3. Elles s’appliquent aux collaborateurs de l’entreprise, sur les formations que l’entreprise leur a affectées ou qui lui appartiennent, et **seulement aux nouvelles tentatives** (une tentative garde la règle de son début). Les enseignants de SANADY ne sont jamais concernés. L’administrateur de l’entreprise les voit dans « Formations autorisées ».
+
+Tout est appliqué par la base de données : un collaborateur ne peut ni changer son score ni obtenir une tentative de plus.
+
 **Logo de l’entreprise** (page de l’espace, carte « Logo de l’entreprise ») : le responsable entreprises enregistre le logo fourni par l’entreprise — PNG ou JPEG, 1 Mo au plus (le SVG est refusé). Il apparaît dans l’en-tête de l’espace de l’entreprise et de ses collaborateurs, et à côté du logo de la Fondation (qui reste) sur les attestations et certificats des formations propres à l’entreprise. Remplacer ou retirer le logo supprime l’ancien fichier.
 
 **Ensuite**, l’administrateur de l’entreprise invite ses collaborateurs (un par un ou par liste/CSV), crée des **services**, affecte les formations et suit la progression. La limite de collaborateurs du contrat est appliquée automatiquement (invitations en attente comprises).

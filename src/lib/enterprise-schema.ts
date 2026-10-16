@@ -260,3 +260,20 @@ export const planSchema = z.object({
   support_level: optionalText(200),
   support_commitments: optionalText(2000),
 });
+
+/** Company assessment policy (mirrors public.enterprise_assessment_policies). */
+export const assessmentPolicySchema = z.object({
+  pass_threshold: z
+    .string()
+    .trim()
+    .refine((v) => /^\d{2,3}$/.test(v) && Number(v) >= 50 && Number(v) <= 100, "Seuil entre 50 et 100 %."),
+  max_attempts: z
+    .string()
+    .trim()
+    .refine((v) => /^\d{1,2}$/.test(v) && Number(v) >= 1 && Number(v) <= 10, "Entre 1 et 10 tentatives."),
+  feedback: z.enum(["after_pass", "after_each_attempt", "never"], "Choisissez quand montrer les réponses."),
+  certificates: z.preprocess((v) => v === "on" || v === "true", z.boolean()),
+  enforce_due_dates: z.preprocess((v) => v === "on" || v === "true", z.boolean()),
+  contract_id: z.union([z.uuid(), z.literal("")]).optional(),
+  note: optionalText(1000),
+});

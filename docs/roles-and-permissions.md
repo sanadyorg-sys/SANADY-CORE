@@ -158,6 +158,8 @@ Functions in `supabase/migrations/20261018000100_enterprise.sql`; tests in `test
 | Record invoices, payments and costs; cancel an unpaid invoice (E6) | ✅ | — | — |
 | **Confirm a payment** (not one they recorded) | admin ✅ | — | ✅ |
 | Read finances | ✅ | — | ✅ |
+| Define or remove a company's assessment rules (pass mark, attempts, answers shown, document, due dates) | ✅ | — | — |
+| **Approve** a company's assessment rules | — | — | ✅ |
 | Upload, replace or remove a company's logo (PNG/JPEG, 1 MB) | ✅ | — | — |
 | Create and edit service plans and their lines; apply an approved plan to a draft proposal; archive a plan | ✅ | — | — |
 | **Approve a service plan** (it carries prices) | — | — | ✅ |

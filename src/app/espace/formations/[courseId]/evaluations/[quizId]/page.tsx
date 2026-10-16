@@ -7,7 +7,7 @@ import { QuizRunner } from "@/components/learning/quiz-runner";
 import { buttonClasses } from "@/components/ui/button";
 import { Alert, Badge, Card, CardBody, CardHeader } from "@/components/ui/surface";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
-import { formatDateTime, formatScore } from "@/lib/format";
+import { formatDate, formatDateTime, formatScore } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import type { QuizStatus } from "@/lib/types";
 import { requireViewer } from "@/server/auth";
@@ -53,6 +53,7 @@ export default async function QuizPage(props: PageProps<"/espace/formations/[cou
             Tentatives : {status.attempts_used}/{status.max_attempts}
           </Badge>
           {status.best_score !== null ? <Badge>Meilleur score : {formatScore(status.best_score)}</Badge> : null}
+          {status.due_on ? <Badge tone={status.closed ? "danger" : "warning"}>À terminer avant le {formatDate(status.due_on)}</Badge> : null}
         </div>
       </header>
 
@@ -71,6 +72,10 @@ export default async function QuizPage(props: PageProps<"/espace/formations/[cou
           Vous avez utilisé vos {status.max_attempts} tentatives sans atteindre le seuil de {status.pass_threshold} %. Une intervention de
           l’administration SANADY est nécessaire pour vous permettre de repasser cette évaluation. Votre établissement ou l’équipe SANADY
           peut vous accompagner sur les points à retravailler.
+        </Alert>
+      ) : status.closed ? (
+        <Alert tone="danger" title="Évaluation close">
+          La date limite fixée par votre entreprise pour cette formation est passée. Contactez l’administrateur de votre entreprise.
         </Alert>
       ) : !status.unlocked ? (
         <Card>

@@ -127,3 +127,15 @@ describe("support requests", () => {
     expect(supportNextSteps("closed", true)).toEqual([]);
   });
 });
+
+describe("company assessment policy form", () => {
+  it("keeps the pass mark between 50 and 100 % and attempts between 1 and 10", async () => {
+    const { assessmentPolicySchema } = await import("@/lib/enterprise-schema");
+    const base = { pass_threshold: "80", max_attempts: "2", feedback: "never", certificates: "on", enforce_due_dates: "off" };
+    const ok = assessmentPolicySchema.safeParse(base);
+    expect(ok.success && ok.data.certificates === true && ok.data.enforce_due_dates === false).toBe(true);
+    expect(assessmentPolicySchema.safeParse({ ...base, pass_threshold: "40" }).success).toBe(false);
+    expect(assessmentPolicySchema.safeParse({ ...base, max_attempts: "0" }).success).toBe(false);
+    expect(assessmentPolicySchema.safeParse({ ...base, feedback: "always" }).success).toBe(false);
+  });
+});

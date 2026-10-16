@@ -369,3 +369,15 @@ export const PLAN_STATUS = {
   archived: { label: "Archivée", tone: "neutral" },
 } as const;
 export type PlanStatus = keyof typeof PLAN_STATUS;
+
+/* ─── Company assessment policies (migration 20261031000100) ──────────────── */
+
+/** SANADY's own rule, unchanged for teachers. */
+export const SANADY_ASSESSMENT = { pass_threshold: 70, max_attempts: 3 } as const;
+
+export const ASSESSMENT_FEEDBACK = {
+  after_pass: "Après la réussite (règle SANADY)",
+  after_each_attempt: "Après chaque tentative",
+  never: "Jamais (seuls le score et le résultat sont affichés)",
+} as const;
+export type AssessmentFeedback = keyof typeof ASSESSMENT_FEEDBACK;

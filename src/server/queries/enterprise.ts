@@ -509,3 +509,38 @@ export async function enterpriseWatchlist() {
     support_urgent: number;
   } | null;
 }
+
+export interface AssessmentPolicy {
+  id: string;
+  tenant_id: string;
+  contract_id: string | null;
+  pass_threshold: number;
+  max_attempts: number;
+  feedback: "after_pass" | "after_each_attempt" | "never";
+  certificates: boolean;
+  enforce_due_dates: boolean;
+  note: string | null;
+  status: "draft" | "approved";
+  approved_at: string | null;
+  updated_at: string;
+  approver: Person;
+}
+
+/** The company space's assessment policy (team, approvers, the company's administrators). */
+export async function assessmentPolicy(tenantId: string) {
+  const { data } = await (await createClient())
+    .from("enterprise_assessment_policies")
+    .select("*, approver:profiles!enterprise_assessment_policies_approved_by_fkey(full_name, email)")
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+  return (data ?? null) as AssessmentPolicy | null;
+}
+
+/** The approved assessment policy of the company space behind an institution (its administrators read it). */
+export async function workspaceAssessmentPolicy(institutionId: string) {
+  const supabase = await createClient();
+  const { data: t } = await supabase.from("enterprise_tenants").select("id").eq("institution_id", institutionId).maybeSingle();
+  if (!t) return null;
+  const policy = await assessmentPolicy((t as { id: string }).id);
+  return policy?.status === "approved" ? policy : null;
+}
