@@ -98,3 +98,18 @@ export async function contractOptions() {
   const { data } = await supabase.from("enterprise_contracts").select("id, reference, title, currency").in("status", ["signed", "active", "renewal", "closed"]).order("reference");
   return (data ?? []) as Array<{ id: string; reference: string; title: string; currency: string }>;
 }
+
+/** Invoiced and received per month and currency, for the selected period's chart. */
+export async function financeMonthly(from: string, to: string) {
+  const supabase = await createClient();
+  const [{ data: invoices }, { data: payments }] = await Promise.all([
+    supabase.from("enterprise_invoices").select("amount, currency, issued_on").is("cancelled_at", null).gte("issued_on", from).lte("issued_on", to),
+    supabase.from("enterprise_payments").select("amount, received_on, invoice:enterprise_invoices!inner(currency)").gte("received_on", from).lte("received_on", to),
+  ]);
+  const out: Record<string, { invoiced: number[]; received: number[] }> = {};
+  const slot = (cur: string) => (out[cur] ??= { invoiced: Array(12).fill(0), received: Array(12).fill(0) });
+  for (const i of (invoices ?? []) as Array<{ amount: string; currency: string; issued_on: string }>) slot(i.currency).invoiced[Number(i.issued_on.slice(5, 7)) - 1]! += Number(i.amount);
+  for (const p of (payments ?? []) as unknown as Array<{ amount: string; received_on: string; invoice: { currency: string } }>)
+    slot(p.invoice.currency).received[Number(p.received_on.slice(5, 7)) - 1]! += Number(p.amount);
+  return out;
+}

@@ -78,6 +78,9 @@
 
   /* Surfaces */
   --color-canvas: var(--color-ink-50);
+  /* Chart series (validated: lightness, chroma, colour-blind separation, contrast). */
+  --color-chart-1: #c94400;
+  --color-chart-2: #3a72b0;
   --color-surface: var(--color-ink-0);
   --color-line: var(--color-ink-200);
   --color-line-strong: var(--color-ink-300);

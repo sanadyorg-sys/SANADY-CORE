@@ -168,3 +168,22 @@ export async function platformRecounts(metricIds: string[]) {
   );
   return out;
 }
+
+/** Financial contributions actually received per month (delivered or verified), by currency. */
+export async function contributionsMonthly(year: number) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("partnership_contributions")
+    .select("amount_received, currency, received_on, stage")
+    .eq("kind", "financial")
+    .in("stage", ["delivered", "verified"])
+    .gte("received_on", `${year}-01-01`)
+    .lte("received_on", `${year}-12-31`);
+  const out: Record<string, { verified: number[]; pending: number[] }> = {};
+  for (const c of (data ?? []) as Array<{ amount_received: string | null; currency: string; received_on: string | null; stage: string }>) {
+    if (!c.received_on || !c.amount_received) continue;
+    const s = (out[c.currency] ??= { verified: Array(12).fill(0), pending: Array(12).fill(0) });
+    (c.stage === "verified" ? s.verified : s.pending)[Number(c.received_on.slice(5, 7)) - 1]! += Number(c.amount_received);
+  }
+  return out;
+}

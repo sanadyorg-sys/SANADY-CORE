@@ -87,6 +87,8 @@ Mise à jour d’une formation lancée : « Préparer une nouvelle version », p
 - **Paiements** : enregistrez chaque paiement reçu ; il ne peut pas dépasser le reste dû. Une **autre personne** (approbateur ou administrateur) le **confirme** après vérification du relevé bancaire (page **Finances**, « Paiements à confirmer »).
 - **Coûts** : page **Finances** → « Nouveau coût » : catégorie, montant, date, contrat concerné (coût direct) ou coût général, réel ou **estimation**.
 - **Lecture** : contracté, facturé, reçu, confirmé, reste dû et coûts, par devise et par année ; marge et coût par collaborateur affichés comme **estimations**.
+- **Graphique « Facturé et reçu par mois »** pour chaque devise ; survolez un mois pour lire les montants, « Afficher les données » donne le tableau.
+- **Exports CSV pour la comptabilité** (en haut de la page, pour l’année choisie) : factures (avec reçu et reste dû), paiements (confirmés ou non), coûts (réels ou estimés), contrats. Réservés au responsable entreprises, aux administrateurs et aux approbateurs.
 - Sur la fiche d’une organisation, la carte **« Relation avec la Fondation »** montre côte à côte le partenariat (dons, contributions, impact) et les services aux entreprises (contrats, espaces, facturé) — jamais additionnés.
 
 ## 9. Données personnelles

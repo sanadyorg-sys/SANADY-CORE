@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Trash2, Wallet } from "lucide-react";
+import { Download, Trash2, Wallet } from "lucide-react";
 import { ActionButton } from "@/components/common/action-button";
 import { CostForm } from "@/components/enterprise/finance-forms";
+import { BarChart } from "@/components/ui/bar-chart";
+import { buttonClasses } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/feedback";
 import { Alert, Badge, Card, CardBody, CardHeader, PageHeader } from "@/components/ui/surface";
 import { LinkTabs } from "@/components/ui/tabs";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
-import { formatDate } from "@/lib/format";
+import { MONTHS_SHORT, formatDate } from "@/lib/format";
 import { COST_CATEGORIES, INFRASTRUCTURE_COSTS, PAYMENT_METHODS, REVENUE_CATEGORIES } from "@/lib/enterprise";
 import { formatAmount } from "@/lib/partnerships";
 import { confirmPayment, deleteCost } from "@/server/actions/finance";
 import { requireEnterpriseStaff } from "@/server/auth";
 import { enterpriseActor } from "@/server/queries/enterprise";
-import { contractOptions, enterpriseFinance, listCosts, unconfirmedPayments } from "@/server/queries/finance";
+import { contractOptions, enterpriseFinance, financeMonthly, listCosts, unconfirmedPayments } from "@/server/queries/finance";
 
 export const metadata: Metadata = { title: "Finances — Enterprise" };
 
@@ -33,7 +35,7 @@ export default async function FinancePage(props: PageProps<"/admin/partenariats/
   const year = typeof sp.annee === "string" && /^\d{4}$/.test(sp.annee) ? Number(sp.annee) : thisYear;
   const from = `${year}-01-01`;
   const to = `${year}-12-31`;
-  const [f, costs, pending, contracts] = await Promise.all([enterpriseFinance(from, to), listCosts(from, to), unconfirmedPayments(), contractOptions()]);
+  const [f, costs, pending, contracts, monthly] = await Promise.all([enterpriseFinance(from, to), listCosts(from, to), unconfirmedPayments(), contractOptions(), financeMonthly(from, to)]);
   if (!f) return null;
   const amount = (v: string | number | null | undefined, cur: string) => formatAmount(Number(v ?? 0), cur) ?? `0 ${cur}`;
   const infra = (cur: string) =>
@@ -44,6 +46,20 @@ export default async function FinancePage(props: PageProps<"/admin/partenariats/
       <PageHeader
         title="Finances"
         description="Montants enregistrés depuis la comptabilité de la Fondation. La plateforme n’émet aucune facture et n’encaisse aucun paiement."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            {[
+              ["factures", "Factures"],
+              ["paiements", "Paiements"],
+              ["couts", "Coûts"],
+              ["contrats", "Contrats"],
+            ].map(([key, label]) => (
+              <a key={key} href={`/api/exports/entreprises/${key}?annee=${year}`} className={buttonClasses({ variant: "secondary", size: "sm" })}>
+                <Download aria-hidden /> {label} {year} (CSV)
+              </a>
+            ))}
+          </div>
+        }
       />
       <Alert tone="info" className="mb-4">
         Activité proposée. Les marges et coûts par collaborateur sont des <strong>estimations</strong>, pas des résultats comptables audités. Les montants ne sont jamais convertis
@@ -85,6 +101,20 @@ export default async function FinancePage(props: PageProps<"/admin/partenariats/
                       </div>
                     ))}
                   </dl>
+                  {monthly[c.currency] ? (
+                    <div className="mt-5">
+                      <h3 className="mb-2 text-label font-semibold text-ink-800">Facturé et reçu par mois</h3>
+                      <BarChart
+                        title={`Facturé et reçu par mois en ${year}, en ${c.currency}`}
+                        categories={MONTHS_SHORT}
+                        currency={c.currency}
+                        series={[
+                          { key: "invoiced", label: "Facturé", color: "var(--color-chart-1)", values: monthly[c.currency]!.invoiced },
+                          { key: "received", label: "Reçu", color: "var(--color-chart-2)", values: monthly[c.currency]!.received },
+                        ]}
+                      />
+                    </div>
+                  ) : null}
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <p className="rounded-xl bg-ink-50 px-3 py-2 text-label text-ink-700">
                       <strong>Marge de contribution estimée</strong> : {amount(invoiced - direct, c.currency)} (facturé − coûts réels et estimés). Estimation, non auditée.

@@ -95,6 +95,9 @@ Seuls sont comptés les enseignants qui ont accepté de partager leur progressio
 
 **Page Impact** : partenaires en discussion, partenariats actifs, projets, renouvellements, contributions réellement reçues, répartition par domaine, étapes des partenariats et indicateurs vérifiés — uniquement des valeurs réelles.
 
+- Graphique **« Contributions financières reçues par mois »** (année au choix, une devise par graphique, jamais convertie) : vérifiées et à vérifier côte à côte. Survolez un mois pour lire les montants ; « Afficher les données » donne le tableau.
+- **Exports CSV** (en haut de la page, pour l’année choisie) : indicateurs vérifiés (avec leur méthode et leur origine — saisis ou calculés depuis SANADY) et contributions reçues. Fichiers lisibles par Excel (séparateur « ; », virgule décimale).
+
 ## 8. Espace partenaire (désactivé par défaut)
 
 L’espace partenaire permet à un contact d’une organisation partenaire de consulter, **pour son organisation uniquement** : les conventions signées et leurs étapes, les projets soutenus, les **rapports déjà transmis** (PDF), ses **livrables** et la **conversation** avec l’équipe.

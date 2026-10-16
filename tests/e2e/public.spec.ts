@@ -277,3 +277,9 @@ test("enterprise finances require signing in", async ({ page }) => {
   await page.goto("/admin/partenariats/entreprises/finances");
   await expect(page).toHaveURL(/\/connexion/);
 });
+
+test("finance and impact exports refuse anonymous visitors", async ({ request }) => {
+  for (const url of ["/api/exports/entreprises/factures?annee=2026", "/api/exports/entreprises/couts", "/api/exports/partenariats/indicateurs", "/api/exports/partenariats/contributions?annee=2026"]) {
+    expect((await request.get(url)).status()).toBe(401);
+  }
+});

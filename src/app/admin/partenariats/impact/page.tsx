@@ -1,27 +1,34 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BadgeCheck, CalendarClock, FilePenLine, Handshake, HandCoins, Megaphone, Sprout, Users } from "lucide-react";
+import { BadgeCheck, CalendarClock, Download, FilePenLine, Handshake, HandCoins, Megaphone, Sprout, Users } from "lucide-react";
 import { MetricReviewForm } from "@/components/partnerships/impact-forms";
+import { BarChart } from "@/components/ui/bar-chart";
+import { buttonClasses } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/feedback";
+import { LinkTabs } from "@/components/ui/tabs";
 import { Alert, Badge, Card, CardBody, CardHeader, PageHeader, StatTile } from "@/components/ui/surface";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
-import { formatDate } from "@/lib/format";
+import { MONTHS_SHORT, formatDate } from "@/lib/format";
 import { ATTRIBUTIONS, INTERVENTION_FIELDS, METRIC_STATUS, METRIC_TYPES, PIPELINE, dimensionLabel, formatAmount, type PipelineStatus } from "@/lib/partnerships";
 import { requirePartnershipStaff } from "@/server/auth";
-import { listMetrics, partnershipDashboard, platformRecounts } from "@/server/queries/impact";
+import { contributionsMonthly, listMetrics, partnershipDashboard, platformRecounts } from "@/server/queries/impact";
 import { pipelineActor } from "@/server/queries/partnerships";
 
 export const metadata: Metadata = { title: "Impact des partenariats" };
 
 const num = (v: string | number) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }).format(Number(v));
 
-export default async function ImpactPage() {
+export default async function ImpactPage(props: PageProps<"/admin/partenariats/impact">) {
   const viewer = await requirePartnershipStaff();
-  const [d, pending, rejected, actor] = await Promise.all([
+  const sp = await props.searchParams;
+  const thisYear = new Date().getFullYear();
+  const year = typeof sp.annee === "string" && /^\d{4}$/.test(sp.annee) ? Number(sp.annee) : thisYear;
+  const [d, pending, rejected, actor, monthly] = await Promise.all([
     partnershipDashboard(),
     listMetrics({ status: "reported" }),
     listMetrics({ status: "rejected" }),
     pipelineActor(viewer),
+    contributionsMonthly(year),
   ]);
   const recounts = await platformRecounts(pending.filter((m) => m.source === "platform").map((m) => m.id));
   if (!d) return null;
@@ -32,6 +39,16 @@ export default async function ImpactPage() {
       <PageHeader
         title="Impact des partenariats"
         description="Chiffres réels de la plateforme et indicateurs vérifiés par un approbateur. Aucun résultat n’est attribué automatiquement à un partenariat."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <a href={`/api/exports/partenariats/indicateurs?annee=${year}`} className={buttonClasses({ variant: "secondary", size: "sm" })}>
+              <Download aria-hidden /> Indicateurs vérifiés {year} (CSV)
+            </a>
+            <a href={`/api/exports/partenariats/contributions?annee=${year}`} className={buttonClasses({ variant: "secondary", size: "sm" })}>
+              <Download aria-hidden /> Contributions reçues {year} (CSV)
+            </a>
+          </div>
+        }
       />
 
       <section className="mb-6 grid grid-cols-2 gap-4 xl:grid-cols-4" aria-label="Indicateurs clés">
@@ -75,6 +92,34 @@ export default async function ImpactPage() {
                 Voir les contributions
               </Link>
             </p>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader title="Contributions financières reçues par mois" description={`Année ${year}, par devise (jamais convertie). Vérifiées et à vérifier sont montrées séparément.`} />
+          <CardBody className="space-y-6">
+            <LinkTabs
+              activeHref={`/admin/partenariats/impact?annee=${year}`}
+              items={[thisYear - 1, thisYear].map((y) => ({ href: `/admin/partenariats/impact?annee=${y}`, label: String(y) }))}
+            />
+            {Object.keys(monthly).length === 0 ? (
+              <p className="text-body text-ink-600">Aucune contribution financière reçue en {year}.</p>
+            ) : (
+              Object.entries(monthly).map(([cur, m]) => (
+                <div key={cur}>
+                  <h3 className="mb-2 text-label font-semibold text-ink-800">En {cur}</h3>
+                  <BarChart
+                    title={`Contributions financières reçues par mois en ${year}, en ${cur}`}
+                    categories={MONTHS_SHORT}
+                    currency={cur}
+                    series={[
+                      { key: "verified", label: "Vérifiées", color: "var(--color-chart-1)", values: m.verified },
+                      { key: "pending", label: "Reçues, à vérifier", color: "var(--color-chart-2)", values: m.pending },
+                    ]}
+                  />
+                </div>
+              ))
+            )}
           </CardBody>
         </Card>
 

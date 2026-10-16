@@ -96,3 +96,6 @@ export function initials(name: string | null | undefined, email?: string | null)
 export function displayName(profile: { full_name?: string | null; email?: string | null } | null | undefined) {
   return profile?.full_name?.trim() || profile?.email || "Utilisateur";
 }
+
+/** Short French month names, January first (chart axes). */
+export const MONTHS_SHORT = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];

@@ -90,6 +90,7 @@ Functions in `supabase/migrations/20261016000100_partnerships.sql`; tests in `te
 | **Approve an agreement**; attach the signed copy and **record the signature** (date) | — | — | — | ✅ | — | — |
 | Record a contribution (pledge), mark it committed and delivered (what was really received), attach evidence | ✅ | ✅ | ✅ | — | — | — |
 | **Verify a contribution** (evidence required) | — | — | — | ✅ | — | — |
+| Export verified indicators and contributions received (CSV) | ✅ | ✅ | ✅ | ✅ | — | — |
 | Compute an indicator from platform data (totals only, consenting teachers of schools) | ✅ | ✅ | ✅ | — | — | — |
 | Record or correct an impact indicator; prepare a partner report; record that it was shared | ✅ | ✅ | ✅ | — | — | — |
 | **Verify an impact indicator**; **approve a partner report** | — | — | — | ✅ | — | — |
