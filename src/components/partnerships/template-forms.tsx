@@ -117,8 +117,8 @@ export function MessageComposer({
       <input type="hidden" name="organization_id" value={organizationId} />
       <input type="hidden" name="template_id" value={templateId} />
       {!state.ok && state.message ? <FormMessage state={state} /> : null}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Field label="Modèle">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Modèle" className="sm:col-span-2">
           <Select
             value={templateId}
             onChange={(ev) => {

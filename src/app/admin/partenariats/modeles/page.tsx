@@ -61,12 +61,10 @@ export default async function TemplatesPage({ searchParams }: { searchParams: Pr
         <div className="grid gap-4 lg:grid-cols-2">
           {rows.map((t) => (
             <Card key={t.id} className="flex flex-col p-5">
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <h2 className="text-section font-semibold text-ink-900">{t.title}</h2>
-                  <p className="mt-0.5 text-caption text-ink-500">Mis à jour {formatRelative(t.updated_at)}</p>
-                </div>
+              <div>
                 <Badge tone="neutral">{TEMPLATE_CATEGORIES[t.category]}</Badge>
+                <h2 className="mt-2 text-section font-semibold text-ink-900">{t.title}</h2>
+                <p className="mt-0.5 text-caption text-ink-500">Mis à jour {formatRelative(t.updated_at)}</p>
               </div>
               <p className="mt-3 text-label font-medium text-ink-800">{t.subject}</p>
               <p className="mt-1 line-clamp-4 whitespace-pre-line text-body text-ink-600">{t.body}</p>
