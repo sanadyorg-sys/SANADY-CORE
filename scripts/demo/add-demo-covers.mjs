@@ -6,7 +6,8 @@
  *   npm run demo:covers
  *
  * Covers are generated locally (sharp), uploaded to the public course-covers
- * bucket under <courseId>/couverture-demo.jpg. Safe to re-run.
+ * bucket under <courseId>/couverture-demo.jpg. Safe to re-run: a course that
+ * already has another cover (such as a real photo) keeps it.
  * Removed with the demo courses by `npm run demo:remove`.
  */
 import { createClient } from "@supabase/supabase-js";
@@ -37,6 +38,8 @@ const COVERS = [
   { title: "Évaluation formative en classe", bg: "#F95A05", fg: "#FFFFFF", accent: "#1C1917", shape: "checks" },
   { title: "Gestion de classe bienveillante", bg: "#1C1917", fg: "#FFFFFF", accent: "#F95A05", shape: "circles" },
   { title: "Numérique éducatif responsable", bg: "#7A2E05", fg: "#FFFFFF", accent: "#FDBA8C", shape: "grid" },
+  { title: "Différencier son enseignement", bg: "#FFF4ED", fg: "#1C1917", accent: "#C94400", shape: "grid" },
+  { title: "La démarche d’investigation en sciences", bg: "#3A3531", fg: "#FFFFFF", accent: "#FD7A38", shape: "checks" },
 ];
 
 const W = 1280;
@@ -98,7 +101,7 @@ async function render({ title, bg, fg, accent, shape }, category) {
 const storage = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } }).storage;
 for (const cover of COVERS) {
   const [course] = await sql(
-    `select c.id, c.status, cat.name as category from public.courses c
+    `select c.id, c.status, c.cover_path, cat.name as category from public.courses c
        left join public.course_categories cat on cat.id = c.category_id
       where c.title = ${lit(cover.title)} limit 1`,
   );
@@ -107,6 +110,11 @@ for (const cover of COVERS) {
     continue;
   }
   const path = `${course.id}/couverture-demo.jpg`;
+  // Never replace a cover set by hand (for example a real photo): only create or refresh the generated one.
+  if (course.cover_path && course.cover_path !== path) {
+    console.log(`• ${cover.title}: has its own cover, kept`);
+    continue;
+  }
   const { error } = await storage.from("course-covers").upload(path, await render(cover, course.category), { contentType: "image/jpeg", upsert: true });
   if (error) throw new Error(`upload ${path}: ${error.message}`);
   await sql(`update public.courses set cover_path = ${lit(path)}, public_listing = true where id = ${lit(course.id)}`);

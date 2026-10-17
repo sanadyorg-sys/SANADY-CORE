@@ -16,3 +16,4 @@ scripts/demo/.demo-state.json
 
 # Local database backups (personal data — never commit)
 /backups/
+scripts/demo/.demo-accounts.txt

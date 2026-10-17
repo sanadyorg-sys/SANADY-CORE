@@ -46,7 +46,7 @@ console.log(`✓ ${demoUsers.length} demo accounts removed`);
 // 2) Demo courses (files first), institution.
 const courseIds = state.courseIds.length
   ? state.courseIds
-  : (await sql(`select id from public.courses where title in ('Évaluation formative en classe','Gestion de classe bienveillante','Numérique éducatif responsable')`)).map((r) => r.id);
+  : (await sql(`select id from public.courses where title in ('Évaluation formative en classe','Gestion de classe bienveillante','Numérique éducatif responsable','Différencier son enseignement','La démarche d’investigation en sciences')`)).map((r) => r.id);
 for (const id of courseIds) {
   const { data: lessons } = await admin.from("lessons").select("id, pdf_path, video_provider, video_ref").eq("course_id", id);
   const paths = (lessons ?? [])
