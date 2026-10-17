@@ -25,6 +25,7 @@
     "demo:seed": "node --env-file=.env.local scripts/demo/seed-demo.mjs",
     "demo:remove": "node --env-file=.env.local scripts/demo/remove-demo.mjs",
     "demo:courses": "node --env-file=.env.local scripts/demo/add-demo-courses.mjs",
+    "demo:organizations": "node --env-file=.env.local scripts/demo/add-demo-organizations.mjs",
     "demo:covers": "node --env-file=.env.local scripts/demo/add-demo-covers.mjs",
     "demo:library": "node --env-file=.env.local scripts/demo/add-demo-library.mjs",
     "demo:roles": "node --env-file=.env.local scripts/demo/add-demo-roles.mjs",
