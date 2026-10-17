@@ -39,7 +39,7 @@ export async function sendEmail(message: { to: string; subject: string; html: st
 const escape = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-function layout(title: string, paragraphs: string[], cta: { label: string; url: string }, footnote: string) {
+export function emailLayout(title: string, paragraphs: string[], cta: { label: string; url: string }, footnote: string) {
   const html = `<!doctype html>
 <html lang="fr"><body style="margin:0;background:#f7f6f4;font-family:Inter,Segoe UI,Arial,sans-serif;color:#292522">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px">
@@ -106,7 +106,7 @@ export function invitationEmail(params: {
     },
   };
   const c = intro[params.kind];
-  const { html, text } = layout(
+  const { html, text } = emailLayout(
     c.title,
     [c.body, `Cette invitation est personnelle et valable jusqu’au <strong>${expiry}</strong>. Elle ne peut être utilisée qu’une seule fois.`],
     { label: "Accepter l’invitation", url },

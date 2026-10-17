@@ -81,3 +81,12 @@ export async function leaveInstitution(institutionId: string): Promise<ActionSta
   revalidatePath("/", "layout");
   return { ok: true, message: "Vous avez quitté l’établissement." };
 }
+
+export async function setEmailNotifications(enabled: boolean): Promise<ActionState> {
+  const viewer = await getViewer();
+  if (!viewer) return { ok: false, message: messageFor("not_authenticated") };
+  const { error } = await (await createClient()).from("profiles").update({ email_notifications: enabled }).eq("id", viewer.id);
+  if (error) return { ok: false, message: errorMessage(error) };
+  revalidatePath("/espace/profil");
+  return { ok: true, message: enabled ? "Notifications par e-mail activées." : "Notifications par e-mail désactivées." };
+}

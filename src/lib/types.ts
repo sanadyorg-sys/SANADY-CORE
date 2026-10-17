@@ -54,6 +54,8 @@ export interface Profile {
   status: AccountStatus;
   privacy_acknowledged_at: Timestamp | null;
   onboarded_at: Timestamp | null;
+  /** E-mail notifications on (deletion notices are always sent). */
+  email_notifications?: boolean;
   created_at: Timestamp;
 }
 

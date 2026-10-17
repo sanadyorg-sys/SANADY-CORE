@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/layout/app-shell";
+import { flushNotificationsLater } from "@/server/notifications";
 import { signOut } from "@/server/actions/auth";
 import { requireInstitutionViewer } from "@/server/auth";
 import { companyLogoUrl, contextsFor, shellUser } from "@/server/shell";
@@ -7,6 +8,8 @@ export default async function InstitutionLayout(props: LayoutProps<"/etablisseme
   const { institutionId } = await props.params;
   const { viewer, institution, canManage } = await requireInstitutionViewer(institutionId);
   const logo = institution.kind === "enterprise" ? await companyLogoUrl(institutionId) : null;
+  // E-mails queued by what this person just did go out after the response.
+  flushNotificationsLater();
   return (
     <AppShell
       area="institution"

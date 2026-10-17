@@ -55,6 +55,10 @@ Then, in **Paramètres**: set the issuer name, signatory, support e-mail; create
 
 Verify your sending domain in Resend (SPF, DKIM), set `RESEND_API_KEY` and `EMAIL_FROM="SANADY <no-reply@votre-domaine>"`. The **Paramètres** page shows whether e-mail is configured.
 
+### Notifications
+
+Events (course assigned, certificate, support, partner portal, report shared, approvals, deletions) put a message in `notification_outbox`, in the same transaction. Messages are sent right after the page that caused them (signed-in layouts) and by the daily job, which also queues reminders (assignment due in 3 days, contract renewal, deletion dates at 30/7/0 days). Failures are retried later (15 min × attempts, 5 attempts). Without `RESEND_API_KEY` nothing is claimed: messages wait. **Development**: Resend's test sender `onboarding@resend.dev` only delivers to the Resend account's own address — other recipients are refused (status `failed`). **Production**: verify the domain, create a *sending-only* key, set `RESEND_API_KEY` and `EMAIL_FROM` in Vercel.
+
 ## 6. Video (Mux, optional)
 
 1. In Mux, create a signing key; base64-encode the private key PEM: `base64 -w0 key.pem`.

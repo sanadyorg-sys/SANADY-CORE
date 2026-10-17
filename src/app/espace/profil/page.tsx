@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, ShieldCheck } from "lucide-react";
 import { MfaCard } from "@/components/profile/mfa-card";
+import { ActionButton } from "@/components/common/action-button";
 import { LeaveInstitutionButton, PasswordForm, ProfileForm } from "@/components/profile/profile-forms";
 import { buttonClasses } from "@/components/ui/button";
 import { Badge, Card, CardBody, CardHeader, PageHeader } from "@/components/ui/surface";
 import { formatDate } from "@/lib/format";
 import { MEMBERSHIP_ROLES } from "@/lib/labels";
 import { createClient } from "@/lib/supabase/server";
+import { setEmailNotifications } from "@/server/actions/profile";
 import { requireViewer } from "@/server/auth";
 
 export const metadata: Metadata = { title: "Mon profil" };
@@ -44,6 +46,25 @@ export default async function ProfilePage() {
             <CardHeader title="Sécurité" description="Changez régulièrement votre mot de passe et ne le partagez jamais." />
             <CardBody>
               <PasswordForm />
+            </CardBody>
+          </Card>
+          <Card>
+            <CardHeader
+              title="Notifications par e-mail"
+              description="Formations affectées, rappels d’échéance, documents de fin de formation, réponses à vos demandes, messages de vos partenaires ou de vos clients."
+            />
+            <CardBody className="space-y-3">
+              {viewer.profile.email_notifications === false ? (
+                <p className="text-body text-ink-700">Désactivées : vous ne recevez plus ces e-mails.</p>
+              ) : (
+                <p className="text-body text-ink-700">
+                  Activées : vous les recevez à <strong>{viewer.profile.email}</strong>.
+                </p>
+              )}
+              <ActionButton action={setEmailNotifications.bind(null, viewer.profile.email_notifications === false)}>
+                {viewer.profile.email_notifications === false ? "Réactiver les e-mails" : "Ne plus recevoir ces e-mails"}
+              </ActionButton>
+              <p className="text-caption text-ink-500">Les invitations et les avis sur la suppression de données sont toujours envoyés.</p>
             </CardBody>
           </Card>
           <Card>

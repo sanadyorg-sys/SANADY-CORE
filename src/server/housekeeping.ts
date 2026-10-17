@@ -1,5 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { flushNotifications } from "@/server/notifications";
 import { purgeExpiredRequests } from "@/server/queries/enterprise";
 
 /**
@@ -8,7 +9,8 @@ import { purgeExpiredRequests } from "@/server/queries/enterprise";
  *  - last month's usage reading for every running company space;
  *  - deletions CONFIRMED by a second person whose 30 days have passed (the
  *    database re-checks every condition at that moment), then their files;
- *  - the retention purge of old enterprise requests.
+ *  - the retention purge of old enterprise requests;
+ *  - the day's e-mail reminders, then whatever is left in the e-mail outbox.
  * Nothing here decides a deletion: it only carries out what people confirmed.
  */
 export async function runHousekeeping() {
@@ -32,5 +34,8 @@ export async function runHousekeeping() {
     console.error("[housekeeping] retention", e);
     return 0;
   });
-  return { readings: (readings as number) ?? 0, deletions: ((done ?? []) as unknown[]).length, files, purged };
+  const { data: reminders, error: remErr } = await admin.rpc("queue_daily_notifications");
+  if (remErr) console.error("[housekeeping] reminders", remErr.message);
+  const emails = await flushNotifications(100);
+  return { readings: (readings as number) ?? 0, deletions: ((done ?? []) as unknown[]).length, files, purged, reminders: (reminders as number) ?? 0, emails };
 }

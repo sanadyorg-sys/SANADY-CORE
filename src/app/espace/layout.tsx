@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/layout/app-shell";
+import { flushNotificationsLater } from "@/server/notifications";
 import { signOut } from "@/server/actions/auth";
 import { redirect } from "next/navigation";
 import { requireViewer } from "@/server/auth";
@@ -11,6 +12,8 @@ export default async function TeacherLayout({ children }: { children: React.Reac
   // An employee of a single company sees that company's logo.
   const company = viewer.isEmployeeOnly && viewer.institutions.length === 1 ? viewer.institutions[0] : undefined;
   const logo = await companyLogoUrl(company?.id);
+  // E-mails queued by what this person just did go out after the response.
+  flushNotificationsLater();
   return (
     <AppShell
       area="teacher"
